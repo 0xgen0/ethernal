@@ -1,0 +1,23 @@
+{
+  "name": "Ethernal Alpha",
+  "short_name": "Ethernal Alpha",
+  "theme_color": "#000000",
+  "background_color": "#000000",
+  "display": "standalone",
+  "orientation": "portrait",
+  "Scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "assets/manifest-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/manifest-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "splash_pages": null
+}

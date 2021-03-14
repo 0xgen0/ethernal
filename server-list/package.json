@@ -1,0 +1,21 @@
+{
+  "name": "server-list",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "deploy:staging-tmcloud": "./deploy-tmcloud.sh",
+    "deploy:prod-tmcloud": "ENV=prod ./deploy-tmcloud.sh"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1"
+  }
+}

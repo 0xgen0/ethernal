@@ -1,0 +1,127 @@
+module.exports = [
+  [
+    {
+      id: 1111001,
+      unique: true,
+      image: 'item_special_ring.png',
+      level: 0,
+      name: 'Green Skull Ring',
+      slotType: 'accessory',
+      bonus: {
+        value: 1,
+        type: 'damage',
+      },
+      rarity: 'unique',
+      actions: [],
+    },
+    {
+      id: 1111002,
+      unique: true,
+      image: 'wep_special_sword2.png',
+      level: 0,
+      name: "Conan's Great Sword",
+      slotType: 'attack',
+      actions: [
+        {
+          target: 'health',
+          bonus: 10,
+          value: 28,
+          element: 'none',
+          elemValue: 0,
+        },
+        {
+          target: 'health',
+          bonus: 8,
+          value: 20,
+          element: 'none',
+          elemValue: 0,
+        },
+      ],
+      rarity: 'unique',
+    },
+    {
+      id: 1111003,
+      unique: true,
+      image: 'item_necklace.png',
+      level: 0,
+      name: "Pearl's Necklace",
+      slotType: 'accessory',
+      bonus: {
+        value: 1,
+        type: 'armor',
+      },
+      rarity: 'unique',
+      actions: [],
+    },
+    {
+      id: 1111004,
+      unique: true,
+      image: 'wep_special_shield.png',
+      level: 0,
+      name: 'Mighty Shield',
+      slotType: 'defense',
+      actions: [
+        {
+          bonus: 6,
+          value: 20,
+          element: 'none',
+          elemValue: 0,
+        },
+        {
+          bonus: 8,
+          value: 12,
+          element: 'none',
+          elemValue: 0,
+        },
+        {
+          bonus: 10,
+          value: 10,
+          element: 'none',
+          elemValue: 0,
+        },
+      ],
+      rarity: 'unique',
+    },
+    {
+      id: 1111005,
+      unique: true,
+      image: 'item_boot.png',
+      level: 0,
+      name: 'Magical Boots',
+      slotType: 'accessory',
+      bonus: {
+        value: 1,
+        type: 'defense',
+      },
+      rarity: 'unique',
+      actions: [],
+    },
+    {
+      id: 1111006,
+      unique: true,
+      image: 'wep_special_sword.png',
+      level: 0,
+      name: 'Blood Sword',
+      slotType: 'attack',
+      actions: [
+        {
+          target: 'health',
+          bonus: 11,
+          value: 18,
+          element: 'none',
+          elemValue: 0,
+        },
+        {
+          target: 'health',
+          bonus: 6,
+          value: 28,
+          element: 'none',
+          elemValue: 0,
+        },
+      ],
+      rarity: 'unique',
+    },
+  ],
+  [
+  ]
+];

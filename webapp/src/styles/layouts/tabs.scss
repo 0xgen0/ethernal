@@ -1,0 +1,35 @@
+.tab {
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  // font-size: 10px;
+  text-decoration: none;
+  background: $color-background;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  color: $color-darker-text;
+
+  &.selected {
+    background: $color-dark;
+    color: $color-light;
+  }
+  &.disabled {
+    color: $color-even-darker-text;
+
+    .icon {
+      opacity: 0.5;
+    }
+  }
+  .icon {
+    max-height: 16px;
+    margin-bottom: 4px;
+
+    img {
+      display: inline-block;
+      height: 1em;
+    }
+  }
+}

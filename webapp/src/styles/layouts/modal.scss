@@ -1,0 +1,107 @@
+/**
+ * MODAL LAYOUT
+ * This uses --header, --content, and --footer to set default styling for page content.
+ */
+
+.modal-layout {
+  box-sizing: border-box;
+  position: absolute;
+  bottom: 0;
+  left: 12px;
+  right: 12px;
+  z-index: 20;
+  max-width: 450px;
+  max-height: calc(100% + #{$header-height} + #{$mobile-menu-height} - 12px);
+  margin: 0 auto;
+  background-color: $color-background;
+  border: 1px solid $color-grey;
+  border-radius: 1px;
+  box-shadow: 0 0 24px 12px rgba($color-dark, 0.72);
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+
+  &.full-height {
+    height: 100%;
+    overflow: hidden;
+
+    @media screen and (max-width: $mobile-max-width) {
+      // arbitrary high value. max-height will prevent overflow from screen. :shrug:
+      height: 200%;
+    }
+  }
+
+  &.menu-height {
+    top: 10px;
+    bottom: 70px;
+  }
+
+  @media screen and (min-width: $desktop-min-width) {
+    left: $desktop-menu-width;
+    right: 0;
+    // offset footer height and with margin
+    max-height: calc(100% - #{$footer-height} - 24px - 12px);
+    bottom: $footer-height;
+    margin-bottom: 24px;
+  }
+
+  &--area {
+    display: flex;
+    flex-direction: column;
+    justify-items: stretch;
+    height: 100%;
+    padding: 6px 0;
+    box-sizing: border-box;
+
+    & > * {
+      padding: 6px 16px;
+    }
+
+    @media screen and (min-width: $desktop-min-width) {
+      padding: 18px 0;
+    }
+  }
+
+  &--area &--content {
+    flex: 1;
+    height: 100%;
+    overflow-y: scroll;
+
+    // Account for 8px scrollbar on other side
+    @include with-scrollbars;
+    margin-left: 8px;
+  }
+
+  &--area &--header,
+  &--area &--footer {
+    flex: 0;
+  }
+
+  &--buttons {
+    display: flex;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    right: 0;
+    height: 26px;
+    z-index: 5;
+    padding: 0 6px;
+    flex-direction: column;
+    align-items: flex-end;
+    margin: 8px 0 -34px 0;
+    overflow: visible;
+
+    button {
+      font-size: 12px;
+
+      img {
+        width: auto;
+        height: 1em;
+      }
+
+      & + & {
+        margin-left: 5px;
+      }
+    }
+  }
+}

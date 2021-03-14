@@ -1,0 +1,38 @@
+/*
+ * ETHERNAL CSS STYLE GUIDE
+ * ------------------------------------------------------------------------------------------------
+ *
+ * NAMING CONVENTION: BEM format (dashes) with additional modifier predicates, e.g.
+ *   .layout--header--sticky {
+ *     ...
+ *     &.as-centered {
+ *       ...
+ *     }
+ *   }
+ * Learn: https://www.freecodecamp.org/news/css-naming-conventions-that-will-save-you-hours-of-debugging-35cea737d849/
+ *
+ * UNITS: pixels (px)
+ * (We use PX sizing to stay consistent with units used by Pixi.JS.)
+ *
+ * ------------------------------------------------------------------------------------------------
+ */
+
+/* VARIABLES & MIXINS */
+@import './variables';
+@import './mixins';
+
+/* TEMPLATE
+ * Contains core HTML template, tag defaults, and  re-usable styles. */
+@import './reset';
+@import './typography';
+@import './components';
+@import './template';
+
+/* SCREENS & LAYOUTS */
+@import './screens/default';
+@import './layouts/content';
+@import './layouts/modal';
+@import './layouts/tabs';
+
+/* OTHER */
+@import './leaflet';

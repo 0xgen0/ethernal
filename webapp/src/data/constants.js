@@ -1,0 +1,3 @@
+/* GAME VERSION */
+export const CURRENT_GAME_VERSION = 1;
+export const CURRENT_PREDUNGEON_VERSION = 2;

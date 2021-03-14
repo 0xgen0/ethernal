@@ -1,0 +1,20 @@
+{
+  "name": "ethernal",
+  "version": "0.1.0",
+  "main": "index.js",
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "wait-on": "^4.0.2"
+  },
+  "scripts": {
+    "install:contracts": "cd contracts && npm install",
+    "install:backend": "cd backend && npm install",
+    "install:webapp": "cd webapp && npm install",
+    "contracts": "cd contracts && npm run dev",
+    "backend": "wait-on file:webapp/contracts/development.json && cd backend && npm run dev",
+    "webapp": "wait-on tcp:3399 && cd webapp && npm run dev",
+    "dev": "rm webapp/contracts/development.json & run-p -l contracts backend webapp",
+    "install": "run-p -l install:contracts install:backend install:webapp",
+    "start": "run-s install dev"
+  }
+}

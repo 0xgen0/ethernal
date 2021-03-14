@@ -1,0 +1,19 @@
+@mixin with-scrollbars {
+  &::-webkit-scrollbar {
+    display: unset;
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba($color-light, 0.18);
+    border: 2px solid transparent;
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    margin: 0 1px;
+  }
+  &::-webkit-scrollbar-corner {
+    display: none;
+    background: rgba(0, 0, 0, 0);
+  }
+}

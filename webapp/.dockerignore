@@ -1,0 +1,10 @@
+.DS_Store
+node_modules/
+!src/node_modules/
+public/bundle.*
+public/1.1.js
+public/*.js*
+public/index.html
+src/dev_contractsInfo.json
+package-lock.json
+.env*

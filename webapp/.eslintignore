@@ -1,0 +1,11 @@
+bin/
+node_modules/
+tmp/
+static/
+documentation/
+dungeon-test/
+ethernal-dev/
+*.ejs
+
+# TMP
+src/lib/seedrandom.js

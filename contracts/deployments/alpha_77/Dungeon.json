@@ -1,0 +1,923 @@
+{
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "teleportLocation",
+          "type": "uint256"
+        }
+      ],
+      "name": "teleport",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "giveFreeEnergy",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "monsterId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "int16",
+          "name": "hpChange",
+          "type": "int16"
+        }
+      ],
+      "name": "characterEscaped",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "character",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "scavengeGear",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "i",
+          "type": "uint256"
+        }
+      ],
+      "name": "getCentreAreaLeft",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "areaType",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "character",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "scavengeElements",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "refill",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        }
+      ],
+      "name": "getPlayerInfo",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "energy",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "freeEnergy",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        }
+      ],
+      "name": "getRoomInfo",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "monsterBlockNumber",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint64",
+          "name": "numRoomsAtDiscovery",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint32",
+          "name": "numExitsAtDiscovery",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "areaAtDiscovery",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "lastRoomIndex",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "index",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bool",
+          "name": "actualised",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "monsterId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "int16",
+          "name": "hpChange",
+          "type": "int16"
+        },
+        {
+          "internalType": "uint16",
+          "name": "xpGained",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint256",
+          "name": "gear",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "keys",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "coins",
+          "type": "uint256"
+        },
+        {
+          "internalType": "int16[5]",
+          "name": "elemsChange",
+          "type": "int16[5]"
+        }
+      ],
+      "name": "updateCharacter",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        }
+      ],
+      "name": "monsterDefeated",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address payable",
+          "name": "_delegate",
+          "type": "address"
+        }
+      ],
+      "name": "_addDelegate",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        }
+      ],
+      "name": "actualiseRoom",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "idData",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint8[]",
+          "name": "slots",
+          "type": "uint8[]"
+        }
+      ],
+      "name": "multiEquip",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        }
+      ],
+      "name": "teleportCharacter",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        }
+      ],
+      "name": "getCharacterInfo",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lastLocation",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "data",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "attackGear",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "defenseGear",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "accessory1",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "accessory2",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "accessory3",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getNumCentreAreaLeft",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "num",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "delegate",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        }
+      ],
+      "name": "isDelegateFor",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "player",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "location1",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "location2",
+          "type": "uint256"
+        }
+      ],
+      "name": "isUnlocked",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address payable",
+          "name": "_newDelegate",
+          "type": "address"
+        },
+        {
+          "internalType": "uint8",
+          "name": "characterClass",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "createCharacterAndJoin",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        }
+      ],
+      "name": "getAreaTypeForRoom",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        }
+      ],
+      "name": "levelUp",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address payable",
+          "name": "_delegate",
+          "type": "address"
+        }
+      ],
+      "name": "addDelegate",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint8",
+          "name": "direction",
+          "type": "uint8"
+        }
+      ],
+      "name": "move",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "monsterId",
+          "type": "uint256"
+        }
+      ],
+      "name": "characterDefeated",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "contract Items",
+          "name": "item",
+          "type": "address"
+        },
+        {
+          "internalType": "contract Characters",
+          "name": "characters",
+          "type": "address"
+        },
+        {
+          "internalType": "contract Elements",
+          "name": "elements",
+          "type": "address"
+        },
+        {
+          "internalType": "contract Gears",
+          "name": "gears",
+          "type": "address"
+        }
+      ],
+      "name": "start",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "blockHashRegister",
+          "type": "address"
+        },
+        {
+          "internalType": "address payable",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minBalance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "backendAddress",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "blockNumber",
+          "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "numRoomsAtDiscovery",
+          "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "numExitsAtDiscovery",
+          "type": "uint32"
+        }
+      ],
+      "name": "RoomDiscovered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "blockNumber",
+          "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8[]",
+          "name": "areasLeft",
+          "type": "uint8[]"
+        }
+      ],
+      "name": "CentreAreaDiscovered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "blockHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "exits",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "kind",
+          "type": "uint8"
+        }
+      ],
+      "name": "RoomActualised",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "oldLocation",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "newLocation",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "mode",
+          "type": "uint8"
+        }
+      ],
+      "name": "CharacterMoved",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "delegate",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "Joined",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "monsterId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Death",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "newLevel",
+          "type": "uint8"
+        }
+      ],
+      "name": "LevelUp",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newEnergy",
+          "type": "uint256"
+        }
+      ],
+      "name": "Refill",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "gearId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "slotType",
+          "type": "uint8"
+        }
+      ],
+      "name": "Equip",
+      "type": "event"
+    }
+  ],
+  "args": [
+    "0xeE4019030fB5C2b68C42105552c6268d56C6cBfE",
+    "0x61c461EcC993aaDEB7e4b47E96d1B8cC37314B20",
+    "1000000000000000",
+    "0x3785B4DB0f7562af154Ca392D424457e5EaAc8ce"
+  ],
+  "address": "0xb37b428a7DDEe91f39b26d79D23Dc1c89e3e12a7",
+  "transactionHash": "0x35907632b609e15677460a0df8f37a95881f8772400cd96ce752efce6035fba9",
+  "linkedData": {
+    "readOnlyDungeon": "608060405234801561001057600080fd5b50611220806100206000396000f3fe608060405234801561001057600080fd5b50600436106100ea5760003560e01c80639f7cb08e1161008c578063d667fd0411610066578063d667fd04146103e5578063ec57b27f14610434578063ed53a62414610457578063f090aca814610491576100ea565b80639f7cb08e1461029c578063be0083b614610327578063c3aab23c1461039f576100ea565b806372957899116100c857806372957899146101af5780637638b852146101d25780637b2772e8146101fb5780637b8c977514610254576100ea565b80631b7e36fa146100ef5780632f587796146101315780635f74cfed14610160575b600080fd5b61011b6004803603606081101561010557600080fd5b508035906020810135906040013560ff166104b4565b6040805160ff9092168252519081900360200190f35b61014e6004803603602081101561014757600080fd5b50356104cb565b60408051918252519081900360200190f35b61018f6004803603608081101561017657600080fd5b50803590602081013590604081013590606001356104de565b6040805160ff938416815291909216602082015281519081900390910190f35b61011b600480360360408110156101c557600080fd5b50803590602001356104fa565b61014e600480360360608110156101e857600080fd5b508035906020810135906040013561050f565b61021e6004803603602081101561021157600080fd5b503563ffffffff1661051c565b6040805160ff96871681529486166020860152928516848401529084166060840152909216608082015290519081900360a00190f35b6102836004803603608081101561026a57600080fd5b5080359060208101359060408101359060600135610548565b6040805192835260208301919091528051918290030190f35b6102b9600480360360208110156102b257600080fd5b5035610557565b604051808460ff1660ff1681526020018360ff1660ff16815260200180602001828103825283818151815260200191508051906020019060200280838360005b838110156103115781810151838201526020016102f9565b5050505090500194505050505060405180910390f35b610371600480360360e081101561033d57600080fd5b5080359060208101359060408101359060608101359060ff608082013581169160a081013582169160c090910135166105bf565b6040805160ff9586168152938516602085015291841683830152909216606082015290519081900360800190f35b6103bf600480360360208110156103b557600080fd5b503560ff166105e9565b6040805161ffff9094168452602084019290925260ff1682820152519081900360600190f35b610402600480360360208110156103fb57600080fd5b5035610604565b6040805160ff95861681529385166020850152919093168282015261ffff909216606082015290519081900360800190f35b6102836004803603604081101561044a57600080fd5b508035906020013561062b565b61014e600480360360a081101561046d57600080fd5b5080359060208101359060408101359060608101351515906080013560ff16610643565b61014e600480360360408110156104a757600080fd5b508035906020013561065e565b60006104c184848461066a565b90505b9392505050565b60006104d6826106b5565b90505b919050565b6000806104ed868686866106fc565b9150915094509492505050565b60006105068383610ac4565b90505b92915050565b60006104c1848484610b81565b600f601c82901c811692601883901c9091169160ff601082901c811692600883901c8216929190911690565b6000806104ed86868686610c18565b60f881901c600760f583901c166060601f60f085901c1660005b8160ff168110156105b6576401000000006020820260d00387901c0683828151811061059957fe5b63ffffffff90921660209283029190910190910152600101610571565b50509193909250565b6000806000806105d48b8b8b8b8b8b8b610cd7565b929e919d509b50909950975050505050505050565b60008060006105f784610d0f565b9250925092509193909250565b60f881901c9160f082901c60ff9081169260e881901c9091169160d89190911c61ffff1690565b6000806106388484610d70565b915091509250929050565b60006106528686868686610e46565b90505b95945050505050565b60006105068383610f15565b604080516020808201869052818301859052600b60f81b6060830152825160418184030181526061909201909252805191012060009060ff831690816106ac57fe5b06949350505050565b6000600d6001600160801b03808416820191600160801b850401906009908190831604600160801b02816106e557fe5b0460096001600160801b0384160401949350505050565b60008060008361070b86610f21565b6004010390506000600a861080610723575060038212155b15610769576040805160208082018b90528183018a9052600160f81b606083015282516041818403018152606190920190925280519101206003900660020190506107a6565b6040805160208082018b90528183018a9052600160f81b606083015282516041818403018152606190920190925280519101206004900660010190505b6000600460ff8316106107bf575060049050600f6108f4565b8160ff166003141561083657506040805160208082018b90528183018a9052600160f91b60608301528251604181840301815260619092019092528051910120600316600181016007029060ff82166015141561081f57600d9150610830565b8160ff16601c141561083057600b91505b506108f4565b8160ff16600214156108ad57506040805160208082018b90528183018a9052600160f91b6060830152825160418184030181526061909201909252805191012060069006600181016003029060ff8216600f14156108975760059150610830565b8160ff166012141561083057600a9150506108f4565b8160ff16600114156108f457506040805160208082018b90528183018a9052600160f91b6060830152825180830360410181526061909201909252805191012060031660020a5b6040805160208082018c90528183018b9052606f60f81b60608301528251808303604101815260619092019092528051910120606490066000603260ff83161061095257605a8260ff161061094a57600261094d565b60015b610955565b60005b905060048160ff161061097157600493508260f0179250610ab3565b8060ff16600314156109eb576040805160208082018e90528183018d9052600760fc1b606083015282518083036041018152606190920190925280519101206003166001810160070260ff8116601514156109d1578460d01794506109e4565b8060ff16601c14156109e4578460b01794505b5050610ab3565b8060ff1660021415610a65576040805160208082018e90528183018d9052600760fc1b60608301528251808303604101815260619092019092528051910120600690066001810160030260ff8116600f1415610a4c578460501794506109e4565b8060ff16601214156109e4578460a01794505050610ab3565b8060ff1660011415610ab3576040805160208082018e90528183018d9052600760fc1b6060830152825160418184030181526061909201909252805191012060031660020a60100292909217915b509099919850909650505050505050565b600080610ad084610f58565b604080516020808201889052818301879052600360fa1b60608301528251808303604101815260619092019092528051910120909150600019820160029081029083020190600090600190839081610b2457fe5b0660ff16111590508015610b7357604080516020808201899052818301889052600d60f81b60608301528251604181840301815260619092019092528051910120600590066001019350610b78565b600693505b50505092915050565b604080516020808201869052818301859052600160fa1b6060830152825180830360410181526061909201909252805191012060009060046005909106108015610c0d57604080516020808201889052818301879052600560f81b60608301528251604181840301815260619092019092528051910120839081610c0157fe5b066001019150506104c4565b506000949350505050565b604080516020808201879052818301869052600160fb1b60608301528251808303604101815260619092019092528051910120600090819060049060019081906640000000000000677fc0000000000000891604906420000000006503e0000000008a16049060149006830160ff81168601848110610c98576001840393505b60008413610ca95760009850610cc4565b836640000000000000028b677fc0000000000000168c181798505b8997505050505050505094509492505050565b600080600080610ce98b8b8b8b6106fc565b9094509250610cfb8b8b898989610fab565b949c939b5099509297509095505050505050565b600080600060048460ff1611610d3e5760ff8416600381810a600292909202018102935061ffff169150610d53565b600219840160ff1661037b8102935060510291505b8360ff16600114610d65576019610d68565b600a5b929491935050565b6000806000610d80856000611165565b90506005810480610d8f575060015b604080516020808201899052818301889052601960fa1b60608301528251604181840301815260619092019092528051910120819081610dcb57fe5b066002820401925082610ddd57600192505b506002810480610deb575060015b604080516020808201899052818301889052606560f81b60608301528251604181840301815260619092019092528051910120819081610e2757fe5b06600282040193506003841015610e3d57600393505b50509250929050565b600060ff821660021480610e5d575060ff82166003145b80610e66575085155b15610e7357506000610655565b60148315610e7f5750601e5b6040805160208082018a9052818301899052600360f91b606083015282518083036041018152606190920190925280519101206064900681118015610f07576040805160208082018b90528183018a9052600760f81b60608301528251604181840301815260619092019092528051910120869081610efa57fe5b0660010192505050610655565b506000979650505050505050565b60006105068383611165565b80600260018201045b81811015610f5257809150600281828581610f4157fe5b040181610f4a57fe5b049050610f2a565b50919050565b60006000196001600160801b038316810190600160801b8404018183811215610f7f576000035b816000811215610f8d576000035b80821315610fa0575092506104d9915050565b93506104d992505050565b6000806000610fb9886106b5565b86925090508488610fd35760029350826001179250611159565b8460ff168160ff16116111595760408051602080820185905260f884901b6001600160f81b03191682840152604182018b9052600360f81b606183015282518083036042018152606290920190925280519101206014900660018481161480159061104c575060ff8116158061104c57508160ff166050145b156110605760029450836001179350611150565b60028085161480159061109f57508060ff166001148061108357508160ff166050145b8061109f57508160ff16604f14801561109f5750600180851614155b156110b35760039450836002179350611150565b60048085161480159061113957508060ff16600214806110d657508160ff166050145b806110f257508160ff16604f1480156110f25750600180851614155b8061110e57508160ff16604f14801561110e5750600280851614155b8061113957508160ff16604e14801561112a5750600180851614155b80156111395750600280851614155b1561114b576004945092841792611150565b600194505b50600101610fd3565b50509550959350505050565b60006001600160801b0380841690600160801b80860491851690850481840385811215611190576000035b81840360008112156111a0576000035b6001607f1b8213156111b65781600160801b0391505b6001607f1b8113156111c957600160801b035b808213156111de575094506105099350505050565b955061050994505050505056fea265627a7a723158202d1f2dc86293deca9236563ffeea63a81dd16885f439e4fc04dca6ed0fd137b664736f6c634300050b0032"
+  }
+}

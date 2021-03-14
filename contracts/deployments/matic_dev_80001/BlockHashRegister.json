@@ -1,0 +1,163 @@
+{
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        }
+      ],
+      "name": "HashRequest",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        }
+      ],
+      "name": "get",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getBlockToActualise",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        }
+      ],
+      "name": "getOrCompute",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "request",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "save",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "receipt": {
+    "to": null,
+    "from": "0xC92aE171cb9AEfEbcB88cdB40ba508e81F30AE1b",
+    "contractAddress": "0x51fda7b0eb97Eb168580CEBB12b1E2CDE0FC55ba",
+    "transactionIndex": 0,
+    "gasUsed": "195881",
+    "logsBloom": "0x00000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000800000000000000000000100000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000200020000000000000000001000000000000000000000000004004000000000000000001000000000000000000000000000000100000000008000000000000000000000000000000000000000000000000000000000000100000",
+    "blockHash": "0x9cba25cdfd3b1adf15a85e6847afa44bc5dc6593ca6b98833fc7b9e0dad78053",
+    "transactionHash": "0x1e0eec71295f1124f3379058a3a6de9436d21e5b7b0845d99f563d5f6b1b4d59",
+    "logs": [
+      {
+        "transactionIndex": 0,
+        "blockNumber": 2628815,
+        "transactionHash": "0x1e0eec71295f1124f3379058a3a6de9436d21e5b7b0845d99f563d5f6b1b4d59",
+        "address": "0x0000000000000000000000000000000000001010",
+        "topics": [
+          "0x4dfe1bbbcf077ddc3e01291eea2d5c70c2b422b415d95645b9adcfd678cb1d63",
+          "0x0000000000000000000000000000000000000000000000000000000000001010",
+          "0x000000000000000000000000c92ae171cb9aefebcb88cdb40ba508e81f30ae1b",
+          "0x000000000000000000000000c26880a0af2ea0c7e8130e6ec47af756465452e8"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000037ac37f1dc2000000000000000000000000000000000000000000000000030a62396088c7880000000000000000000000000000000000000000000000003b5e79953d96544c970000000000000000000000000000000000000000000000030a5ebe9d09a9c60000000000000000000000000000000000000000000000003b5e7d100115720e97",
+        "logIndex": 0,
+        "blockHash": "0x9cba25cdfd3b1adf15a85e6847afa44bc5dc6593ca6b98833fc7b9e0dad78053"
+      }
+    ],
+    "blockNumber": 2628815,
+    "cumulativeGasUsed": "195881",
+    "status": 1,
+    "byzantium": true
+  },
+  "address": "0x51fda7b0eb97Eb168580CEBB12b1E2CDE0FC55ba",
+  "args": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.6.5+commit.f956cc89\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"blockNumber\",\"type\":\"uint256\"}],\"name\":\"HashRequest\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"blockNumber\",\"type\":\"uint256\"}],\"name\":\"get\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getBlockToActualise\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"blockNumber\",\"type\":\"uint256\"}],\"name\":\"getOrCompute\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"request\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"save\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"src/utils/BlockHashRegister.sol\":\"BlockHashRegister\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"src/utils/BlockHashRegister.sol\":{\"content\":\"pragma solidity 0.6.5;\\n\\ncontract BlockHashRegister {\\n    mapping(uint256 => bytes32) _blockHashes;\\n    uint256 _blockToActualise;\\n\\n    event HashRequest(uint256 blockNumber);\\n\\n    function get(uint256 blockNumber) external view returns (bytes32) {\\n        return _blockHashes[blockNumber];\\n    }\\n\\n    function getOrCompute(uint256 blockNumber) external view returns (bytes32) {\\n        bytes32 blockHash = _blockHashes[blockNumber];\\n        if (uint256(blockHash) == 0) {\\n            return _computeBlockHash(blockNumber);\\n        }\\n        return blockHash;\\n    }\\n\\n    function getBlockToActualise() external view returns (uint256) {\\n        return _blockToActualise;\\n    }\\n\\n    function request() external {\\n        uint256 blockNumber = _blockToActualise;\\n        if (blockNumber < block.number) {\\n            _save(blockNumber);\\n            _blockToActualise = block.number;\\n            emit HashRequest(block.number);\\n        }\\n    }\\n\\n    function save() external {\\n        uint256 blockNumber = _blockToActualise;\\n        if (blockNumber < block.number) {\\n            _save(blockNumber);\\n            _blockToActualise = 0;\\n        }\\n    }\\n\\n    function _computeBlockHash(uint256 blockNumber) internal view returns (bytes32) {\\n        if (blockNumber < 256 || blockNumber > block.number - 256) {\\n            return blockhash(blockNumber);\\n        } else {\\n            uint256 moduloBlockNumber = block.number - ((block.number - blockNumber - 1) % 256) + 1;\\n            return blockhash(moduloBlockNumber);\\n        }\\n    }\\n\\n    function _save(uint256 blockNumber) internal returns (bytes32) {\\n        bytes32 blockHash = _computeBlockHash(blockNumber);\\n        _blockHashes[blockNumber] = blockHash;\\n        return blockHash;\\n    }\\n}\\n\",\"keccak256\":\"0xbf9f49a9ee6426191a58a2796f50ca4652c8dd635e120aadb277cf2ffb2f0cc9\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610216806100206000396000f3fe608060405234801561001057600080fd5b50600436106100575760003560e01c8063338cdca11461005c57806342dad49e14610066578063803ee1d91461006e5780639507d39a1461009d578063d88d7f46146100ba575b600080fd5b6100646100c2565b005b610064610113565b61008b6004803603602081101561008457600080fd5b5035610130565b60408051918252519081900360200190f35b61008b600480360360208110156100b357600080fd5b503561015d565b61008b61016f565b60015443811015610110576100d681610175565b5043600181905560408051918252517fa21755eabd8128750f344a2d1ce0cd3e1a2f2eb74ac9642568c437ca76f9005a9181900360200190a15b50565b600154438110156101105761012781610175565b50600060015550565b600081815260208190526040812054806101555761014d8361019a565b915050610158565b90505b919050565b60009081526020819052604090205490565b60015490565b6000806101818361019a565b6000848152602081905260409020819055915050919050565b60006101008210806101af5750610100430382115b156101bc57508040610158565b6000610100600184430303816101ce57fe5b0643036001019050804091505061015856fea264697066735822122088310bdc683857f3a4d609933acdb151acf9fe71be0f83493069075eace0ab9564736f6c63430006050033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100575760003560e01c8063338cdca11461005c57806342dad49e14610066578063803ee1d91461006e5780639507d39a1461009d578063d88d7f46146100ba575b600080fd5b6100646100c2565b005b610064610113565b61008b6004803603602081101561008457600080fd5b5035610130565b60408051918252519081900360200190f35b61008b600480360360208110156100b357600080fd5b503561015d565b61008b61016f565b60015443811015610110576100d681610175565b5043600181905560408051918252517fa21755eabd8128750f344a2d1ce0cd3e1a2f2eb74ac9642568c437ca76f9005a9181900360200190a15b50565b600154438110156101105761012781610175565b50600060015550565b600081815260208190526040812054806101555761014d8361019a565b915050610158565b90505b919050565b60009081526020819052604090205490565b60015490565b6000806101818361019a565b6000848152602081905260409020819055915050919050565b60006101008210806101af5750610100430382115b156101bc57508040610158565b6000610100600184430303816101ce57fe5b0643036001019050804091505061015856fea264697066735822122088310bdc683857f3a4d609933acdb151acf9fe71be0f83493069075eace0ab9564736f6c63430006050033",
+  "devdoc": {
+    "methods": {}
+  },
+  "userdoc": {
+    "methods": {}
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 11995,
+        "contract": "src/utils/BlockHashRegister.sol:BlockHashRegister",
+        "label": "_blockHashes",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_uint256,t_bytes32)"
+      },
+      {
+        "astId": 11997,
+        "contract": "src/utils/BlockHashRegister.sol:BlockHashRegister",
+        "label": "_blockToActualise",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_uint256"
+      }
+    ],
+    "types": {
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_uint256,t_bytes32)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => bytes32)",
+        "numberOfBytes": "32",
+        "value": "t_bytes32"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

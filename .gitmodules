@@ -1,0 +1,6 @@
+[submodule "webapp/dungeon-test"]
+	path = webapp/dungeon-test
+	url = git@gitlab.com:wighawag/dungeon-test.git
+[submodule "webapp/ethernal-dev"]
+	path = webapp/ethernal-dev
+	url = git@gitlab.com:wighawag/ethernal-dev.git

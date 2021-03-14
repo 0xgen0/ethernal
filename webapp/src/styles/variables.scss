@@ -1,0 +1,54 @@
+/**
+ * LAYOUT
+ * ----------------------------------------------------------------------------
+ */
+$layout-max-width: 1800px;
+$layout-max-height: 800px;
+$desktop-min-width: 976px;
+$mobile-max-width: 975px;
+
+$header-height: 68px;
+$footer-height: 68px;
+$footer-web-height: $footer-height + 20px;
+$desktop-menu-width: 350px;
+$mobile-menu-height: 125px;
+$mobile-menu-combat-height: 88px;
+
+/**
+ * COLORS
+ * ----------------------------------------------------------------------------
+ */
+$color-dark: #1b1b1e;
+// $color-dark: #191B1F;
+$color-btn-grey: #6c809b;
+// $color-btn-grey: #908fa8;
+$color-light: #ffffff;
+$color-xLightGrey: #b5b5b5;
+$color-lightGrey: #979797;
+$color-grey: #6f6e6e;
+$color-highlight: #ea4d46;
+$color-black: #000000;
+$color-yellow: #f2d332;
+$color-xDarkBlue: #323243;
+$color-blue: #6a63fa;
+$color-red: #f7294e;
+$color-yellow: #f8d878;
+$color-green: #5ec186;
+
+$color-background: #000000;
+$color-darker-text: #a9a9b4;
+$color-even-darker-text: $color-grey;
+
+$color-foreground: #1a1a1a;
+$color-panel: #242424;
+
+$color-gold: #fca044;
+$color-silver: #8a9cb3;
+$color-bronze: #6a370a;
+
+/**
+ * TYPOGRAPHY
+ * ----------------------------------------------------------------------------
+ */
+$heading-font-family: 'SNESesque', 'Courier New', Courier, monospace;
+$font-family: 'HabboPseudoMonoXEthernal', 'Courier New', Courier, monospace;

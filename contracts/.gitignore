@@ -1,0 +1,13 @@
+node_modules
+yarn-error.log
+.mnemonic*
+.priv*
+.bitski*
+test_deployments
+.claimKeys*
+.backend_privateKey
+artifacts/
+cache/
+deployments/localhost_*
+scripts/sendFood.js
+deployments/buidlerevm_*

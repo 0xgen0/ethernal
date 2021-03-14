@@ -1,0 +1,99 @@
+/**
+ * TYPOGRAPHY
+ */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Work+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap');
+
+@font-face {
+  font-family: 'HabboPseudoMonoXEthernal';
+  src: url('/fonts/HabboPseudoMonoXEthernal.ttf');
+}
+@font-face {
+  font-family: 'SNESesque';
+  src: url('/fonts/SNESesque.ttf');
+}
+
+body {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  color: $color-light;
+}
+
+::-moz-selection {
+  background: rgba($color-light, 0.4);
+}
+::selection {
+  background: rgba($color-light, 0.4);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Space Mono', monospace;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  padding-bottom: 8px;
+}
+
+h1 {
+  font-size: 24px;
+}
+h2 {
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+h3 {
+  font-size: 16px;
+  padding-bottom: 4px;
+  color: $color-light;
+  @media screen and (max-width: $mobile-max-width) {
+    font-size: 14px;
+  }
+}
+h4 {
+  font-size: 13px;
+  text-transform: uppercase;
+  margin: 0;
+  font-weight: 400;
+  color: $color-lightGrey;
+  @media screen and (max-width: $mobile-max-width) {
+    font-size: 12px;
+  }
+}
+h5 {
+  font-size: 11px;
+  letter-spacing: 0px;
+  line-height: 16px;
+  // text-transform: uppercase;
+}
+h6 {
+  font-size: 14px;
+  letter-spacing: 0px;
+  margin: 5px 0px 10px 0px;
+  font-weight: 400;
+}
+
+p {
+  font-size: 14px;
+}
+
+.darker {
+  color: $color-grey;
+}
+.italic {
+  font-style: italic;
+}
+.label {
+  font-size: 12px;
+  padding-bottom: 0px;
+}

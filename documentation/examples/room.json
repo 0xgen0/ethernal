@@ -1,0 +1,38 @@
+{
+    "environment": {
+        "atmosphere" : "light",
+        "smell" : "none",
+        "light" : "dark",
+        "colors" : "grey",
+        "sounds": "none",
+        "size": "big",
+        "height": "small"
+    },
+    "features": [
+        {
+            "type": "arch",
+            "size": "big",
+            "location": "ceiling"
+        },
+        {
+            "type": "arch",
+            "size": "big",
+            "location": "ceiling"
+        },
+        {
+            "type":"paintings",
+            "size": "normal",
+            "age": "old",
+            "clean": "dusty",
+            "location": "walls"
+        }
+    ],
+    "content": [
+        {
+            "type" : "chest",
+            "location": "center",
+            "size": "normal",
+            "material": "wood"
+        }
+    ]
+}

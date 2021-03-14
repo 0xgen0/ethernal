@@ -1,0 +1,16 @@
+.git/
+node_modules/
+bin/
+tmp/
+static/
+public/
+dungeon-test/
+ethernal-dev/
+contracts/
+
+yarn.lock
+package.json
+package-lock.json
+
+# TMP
+src/lib/seedrandom.js

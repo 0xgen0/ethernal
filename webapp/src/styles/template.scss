@@ -1,0 +1,238 @@
+/**
+ * CORE TEMPLATE STRUCTURE
+ */
+body {
+  margin: 0;
+  padding: 0;
+  background: $color-background;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+#container {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  height: 100%;
+  margin: 0 auto;
+
+  @media screen and (min-width: $desktop-min-width) {
+    margin: 0 45px;
+  }
+}
+
+/* LAYOUT */
+.layout {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: $layout-max-width;
+  width: 100%;
+  height: var(--window-height);
+  margin: 0 auto;
+
+  &--mast {
+    display: none;
+
+    /*
+     * Display masthead above contanier on tall screens
+     * (120px is approximate visual height above & below to look nice)
+     */
+    @media screen and (min-height: $layout-max-height + 120px) {
+      position: absolute;
+      bottom: calc((var(--window-height) * 0.5) + #{$layout-max-height / 2});
+      left: 0;
+      right: 0;
+      display: block;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    img {
+      width: 42px;
+      height: auto;
+    }
+  }
+
+  &--container {
+    position: relative;
+    max-width: $layout-max-width;
+    height: var(--window-height);
+    overflow: hidden;
+    background: $color-background;
+
+    @media screen and (min-width: $desktop-min-width) {
+      max-height: $layout-max-height;
+    }
+
+    // Hide explorer header on very small screens!
+    @media screen and (max-width: $mobile-max-width) and (max-height: 550px) {
+      &.monster-overlay {
+        .layout--header {
+          margin-top: 10px;
+        }
+        .layout--area {
+          height: calc(100% - #{$footer-web-height}) !important;
+        }
+        .map-header {
+          display: none !important;
+        }
+      }
+    }
+  }
+
+  &--header {
+    @media screen and (min-width: $desktop-min-width) {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+
+  &--area {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(100% - #{$header-height} - #{$footer-height});
+    background: $color-background;
+
+    &--menu {
+      position: relative;
+
+      &--overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 25;
+
+        &.as-important {
+          z-index: 100;
+        }
+      }
+    }
+
+    &--map {
+      height: 100%;
+    }
+
+    @media screen and (min-width: $desktop-min-width) {
+      position: absolute;
+      top: $header-height;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: calc(100% - #{$header-height});
+      flex-direction: row;
+      box-sizing: border-box;
+      border-top: 1px solid rgba($color-grey, 0.35);
+      border-bottom: 1px solid rgba($color-grey, 0.35);
+
+      &--menu {
+        flex-shrink: 0;
+        width: $desktop-menu-width;
+
+        &--item {
+          height: calc(50% - #{$footer-height});
+          box-sizing: border-box;
+
+          & + & {
+            height: calc(50% + #{$footer-height});
+            border-top: 4px solid $color-background;
+          }
+        }
+      }
+
+      &--map {
+        width: 100%;
+      }
+    }
+
+    @media screen and (max-width: $mobile-max-width) {
+      &--menu {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: $mobile-menu-height;
+        background: linear-gradient(to bottom, rgba($color-black, 0.8), rgba($color-black, 0.8) 90%, transparent);
+
+        &--overlay {
+          position: fixed;
+        }
+      }
+
+      &--map {
+        position: absolute;
+        top: $mobile-menu-height;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: calc(100% - #{$mobile-menu-height});
+
+        &--overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 20;
+        }
+      }
+    }
+  }
+
+  &--footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: $footer-height;
+    padding: 0 12px;
+  }
+}
+
+/* Make clicks pass-through */
+#nprogress {
+  --nprogress-color: #{$color-blue};
+  pointer-events: none;
+
+  &.error {
+    --nprogress-color: #{$color-highlight};
+  }
+
+  .bar {
+    position: fixed;
+    z-index: 1031;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--nprogress-color);
+  }
+
+  /* Fancy blur effect */
+  .peg {
+    display: block;
+    position: absolute;
+    right: 0px;
+    width: 100px;
+    height: 100%;
+    box-shadow: 0 0 10px var(--nprogress-color), 0 0 5px var(--nprogress-color);
+    opacity: 1;
+
+    -webkit-transform: rotate(3deg) translate(0px, -4px);
+    -ms-transform: rotate(3deg) translate(0px, -4px);
+    transform: rotate(3deg) translate(0px, -4px);
+  }
+}

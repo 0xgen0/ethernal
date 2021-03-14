@@ -1,0 +1,243 @@
+{
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "character",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "monsterId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "int16",
+          "name": "hpChange",
+          "type": "int16"
+        },
+        {
+          "internalType": "int16",
+          "name": "elemChange",
+          "type": "int16"
+        }
+      ],
+      "name": "characterEscaped",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "monsterId",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "character",
+              "type": "address"
+            },
+            {
+              "internalType": "int16",
+              "name": "hpChange",
+              "type": "int16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "xpGained",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint256",
+              "name": "gear",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "keys",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "coins",
+              "type": "uint256"
+            },
+            {
+              "internalType": "int16[5]",
+              "name": "elemsChange",
+              "type": "int16[5]"
+            }
+          ],
+          "internalType": "struct DungeonAdmin.MonsterReward[]",
+          "name": "rewards",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "monsterDefeated",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "contract Dungeon",
+          "name": "dungeon",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "backendAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setDungeonAndBackend",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getDungeonAndBackendAddress",
+      "outputs": [
+        {
+          "internalType": "contract Dungeon",
+          "name": "dungeon",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "backendAddress",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "monsterId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "int16",
+          "name": "hpChange",
+          "type": "int16"
+        },
+        {
+          "internalType": "uint16",
+          "name": "xpGained",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint256",
+          "name": "gear",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "keys",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "coins",
+          "type": "uint256"
+        },
+        {
+          "internalType": "int16[5]",
+          "name": "elemsChange",
+          "type": "int16[5]"
+        }
+      ],
+      "name": "updateCharacter",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        }
+      ],
+      "name": "teleportCharacter",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "character",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "monsterId",
+          "type": "uint256"
+        }
+      ],
+      "name": "characterDefeated",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "backendAddress",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    }
+  ],
+  "args": [
+    "0x61c461EcC993aaDEB7e4b47E96d1B8cC37314B20"
+  ],
+  "address": "0x3785B4DB0f7562af154Ca392D424457e5EaAc8ce",
+  "transactionHash": "0x9a81933395a678035fe5bdca1b6c150cf099d5d4ed5ff53fff19372b9efe3c6a"
+}

@@ -1,0 +1,19 @@
+{
+    "name": "harold the fire mage",
+    "skills": ["traps", "reading", "spell"],
+    "abilities": {
+        "intelligence": 15,
+        "constitution": 5,
+        "strength": 7,
+        "wisdom": 12,
+        "dexterity": 10,
+        "charisma": 10
+    },
+    "fighting": {
+        "unarmed": 10,
+        "fire ball": 15,
+        "staff": 12
+    },
+    "health": 10,
+    "level": 1
+}

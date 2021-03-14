@@ -1,0 +1,42 @@
+[
+    {
+        "name": "fire elemental",
+        "hp": 3,
+        "attack": 0,
+        "armor": 0,
+        "defense": 1,
+        "size": 5,
+        "damage": {
+            "numDiceFaces": 6,
+            "numDice": 2,
+            "bonus": 2,
+            "critical": 3,
+            "type": "piercing",
+            "element": "fire"
+        },
+        "type": "elemental",
+        "protection": {
+            "type": "fire",
+            "full": true
+        },
+        "weakness": {
+            "type": "water"
+        }
+    },
+    {
+        "name": "gobelin sword master",
+        "hp": 3,
+        "attack": 1,
+        "armor": 2,
+        "defense": 1,
+        "size": 2,
+        "damage": {
+            "numDiceFaces": 6,
+            "numDice": 1,
+            "bonus": 0,
+            "critical": 2,
+            "type": "piercing"
+        },
+        "type": "gobelin"
+    }
+]

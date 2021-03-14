@@ -1,0 +1,114 @@
+/**
+ * CONTENT LAYOUT
+ * This uses --header, --content, and --footer to set default styling for page content.
+ */
+
+.content-layout {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: $color-dark;
+
+    &.with-dark-bg {
+      background-color: $color-black;
+    }
+
+  &--area {
+    display: flex;
+    flex-direction: column;
+    justify-items: stretch;
+    height: 100%;
+    padding: 6px 0;
+    box-sizing: border-box;
+
+    & > * {
+      padding: 6px 16px;
+    }
+
+    @media screen and (min-width: $desktop-min-width) {
+      padding: 18px 0;
+    }
+  }
+
+  &--area &--content {
+    flex: 1;
+    height: 100%;
+    overflow-y: scroll;
+
+    // Account for 8px scrollbar on other side
+    @include with-scrollbars;
+    margin-left: 8px;
+  }
+
+  &--area &--header,
+  &--area &--footer {
+    flex: 0;
+  }
+
+  &--content > * {
+    .block {
+      padding: 0px 0px 12px 0px;
+
+      & + .block {
+        margin-top: 24px;
+      }
+    }
+  }
+
+  &.with-footer-tabs &--area {
+    padding-bottom: 0;
+  }
+  &.with-footer-tabs &--footer {
+    padding: 0;
+  }
+
+  &--footer > * {
+    &.with-close-button {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0;
+
+      a:only-child {
+        margin-left: auto;
+      }
+
+      img {
+        display: inline-block;
+        width: 50%;
+        height: auto;
+        vertical-align: middle;
+      }
+    }
+  }
+
+  &.overlay-screen {
+    @media screen and (min-width: $desktop-min-width) {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: $desktop-menu-width;
+      right: 0;
+      width: unset;
+      margin-top: unset;
+      height: unset;
+      z-index: 20;
+      background-color: $color-black;
+    }
+
+    .content-layout--header .box {
+      @media screen and (min-width: $desktop-min-width) {
+        background-color: $color-black;
+      }
+    }
+
+    .overlay-screen--content {
+      & > div {
+        width: 100%;
+        max-width: $desktop-menu-width;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+  }
+}

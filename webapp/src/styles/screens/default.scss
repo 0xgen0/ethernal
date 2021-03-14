@@ -1,0 +1,138 @@
+.default-screen {
+  display: flex;
+  max-width: 375px;
+  margin: 0 auto;
+  justify-content: center;
+  height: var(--window-height);
+  flex-direction: column;
+
+  @media (max-width: 375px) {
+    margin-left: 15px;
+    margin-right: 15px;
+  }
+
+  p {
+    color: $color-light;
+    text-align: left;
+
+    a {
+      color: $color-highlight;
+      text-decoration: none;
+
+      &:focus,
+      &:hover {
+        color: rgba($color-highlight, 0.6);
+      }
+    }
+  }
+
+  &--header {
+    padding-bottom: 15px;
+  }
+
+  &--header--center {
+    height: 72px;
+    margin: 0 auto;
+
+    &--logo {
+      text-align: center;
+      margin: 0 auto;
+      padding-top: 30px;
+      img {
+        width: 42px;
+        height: auto;
+      }
+    }
+  }
+
+  &--body {
+    height: 410px;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    background-color: $color-dark;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+
+    @media (max-height: 580px) {
+      height: calc(var(--window-height) * 0.7);
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+
+    &--middle {
+      width: 100%;
+      padding: 0 30px;
+    }
+
+    &--bottom {
+      display: block;
+      position: absolute;
+      width: 80%;
+      left: 50%;
+      transform: translate(-50%, 0%);
+      bottom: 30px;
+    }
+
+    h5 {
+      margin: 0;
+      padding: 0 0 6px 0;
+      font-size: 16px;
+      line-height: 1.3em;
+      text-align: center;
+      font-weight: normal;
+    }
+
+    p {
+      margin: 0;
+      padding: 0 0 8px 0;
+      font-size: 14px;
+      line-height: 1.3em;
+      font-weight: normal;
+    }
+
+    p + h5 {
+      padding-top: 8px;
+    }
+
+    .subtext {
+      margin-top: 0.5em;
+      color: $color-xLightGrey !important;
+      text-align: center !important;
+      /* font-size: 14px; */
+    }
+
+    .card {
+      border: 1px $color-grey solid;
+      padding: 1em;
+      max-width: 20em;
+      display: block;
+      margin: auto;
+      font-size: 16px;
+      line-height: 1.3em;
+      color: $color-xLightGrey !important;
+    }
+
+    .sign-in {
+      text-align: center !important;
+      display: block;
+      margin-top: 2.5em;
+      font-size: 14px;
+    }
+
+    .portis-help {
+      text-align: center !important;
+      display: block;
+      margin-top: 0.5em;
+      font-size: 16px;
+    }
+  }
+
+  &--footer {
+    display: block;
+    margin: 0 auto;
+    bottom: 1em;
+    padding-top: 10px;
+    text-align: center;
+  }
+}

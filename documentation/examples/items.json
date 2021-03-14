@@ -1,0 +1,25 @@
+[
+    {
+        "name": "fire sword of luther",
+        "element": {
+            "type": "fire",
+            "power": 10
+        },
+        "type": "blade",
+        "reach": 2,
+        "danger": 2,
+        "strength": 2
+    },
+    {
+        "name": "small white shield",
+        "type": "protection",
+        "cover": 3,
+        "strength": 1
+    },
+    {
+        "name": "torch",
+        "type": "tool",
+        "reach": 10,
+        "strength": 1
+    }
+]

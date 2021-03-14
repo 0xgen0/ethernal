@@ -1,0 +1,6 @@
+.DS_Store
+.idea/
+node_modules/
+dev_contractsInfo.json
+yarn-error.log
+.env*

@@ -1,0 +1,91 @@
+{
+    "environment": {
+        "atmosphere" : "light",
+        "smell" : "none",
+        "light" : "dark",
+        "colors" : "grey",
+        "sounds": "none",
+        "size": "big",
+        "height": "small"
+    },
+    "ceiling": {
+        "features:" : [
+            {
+                "type": "arch",
+                "size": "big"
+            }
+        ]
+    },
+    "walls": {
+        "features:" : [
+            {
+                "type":"paintings",
+                "size": "normal",
+                "age": "old",
+                "clean": "dusty"
+            }
+        ]
+    },
+    "exits" :{
+        "north" : {
+            "entrance" : {
+                "features:" : [
+                    {
+                        "type": "arch",
+                        "size": "normal",
+                        "age": "old",
+                        "clean": "dusty"
+                    }
+                ]
+            },
+            "path" : {
+                "type": "corridor", // door line // ?
+                "ceiling": {
+                    "material": "earth",
+                    "features:" : [
+                        {
+                            "type": "iron ore",
+                            "size": "normal"
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "content": [
+        {
+            "type" : "statue",
+            "location": "north_east_corner",
+            "size": "normal",
+            "material": "stone",
+            "features": [
+                {
+                    "type": "eyes",
+                    "material": "ruby"
+                },
+                {
+                    "type": "inscription",
+                    "text": "Blue lila"
+                }
+            ]
+        }
+    ],
+    "actionableContent": [
+        {
+            "type" : "chest",
+            "action": { // blockchain actionable
+                  "index": 0,
+                "skills": "intelligence"
+            },
+            "location": "center",
+            "size": "normal",
+            "material": "wood",
+            "features": [
+                {
+                    "type": "lock",
+                    "material": "gold"
+                }
+            ]
+        },
+    ]
+}

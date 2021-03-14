@@ -1,0 +1,11 @@
+.DS_Store
+._*
+.vscode/
+.idea/
+build/
+*.vim
+node_modules/
+.env*
+webapp/yarn.lock
+.mnemonic*
+yarn.lock

@@ -1,0 +1,22 @@
+# This file is for unifying the coding style for different editors and IDEs.
+# More information at http://EditorConfig.org
+
+root = true
+
+# General Options
+[*]
+indent_size = 2
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.sol]
+indent_size = 4
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+
+# Special Files, fix the file and remove this thing later
+[backend/src/BackendWallet.js]
+indent_size = 4

@@ -1,0 +1,42 @@
+<html lang="en">
+<head>
+    <title>map</title>
+</head>
+<body style="background: black;">
+<pre id="map" style="font-family: Menlo,monospace; color: white;"></pre>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const character = params.get('character');
+  const radius = params.get('radius') || 10;
+  const reloadMap = async () => {
+    let center = '0,0';
+    if (character) {
+      const moves = await fetch(`/characters/${character}/moves`).then(r => r.json());
+      if (moves.length > 0) {
+        center = moves[moves.length - 1].to;
+      }
+    }
+    const response = await fetch(`/map/${center}/${radius}`);
+    document.getElementById('map').innerHTML = await response.text();
+    console.log('map reloaded');
+  };
+  reloadMap();
+  let socket = io.connect();
+  socket.on('connect', () => {
+    console.log('socket connected');
+  });
+  socket.on('reload', reloadMap);
+  socket.on('move', reloadMap);
+  socket.on('move', console.log);
+  socket.on('hello', () => {
+    if (character) {
+      socket.emit('iam', character);
+      console.log('joined as ' + character);
+    }
+  });
+  socket.on('joined', ({ character }) => console.log(`character ${character} joined the game`));
+  socket.on('left', ({ character }) => console.log(`character ${character} left the game`));
+</script>
+</body>
+</html>

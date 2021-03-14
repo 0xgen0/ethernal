@@ -1,0 +1,650 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        }
+      ],
+      "name": "carrierCost",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "blockHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "class",
+          "type": "uint8"
+        }
+      ],
+      "name": "computeRoomDiscoveryReward",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "numGold",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "numElements",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "data",
+          "type": "uint256"
+        }
+      ],
+      "name": "decodeCharacterData",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "level",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint16",
+          "name": "hp",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint16",
+          "name": "maxHP",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint32",
+          "name": "xp",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "class",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "data",
+          "type": "uint256"
+        }
+      ],
+      "name": "decodeGearData",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "level",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint8",
+          "name": "slot",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "classBits",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint16",
+          "name": "durability",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint16",
+          "name": "maxDurability",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint32",
+          "name": "template",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        }
+      ],
+      "name": "discoveryCost",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "fragments",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint16",
+          "name": "level",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint8",
+          "name": "slot",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "classBits",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint16",
+          "name": "durability",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint16",
+          "name": "maxDurability",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint32",
+          "name": "template",
+          "type": "uint32"
+        }
+      ],
+      "name": "encodeGearData",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "data",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "areaLoc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "blockHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint64",
+          "name": "numElementalAreaInPeriod",
+          "type": "uint64"
+        }
+      ],
+      "name": "generateArea",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "areaType",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "blockHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "direction",
+          "type": "uint8"
+        }
+      ],
+      "name": "generateExits",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "blockHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "numMonsters",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "newlyDiscoveredRoom",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint8",
+          "name": "roomKind",
+          "type": "uint8"
+        }
+      ],
+      "name": "generateMonsterIndex",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "areaLoc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "blockHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "generateRandomEvent",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "roomLocation",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint64",
+          "name": "randomEvent",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "blockHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "direction",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "areaAtDiscovery",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "lastIndex",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "index",
+          "type": "uint8"
+        }
+      ],
+      "name": "generateRoom",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "exits",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "kind",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "area_discovered",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        }
+      ],
+      "name": "getAreaLoc",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "p1",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "p2",
+          "type": "uint256"
+        }
+      ],
+      "name": "getRing",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint16",
+          "name": "hp",
+          "type": "uint16"
+        }
+      ],
+      "name": "hpCost",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "gearData",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "recyclingReward",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "rooms",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "periods",
+          "type": "uint256"
+        }
+      ],
+      "name": "roomsTax",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "p1",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "p2",
+          "type": "uint256"
+        }
+      ],
+      "name": "teleportTax",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "location",
+          "type": "uint256"
+        }
+      ],
+      "name": "toCoordinates",
+      "outputs": [
+        {
+          "internalType": "int64",
+          "name": "x",
+          "type": "int64"
+        },
+        {
+          "internalType": "int64",
+          "name": "y",
+          "type": "int64"
+        },
+        {
+          "internalType": "int64",
+          "name": "z",
+          "type": "int64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "a",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "level",
+          "type": "uint8"
+        }
+      ],
+      "name": "toLevelUp",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "xpRequired",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint256",
+          "name": "coinsRequired",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "hpIncrease",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "int64",
+          "name": "x",
+          "type": "int64"
+        },
+        {
+          "internalType": "int64",
+          "name": "y",
+          "type": "int64"
+        },
+        {
+          "internalType": "int64",
+          "name": "z",
+          "type": "int64"
+        }
+      ],
+      "name": "toLocation",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "receipt": {
+    "to": null,
+    "from": "0xC92aE171cb9AEfEbcB88cdB40ba508e81F30AE1b",
+    "contractAddress": "0xb5C86aB8385E48C2E1dF038b8CaCd2b55108d8F1",
+    "transactionIndex": 0,
+    "gasUsed": "1346356",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000800000000000000000000100000000004000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000080000000000000000000200000000000200000000000000000000000000000000000000000000000004004000000000000000001000000000000000000000000000000100040000008000000000000000000000000000000000000000000000000000000000000100000",
+    "blockHash": "0xe157505c46b48605394a958d3b4dcf8de28c994e6169e1c4bfeaba111f8dfa01",
+    "transactionHash": "0x6365ec839d0a87089f4e16174d984e535c67cd87cb53c26bf1c379373f601f84",
+    "logs": [
+      {
+        "transactionIndex": 0,
+        "blockNumber": 5102084,
+        "transactionHash": "0x6365ec839d0a87089f4e16174d984e535c67cd87cb53c26bf1c379373f601f84",
+        "address": "0x0000000000000000000000000000000000001010",
+        "topics": [
+          "0x4dfe1bbbcf077ddc3e01291eea2d5c70c2b422b415d95645b9adcfd678cb1d63",
+          "0x0000000000000000000000000000000000000000000000000000000000001010",
+          "0x000000000000000000000000c92ae171cb9aefebcb88cdb40ba508e81f30ae1b",
+          "0x000000000000000000000000be188d6641e8b680743a4815dfa0f6208038960f"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000017ea84ab9b280000000000000000000000000000000000000000000000000946681b5dbae0520000000000000000000000000000000000000000000000005654ff0e4dbc305905000000000000000000000000000000000000000000000009465030d90f452a000000000000000000000000000000000000000000000000565516f8d267cb8105",
+        "logIndex": 0,
+        "blockHash": "0xe157505c46b48605394a958d3b4dcf8de28c994e6169e1c4bfeaba111f8dfa01"
+      }
+    ],
+    "blockNumber": 5102084,
+    "cumulativeGasUsed": "1346356",
+    "status": 1,
+    "byzantium": true
+  },
+  "address": "0xb5C86aB8385E48C2E1dF038b8CaCd2b55108d8F1",
+  "args": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.6.5+commit.f956cc89\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"location\",\"type\":\"uint256\"}],\"name\":\"carrierCost\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"location\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"blockHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint8\",\"name\":\"class\",\"type\":\"uint8\"}],\"name\":\"computeRoomDiscoveryReward\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"numGold\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"numElements\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"data\",\"type\":\"uint256\"}],\"name\":\"decodeCharacterData\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"level\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"hp\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"maxHP\",\"type\":\"uint16\"},{\"internalType\":\"uint32\",\"name\":\"xp\",\"type\":\"uint32\"},{\"internalType\":\"uint8\",\"name\":\"class\",\"type\":\"uint8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"data\",\"type\":\"uint256\"}],\"name\":\"decodeGearData\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"level\",\"type\":\"uint16\"},{\"internalType\":\"uint8\",\"name\":\"slot\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"classBits\",\"type\":\"uint8\"},{\"internalType\":\"uint16\",\"name\":\"durability\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"maxDurability\",\"type\":\"uint16\"},{\"internalType\":\"uint32\",\"name\":\"template\",\"type\":\"uint32\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"location\",\"type\":\"uint256\"}],\"name\":\"discoveryCost\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"fragments\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"level\",\"type\":\"uint16\"},{\"internalType\":\"uint8\",\"name\":\"slot\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"classBits\",\"type\":\"uint8\"},{\"internalType\":\"uint16\",\"name\":\"durability\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"maxDurability\",\"type\":\"uint16\"},{\"internalType\":\"uint32\",\"name\":\"template\",\"type\":\"uint32\"}],\"name\":\"encodeGearData\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"data\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"areaLoc\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"blockHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint64\",\"name\":\"numElementalAreaInPeriod\",\"type\":\"uint64\"}],\"name\":\"generateArea\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"areaType\",\"type\":\"uint8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"location\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"blockHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint8\",\"name\":\"direction\",\"type\":\"uint8\"}],\"name\":\"generateExits\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"location\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"blockHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"numMonsters\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"newlyDiscoveredRoom\",\"type\":\"bool\"},{\"internalType\":\"uint8\",\"name\":\"roomKind\",\"type\":\"uint8\"}],\"name\":\"generateMonsterIndex\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"areaLoc\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"blockHash\",\"type\":\"bytes32\"}],\"name\":\"generateRandomEvent\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"roomLocation\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"randomEvent\",\"type\":\"uint64\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"location\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"blockHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint8\",\"name\":\"direction\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"areaAtDiscovery\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"lastIndex\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"index\",\"type\":\"uint8\"}],\"name\":\"generateRoom\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"exits\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"kind\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"area_discovered\",\"type\":\"uint8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"location\",\"type\":\"uint256\"}],\"name\":\"getAreaLoc\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"p1\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"p2\",\"type\":\"uint256\"}],\"name\":\"getRing\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"hp\",\"type\":\"uint16\"}],\"name\":\"hpCost\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256[]\",\"name\":\"gearData\",\"type\":\"uint256[]\"}],\"name\":\"recyclingReward\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"rooms\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"periods\",\"type\":\"uint256\"}],\"name\":\"roomsTax\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"p1\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"p2\",\"type\":\"uint256\"}],\"name\":\"teleportTax\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"location\",\"type\":\"uint256\"}],\"name\":\"toCoordinates\",\"outputs\":[{\"internalType\":\"int64\",\"name\":\"x\",\"type\":\"int64\"},{\"internalType\":\"int64\",\"name\":\"y\",\"type\":\"int64\"},{\"internalType\":\"int64\",\"name\":\"z\",\"type\":\"int64\"},{\"internalType\":\"uint64\",\"name\":\"a\",\"type\":\"uint64\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint8\",\"name\":\"level\",\"type\":\"uint8\"}],\"name\":\"toLevelUp\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"xpRequired\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"coinsRequired\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"hpIncrease\",\"type\":\"uint8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int64\",\"name\":\"x\",\"type\":\"int64\"},{\"internalType\":\"int64\",\"name\":\"y\",\"type\":\"int64\"},{\"internalType\":\"int64\",\"name\":\"z\",\"type\":\"int64\"}],\"name\":\"toLocation\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"src/dungeon/ReadOnlyDungeon.sol\":\"ReadOnlyDungeon\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"src/dungeon/PureDungeon.sol\":{\"content\":\"pragma solidity 0.6.5;\\n\\nlibrary PureDungeon {\\n    uint256 internal constant LOCATION_ZERO = 2**255;\\n    uint256 internal constant BOUNTY = 2**254;\\n\\n    uint8 internal constant ROOM_TYPE_NORMAL = 1;\\n    uint8 internal constant ROOM_TYPE_TELEPORT = 2;\\n    uint8 internal constant ROOM_TYPE_TEMPLE = 3;\\n    uint8 internal constant ROOM_TYPE_LORE = 4;\\n    uint8 internal constant ROOM_TYPE_CARRIER = 5;\\n\\n    uint8 internal constant EXITS_INERTIA = 87;\\n    uint8 internal constant EXITS_BIFURCATION = 40;\\n    uint8 internal constant EXITS_BOTH_BIFURCATION = 25;\\n\\n    uint8 internal constant NORTH = 0;\\n    uint8 internal constant EAST = 1;\\n    uint8 internal constant SOUTH = 2;\\n    uint8 internal constant WEST = 3;\\n    uint8 internal constant DOWN = 4;\\n\\n    uint8 internal constant COINS = 6;\\n    uint8 internal constant KEYS = 7;\\n    uint8 internal constant FRAGMENTS = 8;\\n\\n    uint8 internal constant WARRIOR = 0;\\n    uint8 internal constant EXPLORER = 1;\\n    uint8 internal constant MAGE = 2;\\n    uint8 internal constant BARBARIAN = 3;\\n\\n    uint8 internal constant CLASS_BONUS = 4; // 100/4 = 25%\\n\\n    uint8 internal constant LEVEL_RING_WIDTH = 25;\\n    uint16 internal constant ELEMENT_AREA_10000_PROBA = 100; // 1%\\n    uint8 internal constant NUM_ELEMENT_AREA_PER_PERIOD = 10;\\n\\n    uint8 internal constant LOCK_PROBABILITY = 40;\\n    uint8 internal constant TWO_LOCK_PROBABILITY = 10;\\n\\n    uint8 internal constant MONSTER_SPAWN = 15;\\n\\n    uint8 internal constant INITIAL_HP = 16;\\n    uint8 internal constant HP_INCREASE = 10;\\n\\n    function coordinates(uint256 location)\\n        external\\n        pure\\n        returns (\\n            int64 x,\\n            int64 y,\\n            int64 z,\\n            uint64 a\\n        )\\n    {\\n        return _coordinates(location);\\n    }\\n\\n    function _coordinates(uint256 location)\\n        internal\\n        pure\\n        returns (\\n            int64 x,\\n            int64 y,\\n            int64 z,\\n            uint64 a\\n        )\\n    {\\n        x = int64(location);\\n        y = int64(location / 2**64);\\n        z = int64(location / 2**128);\\n        a = uint64(location / 2**255); // = 1 for valid location\\n    }\\n\\n    function location(\\n        int64 x,\\n        int64 y,\\n        int64 z\\n    ) external pure returns (uint256 location) {\\n        return _location(x, y, z);\\n    }\\n\\n    function _location(\\n        int64 x,\\n        int64 y,\\n        int64 z\\n    ) internal pure returns (uint256 location) {\\n        return 2**255 + uint256(uint64(z)) * 2**128 + uint256(uint64(y)) * 2**64 + uint64(x);\\n    }\\n\\n    function _locationToBounty(uint256 location) internal pure returns (uint256 bounty){\\n        return location - LOCATION_ZERO + BOUNTY;\\n    }\\n\\n    function _bountyToLocation(uint256 bounty) internal pure returns (uint256 location){\\n        return location - BOUNTY + LOCATION_ZERO;\\n    }\\n\\n    function generateMonsterIndex(\\n        uint256 location,\\n        bytes32 blockHash,\\n        uint256 numMonsters,\\n        bool newlyDiscoveredRoom,\\n        uint8 roomKind\\n    ) external pure returns (uint256) {\\n        return _generateMonsterIndex(location, blockHash, numMonsters, newlyDiscoveredRoom, roomKind);\\n    }\\n\\n    function _generateMonsterIndex(\\n        uint256 location,\\n        bytes32 blockHash,\\n        uint256 numMonsters,\\n        bool newlyDiscoveredRoom,\\n        uint8 roomKind\\n    ) internal pure returns (uint256) {\\n        if (roomKind != ROOM_TYPE_NORMAL) {\\n            return 0;\\n        }\\n        uint8 spawnRate = MONSTER_SPAWN;\\n        if (newlyDiscoveredRoom) {\\n            spawnRate += 10;\\n        }\\n        bool hasMonster = uint256(keccak256(abi.encodePacked(location, blockHash, uint8(6)))) % 100 < spawnRate;\\n        if (hasMonster) {\\n            return (uint256(keccak256(abi.encodePacked(location, blockHash, uint8(7)))) % numMonsters) + 1;\\n        }\\n        return 0;\\n    }\\n\\n    function computeRoomDiscoveryReward(\\n        uint256 location,\\n        bytes32 blockHash,\\n        uint8 class\\n    ) external pure returns (uint256 numGold, uint256 numElements) {\\n        return _computeRoomDiscoveryReward(location, blockHash, class);\\n    }\\n\\n    function _computeRoomDiscoveryReward(\\n        uint256 location,\\n        bytes32 blockHash,\\n        uint8 class\\n    ) internal pure returns (uint256 numGold, uint256 numElements) {\\n        uint256 ring = _getRing(location, 0);\\n        uint256 target = ring / LEVEL_RING_WIDTH;\\n        if (target == 0) {\\n            target = 1;\\n        }\\n        numElements = (target / 2) + (uint256(keccak256(abi.encodePacked(location, blockHash, uint8(100)))) % target);\\n        if (numElements == 0) {\\n            numElements = 1;\\n        }\\n        if (MAGE == class) {\\n            numElements = numElements + numElements / CLASS_BONUS;\\n        }\\n        if (target > 8) {\\n            target = 8;\\n        }\\n        numGold = (target / 2) + (uint256(keccak256(abi.encodePacked(location, blockHash, uint8(101)))) % target);\\n        if (numGold == 0) {\\n            numGold = 1;\\n        }\\n        if (EXPLORER == class) {\\n            numGold = numGold + numGold / CLASS_BONUS;\\n        }\\n    }\\n\\n    function discoveryCost(uint256 location) external pure returns (uint256 fragments) {\\n        return _discoveryCost(location);\\n    }\\n\\n    function _discoveryCost(uint256 location) internal pure returns (uint256 fragments) {\\n        if (location == LOCATION_ZERO) {\\n            return 0;\\n        } else {\\n            uint256 ring = _getRing(location, 0);\\n            return 1 + ring / LEVEL_RING_WIDTH;\\n        }\\n    }\\n\\n    function generateRandomEvent(uint256 areaLoc, bytes32 blockHash)\\n        external\\n        pure\\n        returns (uint256 roomLocation, uint64 randomEvent)\\n    {\\n        return _generateRandomEvent(areaLoc, blockHash);\\n    }\\n\\n    function _generateRandomEvent(uint256 areaLoc, bytes32 blockHash)\\n        internal\\n        pure\\n        returns (uint256 roomLocation, uint64 randomEvent)\\n    {\\n        roomLocation = _getRoomLoc(\\n            areaLoc,\\n            uint8(uint256(keccak256(abi.encodePacked(areaLoc, blockHash, uint8(102)))) % 9),\\n            uint8(uint256(keccak256(abi.encodePacked(areaLoc, blockHash, uint8(103)))) % 9)\\n        );\\n        randomEvent = 2; // for now always monster TODO :uint64(uint256(keccak256(abi.encodePacked(areaLoc, blockHash, uint8(104)))));\\n    }\\n\\n    function generateRoom(\\n        uint256 location,\\n        bytes32 blockHash,\\n        uint8 direction,\\n        uint8 areaAtDiscovery,\\n        uint8 lastIndex,\\n        uint8 index\\n    )\\n        external\\n        pure\\n        returns (\\n            uint8 exits,\\n            uint8 kind,\\n            uint8 area_discovered\\n        )\\n    {\\n        return _generateRoom(location, blockHash, direction, areaAtDiscovery, lastIndex, index);\\n    }\\n\\n    function _generateRoom(\\n        uint256 location,\\n        bytes32 blockHash,\\n        uint8 direction,\\n        uint8 areaAtDiscovery,\\n        uint8 lastIndex,\\n        uint8 index\\n    )\\n        internal\\n        pure\\n        returns (\\n            uint8 exits,\\n            uint8 kind,\\n            uint8 area_discovered\\n        )\\n    {\\n        exits = _generateExits(location, blockHash, direction);\\n        (kind, area_discovered) = _getRoomKind(location, blockHash, areaAtDiscovery, lastIndex, index);\\n    }\\n\\n    function _getRoomKind(\\n        uint256 location,\\n        bytes32 blockHash,\\n        uint8 areaAtDiscovery,\\n        uint8 lastIndex,\\n        uint8 index\\n    ) internal pure returns (uint8 kind, uint8 area_discovered) {\\n        uint256 areaLoc = _getAreaLoc(location);\\n        uint8 currentIndex = lastIndex;\\n        area_discovered = areaAtDiscovery;\\n        (int64 x, int64 y, , ) = _coordinates(location);\\n        if (x == 0 && y == 0) {\\n            // special case // cannot be discovered in batch in one block\\n            kind = ROOM_TYPE_TELEPORT;\\n            area_discovered = area_discovered | 1;\\n        } else {\\n            while (currentIndex <= index) {\\n                uint8 roll = uint8(\\n                    uint256(keccak256(abi.encodePacked(areaLoc, currentIndex, blockHash, uint8(3)))) % 20\\n                );\\n                if (!(area_discovered & 1 == 1) && (roll == 0 || currentIndex == 80)) {\\n                    // if roll or last room\\n                    kind = ROOM_TYPE_TELEPORT;\\n                    area_discovered = area_discovered | 1;\\n                } else if (\\n                    !(area_discovered & 2 == 2) &&\\n                    (roll == 1 ||\\n                        (currentIndex == 80) || // last room\\n                        (currentIndex == 79 && !(area_discovered & 1 == 1))) // second last room and teleport not found yet\\n                ) {\\n                    kind = ROOM_TYPE_TEMPLE;\\n                    area_discovered = area_discovered | 2;\\n                } else if (\\n                    !(area_discovered & 4 == 4) &&\\n                    (roll == 2 ||\\n                        (currentIndex == 80) || // last room\\n                        (currentIndex == 79 && !(area_discovered & 1 == 1)) || // second last room and teleport not found yet\\n                        (currentIndex == 79 && !(area_discovered & 2 == 2)) || // second last room and temple not found yet\\n                        (currentIndex == 78 && !(area_discovered & 1 == 1) && !(area_discovered & 2 == 2))) // third last room and neither teleport nor temple found yet\\n                ) {\\n                    kind = ROOM_TYPE_LORE;\\n                    area_discovered = area_discovered | 4;\\n                } else if (\\n                    !(area_discovered & 8 == 8) &&\\n                    (roll == 3 ||\\n                        (currentIndex == 80) || // last room\\n                        (currentIndex == 79 && !(area_discovered & 1 == 1)) || // second last room and teleport not found yet\\n                        (currentIndex == 79 && !(area_discovered & 2 == 2)) || // second last room and temple not found yet\\n                        (currentIndex == 79 && !(area_discovered & 4 == 4)) || // second last room and lore not found yet\\n                        (currentIndex == 78 && !(area_discovered & 1 == 1) && !(area_discovered & 2 == 2)) || // third last room and neither teleport nor temple found yet\\n                        (currentIndex == 78 && !(area_discovered & 1 == 1) && !(area_discovered & 4 == 4)) || // third last room and neither teleport nor lore found yet\\n                        (currentIndex == 78 && !(area_discovered & 4 == 4) && !(area_discovered & 2 == 2)) || // third last room and neither lore nor temple found yet\\n                        (currentIndex == 77 &&\\n                            !(area_discovered & 4 == 4) &&\\n                            !(area_discovered & 2 == 2) &&\\n                            !(area_discovered & 1 == 1))) // fourth last room and neither telport, temple nor lore found yet\\n                ) {\\n                    kind = ROOM_TYPE_CARRIER;\\n                    area_discovered = area_discovered | 8;\\n                } else {\\n                    kind = ROOM_TYPE_NORMAL;\\n                }\\n                currentIndex++;\\n            }\\n        }\\n    }\\n\\n    function toLevelUp(uint16 level)\\n        external\\n        pure\\n        returns (\\n            uint16 xpRequired,\\n            uint256 coinsRequired,\\n            uint8 hpIncrease\\n        )\\n    {\\n        return _toLevelUp(level);\\n    }\\n\\n    function _toLevelUp(uint16 level)\\n        internal\\n        pure\\n        returns (\\n            uint16 xpRequired,\\n            uint256 coinsRequired,\\n            uint8 hpIncrease\\n        )\\n    {\\n        uint16[11] memory xpRequirements = [0, 10, 49, 119, 208, 328, 524, 826, 1269, 3654, 6894];\\n        xpRequired = xpRequirements[level];\\n        if (level > 8) {\\n            coinsRequired = 492;\\n        } else {\\n            coinsRequired = (((1 + level) ** 3) / 5) + 8;\\n        }\\n        hpIncrease = HP_INCREASE;\\n    }\\n\\n    function generateArea(\\n        uint256 areaLoc,\\n        bytes32 blockHash,\\n        uint64 numElementalAreaInPeriod\\n    ) external pure returns (uint8 areaType) {\\n        _generateArea(areaLoc, blockHash, numElementalAreaInPeriod);\\n    }\\n\\n    function _generateArea(\\n        uint256 areaLoc,\\n        bytes32 blockHash,\\n        uint64 numElementalAreaInPeriod\\n    ) internal pure returns (uint8 areaType) {\\n        if (_isCentreArea(areaLoc) || numElementalAreaInPeriod >= NUM_ELEMENT_AREA_PER_PERIOD) {\\n            areaType = 6;\\n        } else {\\n            uint256 roomRing = (_getAreaRing(areaLoc) * 9);\\n            if (roomRing > 0) {\\n                roomRing -= 4; // this set the value to be the one of the corner room nearest to the center\\n            }\\n            if (roomRing >= LEVEL_RING_WIDTH) {\\n                bool elementArea = uint8(uint256(keccak256(abi.encodePacked(areaLoc, blockHash, uint8(12)))) % 10000) <=\\n                    ELEMENT_AREA_10000_PROBA;\\n                if (elementArea) {\\n                    (, ,int64 z, ) = _coordinates(areaLoc);\\n                    areaType = 1 + uint8(z % 5);\\n                } else {\\n                    areaType = 6;\\n                }\\n            } else {\\n                areaType = 6;\\n            }\\n        }\\n    }\\n\\n    // distance between 2 location * 0.4\\n    function teleportTax(uint256 p1, uint256 p2) external pure returns (uint256) {\\n        return _teleportTax(p1, p2);\\n    }\\n\\n    function _teleportTax(uint256 p1, uint256 p2) internal pure returns (uint256) {\\n        uint256 cost = (2 * _getRing(p1, p2)) / 5;\\n        if (cost == 0) {\\n            return 1;\\n        } else {\\n            return cost;\\n        }\\n    }\\n\\n    function carrierCost(uint256 location) external pure returns (uint256) {\\n        return _carrierCost(location);\\n    }\\n\\n    function _carrierCost(uint256 location) internal pure returns (uint256) {\\n        uint256 cost = (2 * _getRing(location, LOCATION_ZERO)) / 6;\\n        if (cost == 0) {\\n            return 1;\\n        } else {\\n            return cost;\\n        }\\n    }\\n\\n    function recyclingReward(uint256 gearData) external pure returns (uint256) {\\n        return _recyclingReward(gearData);\\n    }\\n\\n    function _recyclingReward(uint256 gearData) internal pure returns (uint256) {\\n        (uint16 level, , , uint16 durability, uint16 maxDurability, ) = _decodeGearData(gearData);\\n        uint256 reward = 1 + level / 2;\\n        if (durability == maxDurability) {\\n            reward += 1 + reward / 2;\\n        }\\n        return reward;\\n    }\\n\\n    function hpCost(uint16 hp) external pure returns (uint256) {\\n        return _hpCost(hp);\\n    }\\n\\n    function _hpCost(uint16 hp) internal pure returns (uint256) {\\n        return hp;\\n    }\\n\\n    function getRing(uint256 p1, uint256 p2) external pure returns (uint256) {\\n        return _getRing(p1, p2);\\n    }\\n\\n    function _getRing(uint256 p1, uint256 p2) internal pure returns (uint256) {\\n        (int64 x1, int64 y1, , ) = _coordinates(p1);\\n        (int64 x2, int64 y2, , ) = _coordinates(p2);\\n        int256 dx = x1 - x2;\\n        if (dx < 0) {\\n            dx = -dx;\\n        }\\n        int256 dy = y1 - y2;\\n        if (dy < 0) {\\n            dy = -dy;\\n        }\\n        if (dx > 2**64 / 2) {\\n            dx = 2**64 - dx;\\n        }\\n        if (dy > 2**64 / 2) {\\n            dy = 2**64 - dy;\\n        }\\n        if (dx > dy) {\\n            return uint256(dx);\\n        } else {\\n            return uint256(dy);\\n        }\\n    }\\n\\n    function _getAreaRing(uint256 areaLoc) internal pure returns (uint64) {\\n        (int64 x, int64 y, , ) = _coordinates(areaLoc);\\n        if (x < 0) {\\n            x = -x;\\n        }\\n        if (y < 0) {\\n            y = -y;\\n        }\\n        if (x > y) {\\n            return uint64(x);\\n        } else {\\n            return uint64(y);\\n        }\\n    }\\n\\n    // centre area is currently defined as the first 9 area (first area + 8 surrounding it)\\n    function _isCentreArea(uint256 areaLoc) internal pure returns (bool) {\\n        (int64 areaX, int64 areaY, , ) = _coordinates(areaLoc);\\n        return areaX >= -1 && areaY >= -1 && areaX <= 1 && areaY <= 1;\\n    }\\n\\n    function getAreaLoc(uint256 location) external pure returns (uint256) {\\n        return _getAreaLoc(location);\\n    }\\n\\n    function _getAreaLoc(uint256 location) internal pure returns (uint256) {\\n        (int64 x, int64 y, int64 z, ) = _coordinates(location);\\n        int64 areaX;\\n        if (x >= 0) {\\n            areaX = (x + 4) / 9;\\n        } else {\\n            areaX = -((-x + 4) / 9);\\n        }\\n\\n        int64 areaY;\\n        if (y >= 0) {\\n            areaY = (y + 4) / 9;\\n        } else {\\n            areaY = -((-y + 4) / 9);\\n        }\\n        return _location(areaX, areaY, z);\\n    }\\n\\n    function _getRoomLoc(\\n        uint256 areaLoc,\\n        uint8 x,\\n        uint8 y\\n    ) internal pure returns (uint256) {\\n        (int64 areaX, int64 areaY, int64 floor, ) = _coordinates(areaLoc);\\n        return _location(areaX * 9 - 4 + x, areaY * 9 - 4 + y, floor);\\n    }\\n\\n    // direction based exit generation\\n    // both exits and locks are generated\\n    // return value is encoded (uint4 locksBits, uint4 exitBits)\\n    function _generateExits(\\n        uint256 location,\\n        bytes32 blockHash,\\n        uint8 direction\\n    ) internal pure returns (uint8) {\\n        uint8 exits = 0;\\n        if (DOWN == direction) {\\n            exits = 0xF;\\n        } else {\\n            if (EXITS_INERTIA > uint8(uint256(keccak256(abi.encodePacked(location, blockHash, uint8(1)))) % 100)) {\\n                exits = 2**direction;\\n            }\\n            if (EXITS_BIFURCATION > uint8(uint256(keccak256(abi.encodePacked(location, blockHash, uint8(2)))) % 100)) {\\n                if (\\n                    EXITS_BOTH_BIFURCATION >\\n                    uint8(uint256(keccak256(abi.encodePacked(location, blockHash, uint8(3)))) % 100)\\n                ) {\\n                    if (NORTH == direction || SOUTH == direction) {\\n                        exits = (exits | 8) | 2;\\n                    } else if (EAST == direction || WEST == direction) {\\n                        exits = (exits | 1) | 4;\\n                    }\\n                } else {\\n                    if (50 > uint8(uint256(keccak256(abi.encodePacked(location, blockHash, uint8(3)))) % 100)) {\\n                        if (NORTH == direction) {\\n                            exits |= 8;\\n                        } else if (EAST == direction) {\\n                            exits |= 1;\\n                        } else if (SOUTH == direction) {\\n                            exits |= 2;\\n                        } else if (WEST == direction) {\\n                            exits |= 4;\\n                        }\\n                    } else {\\n                        if (NORTH == direction) {\\n                            exits |= 2;\\n                        } else if (EAST == direction) {\\n                            exits |= 4;\\n                        } else if (SOUTH == direction) {\\n                            exits |= 8;\\n                        } else if (WEST == direction) {\\n                            exits |= 1;\\n                        }\\n                    }\\n                }\\n            }\\n        }\\n        uint8 randLock = uint8(uint256(keccak256(abi.encodePacked(location, blockHash, uint8(111)))) % 100);\\n        uint8 numLocks = randLock < (100 - LOCK_PROBABILITY) ? 0 : (randLock < (100 - TWO_LOCK_PROBABILITY) ? 1 : 2);\\n        if (numLocks >= 4) {\\n            exits = exits | (15 * 2**4);\\n        } else if (numLocks == 3) {\\n            uint8 chosenLocks = uint8(uint256(keccak256(abi.encodePacked(location, blockHash, uint8(112)))) % 4);\\n            uint8 locks = (chosenLocks + 1) * 7;\\n            if (locks == 21) {\\n                exits = exits | (13 * 2**4);\\n            } else if (locks == 28) {\\n                exits = exits | (11 * 2**4);\\n            }\\n            // 4 possibilities : 7 // 14 // 13 // 11\\n        } else if (numLocks == 2) {\\n            uint8 chosenLocks = uint8(uint256(keccak256(abi.encodePacked(location, blockHash, uint8(112)))) % 6);\\n            uint8 locks = (chosenLocks + 1) * 3;\\n            if (locks == 15) {\\n                exits = exits | (5 * 2**4);\\n            } else if (locks == 18) {\\n                exits = exits | (10 * 2**4);\\n            }\\n            // 3 // 6 // 9 // 12 // 5 // 10\\n        } else if (numLocks == 1) {\\n            uint8 chosenLocks = uint8(uint256(keccak256(abi.encodePacked(location, blockHash, uint8(112)))) % 4);\\n            exits = exits | (2**chosenLocks * 2**4);\\n        }\\n        return exits;\\n    }\\n\\n    function decodeCharacterData(uint256 data)\\n        external\\n        pure\\n        returns (\\n            uint16 level,\\n            uint16 hp,\\n            uint16 maxHP,\\n            uint32 xp,\\n            uint8 class\\n        )\\n    {\\n        return _decodeCharacterData(data);\\n    }\\n\\n    function _decodeCharacterData(uint256 data)\\n        internal\\n        pure\\n        returns (\\n            uint16 level,\\n            uint16 hp,\\n            uint16 maxHP,\\n            uint32 xp,\\n            uint8 class\\n        )\\n    {\\n        class = uint8(data >> 248);\\n        level = uint16((data >> 232) % 2**16);\\n        xp = uint32((data >> 200) % 2**32);\\n        maxHP = uint16((data >> 184) % 2**16);\\n        hp = uint16((data >> 168) % 2**16);\\n    }\\n\\n    function encodeGearData(\\n        uint16 level,\\n        uint8 slot,\\n        uint8 classBits,\\n        uint16 durability,\\n        uint16 maxDurability,\\n        uint32 template\\n    ) external pure returns (uint256 data) {\\n        return _encodeGearData(level, slot, classBits, durability, maxDurability, template);\\n    }\\n\\n    function _encodeGearData(\\n        uint16 level,\\n        uint8 slot,\\n        uint8 classBits,\\n        uint16 durability,\\n        uint16 maxDurability,\\n        uint32 template\\n    ) internal pure returns (uint256 data) {\\n        return ((uint256(classBits) << 248) +\\n            (uint256(level) << 232) +\\n            (uint256(slot) << 224) +\\n            (uint256(durability) << 208) +\\n            (uint256(maxDurability) << 192) +\\n            template);\\n    }\\n\\n    function decodeGearData(uint256 data)\\n        external\\n        pure\\n        returns (\\n            uint16 level,\\n            uint8 slot,\\n            uint8 classBits,\\n            uint16 durability,\\n            uint16 maxDurability,\\n            uint32 template\\n        )\\n    {\\n        return _decodeGearData(data);\\n    }\\n\\n    function _decodeGearData(uint256 data)\\n        internal\\n        pure\\n        returns (\\n            uint16 level,\\n            uint8 slot,\\n            uint8 classBits,\\n            uint16 durability,\\n            uint16 maxDurability,\\n            uint32 template\\n        )\\n    {\\n        classBits = uint8(data >> 248);\\n        level = uint16((data >> 232) % 2**16);\\n        slot = uint8((data >> 224) % 2**8);\\n        durability = uint16((data >> 208) % 2**16);\\n        maxDurability = uint16((data >> 192) % 2**16);\\n        template = uint32(data % 2**32);\\n    }\\n\\n    function limitedChange(\\n        uint16 value,\\n        uint16 max,\\n        int64 change\\n    ) external pure returns (uint16) {\\n        return _limitedChange(value, max, change);\\n    }\\n\\n    function _limitedChange(\\n        uint16 value,\\n        uint16 max,\\n        int64 change\\n    ) internal pure returns (uint16) {\\n        int64 updated = int64(value) + int64(change);\\n        if (updated > int64(max)) {\\n            return max;\\n        }\\n        if (updated <= 0) {\\n            return 0;\\n        } else {\\n            return uint16(updated);\\n        }\\n    }\\n\\n    function roomsTax(uint256 rooms, uint256 periods) external pure returns (uint256) {\\n        return _roomsTax(rooms, periods);\\n    }\\n    function _roomsTax(uint256 rooms, uint256 periods) internal pure returns (uint256) {\\n        return (1 + rooms / 10) * periods;\\n    }\\n}\\n\",\"keccak256\":\"0x9315f0352f71ccb136247b1195f32081fc7673024efdfd2b6865fc9609fd12ab\"},\"src/dungeon/ReadOnlyDungeon.sol\":{\"content\":\"pragma solidity 0.6.5;\\n\\nimport \\\"./PureDungeon.sol\\\";\\n\\ncontract ReadOnlyDungeon {\\n    function toLocation(\\n        int64 x,\\n        int64 y,\\n        int64 z\\n    ) external pure returns (uint256) {\\n        return PureDungeon._location(x, y, z);\\n    }\\n\\n    function toCoordinates(uint256 location)\\n        external\\n        pure\\n        returns (\\n            int64 x,\\n            int64 y,\\n            int64 z,\\n            uint64 a\\n        )\\n    {\\n        return PureDungeon._coordinates(location);\\n    }\\n\\n    function generateMonsterIndex(\\n        uint256 location,\\n        bytes32 blockHash,\\n        uint256 numMonsters,\\n        bool newlyDiscoveredRoom,\\n        uint8 roomKind\\n    ) external pure returns (uint256) {\\n        return PureDungeon._generateMonsterIndex(location, blockHash, numMonsters, newlyDiscoveredRoom, roomKind);\\n    }\\n\\n    function getAreaLoc(uint256 location) external pure returns (uint256) {\\n        return PureDungeon._getAreaLoc(location);\\n    }\\n\\n    function generateArea(\\n        uint256 areaLoc,\\n        bytes32 blockHash,\\n        uint64 numElementalAreaInPeriod\\n    ) external pure returns (uint8 areaType) {\\n        return PureDungeon._generateArea(areaLoc, blockHash, numElementalAreaInPeriod);\\n    }\\n\\n    function computeRoomDiscoveryReward(\\n        uint256 location,\\n        bytes32 blockHash,\\n        uint8 class\\n    ) external pure returns (uint256 numGold, uint256 numElements) {\\n        return PureDungeon._computeRoomDiscoveryReward(location, blockHash, class);\\n    }\\n\\n    function discoveryCost(uint256 location) external pure returns (uint256 fragments) {\\n        return PureDungeon._discoveryCost(location);\\n    }\\n\\n    function generateRoom(\\n        uint256 location,\\n        bytes32 blockHash,\\n        uint8 direction,\\n        uint8 areaAtDiscovery,\\n        uint8 lastIndex,\\n        uint8 index\\n    )\\n        external\\n        pure\\n        returns (\\n            uint8 exits,\\n            uint8 kind,\\n            uint8 area_discovered\\n        )\\n    {\\n        return PureDungeon._generateRoom(location, blockHash, direction, areaAtDiscovery, lastIndex, index);\\n    }\\n\\n    function generateExits(\\n        uint256 location,\\n        bytes32 blockHash,\\n        uint8 direction\\n    ) external pure returns (uint8) {\\n        return PureDungeon._generateExits(location, blockHash, direction);\\n    }\\n\\n    function decodeCharacterData(uint256 data)\\n        external\\n        pure\\n        returns (\\n            uint16 level,\\n            uint16 hp,\\n            uint16 maxHP,\\n            uint32 xp,\\n            uint8 class\\n        )\\n    {\\n        return PureDungeon._decodeCharacterData(data);\\n    }\\n\\n    function encodeGearData(\\n        uint16 level,\\n        uint8 slot,\\n        uint8 classBits,\\n        uint16 durability,\\n        uint16 maxDurability,\\n        uint32 template\\n    ) external pure returns (uint256 data) {\\n        return PureDungeon._encodeGearData(level, slot, classBits, durability, maxDurability, template);\\n    }\\n\\n    function decodeGearData(uint256 data)\\n        external\\n        pure\\n        returns (\\n            uint16 level,\\n            uint8 slot,\\n            uint8 classBits,\\n            uint16 durability,\\n            uint16 maxDurability,\\n            uint32 template\\n        )\\n    {\\n        return PureDungeon._decodeGearData(data);\\n    }\\n\\n    function toLevelUp(uint8 level)\\n        external\\n        pure\\n        returns (\\n            uint16 xpRequired,\\n            uint256 coinsRequired,\\n            uint8 hpIncrease\\n        )\\n    {\\n        return PureDungeon._toLevelUp(level);\\n    }\\n\\n    function teleportTax(uint256 p1, uint256 p2) external pure returns (uint256) {\\n        return PureDungeon._teleportTax(p1, p2);\\n    }\\n\\n    function hpCost(uint16 hp) external pure returns (uint256) {\\n        return PureDungeon._hpCost(hp);\\n    }\\n\\n    function carrierCost(uint256 location) external pure returns (uint256) {\\n        return PureDungeon._carrierCost(location);\\n    }\\n\\n    function recyclingReward(uint256[] calldata gearData) external pure returns (uint256) {\\n        uint256 reward = 0;\\n        for (uint256 i = 0; i < gearData.length; i++) {\\n            reward += PureDungeon._recyclingReward(gearData[i]);\\n        }\\n        return reward;\\n    }\\n\\n    function getRing(uint256 p1, uint256 p2) external pure returns (uint256) {\\n        return PureDungeon._getRing(p1, p2);\\n    }\\n\\n    function generateRandomEvent(uint256 areaLoc, bytes32 blockHash)\\n        external\\n        pure\\n        returns (uint256 roomLocation, uint64 randomEvent)\\n    {\\n        return PureDungeon._generateRandomEvent(areaLoc, blockHash);\\n    }\\n\\n    function roomsTax(uint256 rooms, uint256 periods) external pure returns (uint256) {\\n        return PureDungeon._roomsTax(rooms, periods);\\n    }\\n}\\n\",\"keccak256\":\"0xee786403f4affa985e502d867b7002a9f96127257471c681b251d58b54f688e5\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50611763806100206000396000f3fe608060405234801561001057600080fd5b506004361061012c5760003560e01c8063acda69ca116100ad578063ed53a62411610071578063ed53a6241461052b578063f090aca814610565578063f6940ac714610588578063fcaf8951146105d1578063ff5335fa146105fd5761012c565b8063acda69ca146103e2578063b0ca9dfe14610434578063c3aab23c14610457578063d5763a801461049d578063d667fd04146104d15761012c565b8063467b4793116100f4578063467b4793146102ae57806356b5c3811461031e5780637a923474146103415780639f7cb08e14610362578063a48378ff146103c55761012c565b80630ececfea14610131578063213ee143146101765780632f587796146101df57806330ad93291461020e5780633683dee114610269575b600080fd5b6101546004803603604081101561014757600080fd5b508035906020013561061a565b6040805192835267ffffffffffffffff90911660208301528051918290030190f35b6101ba600480360360c081101561018c57600080fd5b5080359060208101359060ff60408201358116916060810135821691608082013581169160a0013516610632565b6040805160ff9485168152928416602084015292168183015290519081900360600190f35b6101fc600480360360208110156101f557600080fd5b5035610657565b60408051918252519081900360200190f35b61022b6004803603602081101561022457600080fd5b503561066a565b60408051600795860b860b815293850b850b602085015291840b90930b8282015267ffffffffffffffff909216606082015290519081900360800190f35b6102956004803603606081101561027f57600080fd5b508035906020810135906040013560ff16610688565b6040805192835260208301919091528051918290030190f35b6101fc600480360360208110156102c457600080fd5b8101906020810181356401000000008111156102df57600080fd5b8201836020820111156102f157600080fd5b8035906020019184602083028401116401000000008311171561031357600080fd5b5090925090506106a2565b6101fc6004803603604081101561033457600080fd5b50803590602001356106e0565b6101fc6004803603602081101561035757600080fd5b503561ffff166106f3565b61037f6004803603602081101561037857600080fd5b50356106fe565b6040805161ffff978816815260ff968716602082015294909516848601529185166060840152909316608082015263ffffffff90921660a0830152519081900360c00190f35b6101fc600480360360208110156103db57600080fd5b5035610724565b6101fc600480360360c08110156103f857600080fd5b5061ffff813581169160ff602082013581169260408301359091169160608101358216916080820135169063ffffffff60a0909101351661072f565b6101fc6004803603604081101561044a57600080fd5b508035906020013561074a565b6104776004803603602081101561046d57600080fd5b503560ff16610756565b6040805161ffff9094168452602084019290925260ff1682820152519081900360600190f35b6101fc600480360360608110156104b357600080fd5b508035600790810b916020810135820b91604090910135900b610774565b6104ee600480360360208110156104e757600080fd5b5035610789565b6040805161ffff96871681529486166020860152929094168383015263ffffffff16606083015260ff909216608082015290519081900360a00190f35b6101fc600480360360a081101561054157600080fd5b5080359060208101359060408101359060608101351515906080013560ff166107ac565b6101fc6004803603604081101561057b57600080fd5b50803590602001356107c7565b6105bb6004803603606081101561059e57600080fd5b508035906020810135906040013567ffffffffffffffff166107d3565b6040805160ff9092168252519081900360200190f35b6105bb600480360360608110156105e757600080fd5b508035906020810135906040013560ff166107e0565b6101fc6004803603602081101561061357600080fd5b50356107ed565b60008061062784846107f8565b915091509250929050565b600080600061064589898989898961087d565b92509250925096509650969350505050565b6000610662826108ae565b90505b919050565b6000806000806106798561093b565b93509350935093509193509193565b600080610696858585610956565b91509150935093915050565b600080805b838110156106d6576106ca8585838181106106be57fe5b90506020020135610a52565b909101906001016106a7565b5090505b92915050565b60006106ec8383610aa5565b9392505050565b600061066282610ab1565b60008060008060008061071087610ab8565b949c939b5091995097509550909350915050565b600061066282610aec565b600061073f878787878787610b20565b979650505050505050565b60006106ec8383610b74565b60008060006107678460ff16610c0c565b9250925092509193909250565b6000610781848484610cd7565b949350505050565b600080600080600061079a86610d01565b939a9299509097509550909350915050565b60006107bb8686868686610d32565b90505b95945050505050565b60006106ec8383610ded565b6000610781848484610e1f565b6000610781848484610f04565b6000610662826112c9565b604080516020808201859052818301849052603360f91b6060830152825180830360410181526061830184528051908201206081830186905260a18301859052606760f81b60c1840152835160a281850301815260c2909301909352815191012060009182916108729186916009918290069190066112ff565b946002945092505050565b600080600061088d898989610f04565b925061089c8989888888611336565b939a9099509297509195505050505050565b6000806000806108bd8561093b565b509250925092506000808460070b126108e0575060096004840160070b056108fa565b60098460000360040160070b816108f357fe5b0560000390505b6000808460070b12610916575060096004840160070b05610930565b60098460000360040160070b8161092957fe5b0560000390505b61073f828285610cd7565b90600160401b820490600160801b830490600160ff1b840490565b6000806000610966866000610b74565b90506019810480610975575060015b6040805160208082018a9052818301899052601960fa1b606083015282516041818403018152606190920190925280519101208190816109b157fe5b0660028204019250826109c357600192505b600260ff861614156109d85760048304830192505b60088111156109e5575060085b6040805160208082018a9052818301899052606560f81b60608301528251604181840301815260619092019092528051910120819081610a2157fe5b066002820401935083610a3357600193505b600160ff86161415610a485760048404840193505b5050935093915050565b600080600080610a6185610ab8565b509450945050509250600060028461ffff1681610a7a57fe5b0460010161ffff1690508161ffff168361ffff1614156107be57600281040160010195945050505050565b600a9091046001010290565b61ffff1690565b61ffff60e882901c81169260ff60e084901c169260f881901c9260d082901c81169260c083901c9091169163ffffffff1690565b6000600160ff1b821415610b0257506000610665565b6000610b0f836000610b74565b905060198104600101915050610665565b6001600160f81b031960f885901b1661ffff60e81b60e888901b160160ff60e01b60e087901b160161ffff60d01b60d085901b160161ffff60c01b60c084901b160163ffffffff8216019695505050505050565b6000806000610b828561093b565b505091509150600080610b948661093b565b5091935091505081840360070b6000811215610bae576000035b81840360070b6000811215610bc1576000035b6001603f1b821315610bd75781600160401b0391505b6001603f1b811315610bea57600160401b035b80821315610bff575094506106da9350505050565b95506106da945050505050565b6000806000610c1961170e565b50604080516101608101825260008152600a60208201526031918101919091526077606082015260d0608082015261014860a082015261020c60c082015261033a60e08201526104f5610100820152610e46610120820152611aee6101408201528061ffff8616600b8110610c8a57fe5b6020020151935060088561ffff161115610ca8576101ec9250610ccb565b600560038660010161ffff160a61ffff1681610cc057fe5b0460080161ffff1692505b600a9150509193909250565b600160ff1b67ffffffffffffffff938416928416600160401b0291909316600160801b0201010190565b61ffff60e882901c81169260a883901c82169260b881901c9092169163ffffffff60c882901c169160f89190911c90565b600060ff8216600114610d47575060006107be565b600f8315610d5357600a015b6040805160208082018a9052818301899052600360f91b6060830152825180830360410181526061909201909252805191012060ff82166064909106108015610ddf576040805160208082018b90528183018a9052600760f81b60608301528251604181840301815260619092019092528051910120869081610dd257fe5b06600101925050506107be565b506000979650505050505050565b6000806005610dfc8585610b74565b60020281610e0657fe5b04905080610e185760019150506106da565b90506106da565b6000610e2a84611663565b80610e405750600a67ffffffffffffffff831610155b15610e4d575060066106ec565b6000610e58856116b8565b60090267ffffffffffffffff1690506000811115610e7557600319015b60198110610ef757604080516020808201889052818301879052600360fa1b60608301528251604181840301815260619092019092528051910120606461271090910660ff1611801590610eec576000610ece8761093b565b509250505060058160070b81610ee057fe5b07600101935050610ef1565b600692505b50610efc565b600691505b509392505050565b600080600460ff84161415610f1b5750600f611103565b604080516020808201889052818301879052600160f81b606083015282516041818403018152606190920190925280519101206064900660ff1660571115610f66575060ff821660020a5b604080516020808201889052818301879052600160f91b606083015282516041818403018152606190920190925280519101206064900660ff166028111561110357604080516020808201889052818301879052600360f81b606083015282516041818403018152606190920190925280519101206064900660ff166019111561102d5760ff83161580610ffd5750600260ff8416145b1561100a57600a17611028565b600160ff8416148061101f5750600360ff8416145b15611028576005175b611103565b604080516020808201889052818301879052600360f81b606083015282516041818403018152606190920190925280519101206064900660ff16603211156110bb5760ff831661107f57600817611028565b600160ff8416141561109357600117611028565b600260ff841614156110a757600217611028565b600360ff8416141561102857600417611103565b60ff83166110cb57600217611103565b600160ff841614156110df57600417611103565b600260ff841614156110f357600817611103565b600360ff84161415611103576001175b604080516020808201889052818301879052606f60f81b60608301528251808303604101815260619092019092528051910120606490066000603c60ff83161061116157605a60ff83161061115957600261115c565b60015b611164565b60005b905060048160ff161061117c578260f01792506112be565b8060ff16600314156111f6576040805160208082018a9052818301899052600760fc1b606083015282518083036041018152606190920190925280519101206003166001810160070260ff8116601514156111dc578460d01794506111ef565b8060ff16601c14156111ef578460b01794505b50506112be565b8060ff1660021415611270576040805160208082018a9052818301899052600760fc1b60608301528251808303604101815260619092019092528051910120600690066001810160030260ff8116600f1415611257578460501794506111ef565b8060ff16601214156111ef578460a017945050506112be565b8060ff16600114156112be576040805160208082018a9052818301899052600760fc1b6060830152825160418184030181526061909201909252805191012060031660020a60100292909217915b509095945050505050565b60008060066112dc84600160ff1b610b74565b600202816112e657fe5b049050806112f8576001915050610665565b9050610665565b60008060008061130e8761093b565b5092509250925061073f8660ff1660048560090203018660ff16600485600902030183610cd7565b6000806000611344886108ae565b8692509050846000806113568b61093b565b5050915091508160070b600014801561137257508060070b6000145b156113865760029550846001179450611655565b8660ff168360ff16116116555760408051602080820187905260f886901b6001600160f81b03191682840152604182018d9052600360f81b60618301528251808303604201815260629092019092528051910120601490066001868116148015906113ff575060ff811615806113ff57508360ff166050145b156114135760029650856001179550611649565b60028087161480159061145257508060ff166001148061143657508360ff166050145b8061145257508360ff16604f1480156114525750600180871614155b156114665760039650856002179550611649565b6004808716148015906114ec57508060ff166002148061148957508360ff166050145b806114a557508360ff16604f1480156114a55750600180871614155b806114c157508360ff16604f1480156114c15750600280871614155b806114ec57508360ff16604e1480156114dd5750600180871614155b80156114ec5750600280871614155b156114fe576004965094861794611649565b60088087161480159061163057508060ff166003148061152157508360ff166050145b8061153d57508360ff16604f14801561153d5750600180871614155b8061155957508360ff16604f1480156115595750600280871614155b8061157557508360ff16604f1480156115755750600480871614155b806115a057508360ff16604e1480156115915750600180871614155b80156115a05750600280871614155b806115cb57508360ff16604e1480156115bc5750600180871614155b80156115cb5750600480871614155b806115f657508360ff16604e1480156115e75750600480871614155b80156115f65750600280871614155b8061163057508360ff16604d1480156116125750600480871614155b80156116215750600280871614155b80156116305750600180871614155b156116445760059650856008179550611649565b600196505b50600190920191611386565b505050509550959350505050565b60008060006116718461093b565b5050915091506000198260070b1215801561169157506000198160070b12155b80156116a1575060018260070b13155b8015610781575060018160070b1315949350505050565b60008060006116c68461093b565b50509150915060008260070b12156116df578160000391505b60008160070b12156116ef576000035b8060070b8260070b131561170557509050610665565b91506106659050565b604051806101600160405280600b90602082028036833750919291505056fea26469706673582212206a50a8b12279f03b43dc598b911946503bcdd8a592966c19ae26c088d9fcb98164736f6c63430006050033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061012c5760003560e01c8063acda69ca116100ad578063ed53a62411610071578063ed53a6241461052b578063f090aca814610565578063f6940ac714610588578063fcaf8951146105d1578063ff5335fa146105fd5761012c565b8063acda69ca146103e2578063b0ca9dfe14610434578063c3aab23c14610457578063d5763a801461049d578063d667fd04146104d15761012c565b8063467b4793116100f4578063467b4793146102ae57806356b5c3811461031e5780637a923474146103415780639f7cb08e14610362578063a48378ff146103c55761012c565b80630ececfea14610131578063213ee143146101765780632f587796146101df57806330ad93291461020e5780633683dee114610269575b600080fd5b6101546004803603604081101561014757600080fd5b508035906020013561061a565b6040805192835267ffffffffffffffff90911660208301528051918290030190f35b6101ba600480360360c081101561018c57600080fd5b5080359060208101359060ff60408201358116916060810135821691608082013581169160a0013516610632565b6040805160ff9485168152928416602084015292168183015290519081900360600190f35b6101fc600480360360208110156101f557600080fd5b5035610657565b60408051918252519081900360200190f35b61022b6004803603602081101561022457600080fd5b503561066a565b60408051600795860b860b815293850b850b602085015291840b90930b8282015267ffffffffffffffff909216606082015290519081900360800190f35b6102956004803603606081101561027f57600080fd5b508035906020810135906040013560ff16610688565b6040805192835260208301919091528051918290030190f35b6101fc600480360360208110156102c457600080fd5b8101906020810181356401000000008111156102df57600080fd5b8201836020820111156102f157600080fd5b8035906020019184602083028401116401000000008311171561031357600080fd5b5090925090506106a2565b6101fc6004803603604081101561033457600080fd5b50803590602001356106e0565b6101fc6004803603602081101561035757600080fd5b503561ffff166106f3565b61037f6004803603602081101561037857600080fd5b50356106fe565b6040805161ffff978816815260ff968716602082015294909516848601529185166060840152909316608082015263ffffffff90921660a0830152519081900360c00190f35b6101fc600480360360208110156103db57600080fd5b5035610724565b6101fc600480360360c08110156103f857600080fd5b5061ffff813581169160ff602082013581169260408301359091169160608101358216916080820135169063ffffffff60a0909101351661072f565b6101fc6004803603604081101561044a57600080fd5b508035906020013561074a565b6104776004803603602081101561046d57600080fd5b503560ff16610756565b6040805161ffff9094168452602084019290925260ff1682820152519081900360600190f35b6101fc600480360360608110156104b357600080fd5b508035600790810b916020810135820b91604090910135900b610774565b6104ee600480360360208110156104e757600080fd5b5035610789565b6040805161ffff96871681529486166020860152929094168383015263ffffffff16606083015260ff909216608082015290519081900360a00190f35b6101fc600480360360a081101561054157600080fd5b5080359060208101359060408101359060608101351515906080013560ff166107ac565b6101fc6004803603604081101561057b57600080fd5b50803590602001356107c7565b6105bb6004803603606081101561059e57600080fd5b508035906020810135906040013567ffffffffffffffff166107d3565b6040805160ff9092168252519081900360200190f35b6105bb600480360360608110156105e757600080fd5b508035906020810135906040013560ff166107e0565b6101fc6004803603602081101561061357600080fd5b50356107ed565b60008061062784846107f8565b915091509250929050565b600080600061064589898989898961087d565b92509250925096509650969350505050565b6000610662826108ae565b90505b919050565b6000806000806106798561093b565b93509350935093509193509193565b600080610696858585610956565b91509150935093915050565b600080805b838110156106d6576106ca8585838181106106be57fe5b90506020020135610a52565b909101906001016106a7565b5090505b92915050565b60006106ec8383610aa5565b9392505050565b600061066282610ab1565b60008060008060008061071087610ab8565b949c939b5091995097509550909350915050565b600061066282610aec565b600061073f878787878787610b20565b979650505050505050565b60006106ec8383610b74565b60008060006107678460ff16610c0c565b9250925092509193909250565b6000610781848484610cd7565b949350505050565b600080600080600061079a86610d01565b939a9299509097509550909350915050565b60006107bb8686868686610d32565b90505b95945050505050565b60006106ec8383610ded565b6000610781848484610e1f565b6000610781848484610f04565b6000610662826112c9565b604080516020808201859052818301849052603360f91b6060830152825180830360410181526061830184528051908201206081830186905260a18301859052606760f81b60c1840152835160a281850301815260c2909301909352815191012060009182916108729186916009918290069190066112ff565b946002945092505050565b600080600061088d898989610f04565b925061089c8989888888611336565b939a9099509297509195505050505050565b6000806000806108bd8561093b565b509250925092506000808460070b126108e0575060096004840160070b056108fa565b60098460000360040160070b816108f357fe5b0560000390505b6000808460070b12610916575060096004840160070b05610930565b60098460000360040160070b8161092957fe5b0560000390505b61073f828285610cd7565b90600160401b820490600160801b830490600160ff1b840490565b6000806000610966866000610b74565b90506019810480610975575060015b6040805160208082018a9052818301899052601960fa1b606083015282516041818403018152606190920190925280519101208190816109b157fe5b0660028204019250826109c357600192505b600260ff861614156109d85760048304830192505b60088111156109e5575060085b6040805160208082018a9052818301899052606560f81b60608301528251604181840301815260619092019092528051910120819081610a2157fe5b066002820401935083610a3357600193505b600160ff86161415610a485760048404840193505b5050935093915050565b600080600080610a6185610ab8565b509450945050509250600060028461ffff1681610a7a57fe5b0460010161ffff1690508161ffff168361ffff1614156107be57600281040160010195945050505050565b600a9091046001010290565b61ffff1690565b61ffff60e882901c81169260ff60e084901c169260f881901c9260d082901c81169260c083901c9091169163ffffffff1690565b6000600160ff1b821415610b0257506000610665565b6000610b0f836000610b74565b905060198104600101915050610665565b6001600160f81b031960f885901b1661ffff60e81b60e888901b160160ff60e01b60e087901b160161ffff60d01b60d085901b160161ffff60c01b60c084901b160163ffffffff8216019695505050505050565b6000806000610b828561093b565b505091509150600080610b948661093b565b5091935091505081840360070b6000811215610bae576000035b81840360070b6000811215610bc1576000035b6001603f1b821315610bd75781600160401b0391505b6001603f1b811315610bea57600160401b035b80821315610bff575094506106da9350505050565b95506106da945050505050565b6000806000610c1961170e565b50604080516101608101825260008152600a60208201526031918101919091526077606082015260d0608082015261014860a082015261020c60c082015261033a60e08201526104f5610100820152610e46610120820152611aee6101408201528061ffff8616600b8110610c8a57fe5b6020020151935060088561ffff161115610ca8576101ec9250610ccb565b600560038660010161ffff160a61ffff1681610cc057fe5b0460080161ffff1692505b600a9150509193909250565b600160ff1b67ffffffffffffffff938416928416600160401b0291909316600160801b0201010190565b61ffff60e882901c81169260a883901c82169260b881901c9092169163ffffffff60c882901c169160f89190911c90565b600060ff8216600114610d47575060006107be565b600f8315610d5357600a015b6040805160208082018a9052818301899052600360f91b6060830152825180830360410181526061909201909252805191012060ff82166064909106108015610ddf576040805160208082018b90528183018a9052600760f81b60608301528251604181840301815260619092019092528051910120869081610dd257fe5b06600101925050506107be565b506000979650505050505050565b6000806005610dfc8585610b74565b60020281610e0657fe5b04905080610e185760019150506106da565b90506106da565b6000610e2a84611663565b80610e405750600a67ffffffffffffffff831610155b15610e4d575060066106ec565b6000610e58856116b8565b60090267ffffffffffffffff1690506000811115610e7557600319015b60198110610ef757604080516020808201889052818301879052600360fa1b60608301528251604181840301815260619092019092528051910120606461271090910660ff1611801590610eec576000610ece8761093b565b509250505060058160070b81610ee057fe5b07600101935050610ef1565b600692505b50610efc565b600691505b509392505050565b600080600460ff84161415610f1b5750600f611103565b604080516020808201889052818301879052600160f81b606083015282516041818403018152606190920190925280519101206064900660ff1660571115610f66575060ff821660020a5b604080516020808201889052818301879052600160f91b606083015282516041818403018152606190920190925280519101206064900660ff166028111561110357604080516020808201889052818301879052600360f81b606083015282516041818403018152606190920190925280519101206064900660ff166019111561102d5760ff83161580610ffd5750600260ff8416145b1561100a57600a17611028565b600160ff8416148061101f5750600360ff8416145b15611028576005175b611103565b604080516020808201889052818301879052600360f81b606083015282516041818403018152606190920190925280519101206064900660ff16603211156110bb5760ff831661107f57600817611028565b600160ff8416141561109357600117611028565b600260ff841614156110a757600217611028565b600360ff8416141561102857600417611103565b60ff83166110cb57600217611103565b600160ff841614156110df57600417611103565b600260ff841614156110f357600817611103565b600360ff84161415611103576001175b604080516020808201889052818301879052606f60f81b60608301528251808303604101815260619092019092528051910120606490066000603c60ff83161061116157605a60ff83161061115957600261115c565b60015b611164565b60005b905060048160ff161061117c578260f01792506112be565b8060ff16600314156111f6576040805160208082018a9052818301899052600760fc1b606083015282518083036041018152606190920190925280519101206003166001810160070260ff8116601514156111dc578460d01794506111ef565b8060ff16601c14156111ef578460b01794505b50506112be565b8060ff1660021415611270576040805160208082018a9052818301899052600760fc1b60608301528251808303604101815260619092019092528051910120600690066001810160030260ff8116600f1415611257578460501794506111ef565b8060ff16601214156111ef578460a017945050506112be565b8060ff16600114156112be576040805160208082018a9052818301899052600760fc1b6060830152825160418184030181526061909201909252805191012060031660020a60100292909217915b509095945050505050565b60008060066112dc84600160ff1b610b74565b600202816112e657fe5b049050806112f8576001915050610665565b9050610665565b60008060008061130e8761093b565b5092509250925061073f8660ff1660048560090203018660ff16600485600902030183610cd7565b6000806000611344886108ae565b8692509050846000806113568b61093b565b5050915091508160070b600014801561137257508060070b6000145b156113865760029550846001179450611655565b8660ff168360ff16116116555760408051602080820187905260f886901b6001600160f81b03191682840152604182018d9052600360f81b60618301528251808303604201815260629092019092528051910120601490066001868116148015906113ff575060ff811615806113ff57508360ff166050145b156114135760029650856001179550611649565b60028087161480159061145257508060ff166001148061143657508360ff166050145b8061145257508360ff16604f1480156114525750600180871614155b156114665760039650856002179550611649565b6004808716148015906114ec57508060ff166002148061148957508360ff166050145b806114a557508360ff16604f1480156114a55750600180871614155b806114c157508360ff16604f1480156114c15750600280871614155b806114ec57508360ff16604e1480156114dd5750600180871614155b80156114ec5750600280871614155b156114fe576004965094861794611649565b60088087161480159061163057508060ff166003148061152157508360ff166050145b8061153d57508360ff16604f14801561153d5750600180871614155b8061155957508360ff16604f1480156115595750600280871614155b8061157557508360ff16604f1480156115755750600480871614155b806115a057508360ff16604e1480156115915750600180871614155b80156115a05750600280871614155b806115cb57508360ff16604e1480156115bc5750600180871614155b80156115cb5750600480871614155b806115f657508360ff16604e1480156115e75750600480871614155b80156115f65750600280871614155b8061163057508360ff16604d1480156116125750600480871614155b80156116215750600280871614155b80156116305750600180871614155b156116445760059650856008179550611649565b600196505b50600190920191611386565b505050509550959350505050565b60008060006116718461093b565b5050915091506000198260070b1215801561169157506000198160070b12155b80156116a1575060018260070b13155b8015610781575060018160070b1315949350505050565b60008060006116c68461093b565b50509150915060008260070b12156116df578160000391505b60008160070b12156116ef576000035b8060070b8260070b131561170557509050610665565b91506106659050565b604051806101600160405280600b90602082028036833750919291505056fea26469706673582212206a50a8b12279f03b43dc598b911946503bcdd8a592966c19ae26c088d9fcb98164736f6c63430006050033",
+  "devdoc": {
+    "methods": {}
+  },
+  "userdoc": {
+    "methods": {}
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}

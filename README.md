@@ -19,3 +19,21 @@ Alternatively the `webapp` can be started to connect to the already deployed sta
 ## License
 
 The code is licensed as MIT, see [LICENSE](./LICENSE) file.
+
+
+## TO PLAY WITH IT
+
+- `cd ethernal`
+
+- `npm i`
+
+- open 3 consoles
+  
+  - in the first do  `npm run contracts`
+  - after contracts are deployed, in the second, do `npm run backend`
+  - then after the backend succesfuly start, in the third console, do: `npm run webapp`
+
+- open your browser at : `http://localhost:8080/#dungeonKey=0xee817c4bd0ed417a07bd49b8d94efaf58ed75897c4059846fa9bcf564f59cd4c`
+
+Note you need to have metamask installed and it must be connected to `localhost:8545`
+You also need to reset your account (metamask cache data across network with same chainId (localhost:8545))

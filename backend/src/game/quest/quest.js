@@ -7,26 +7,20 @@ class Quest {
   rules = {};
   npc;
 
-  constructor(dungeon, character, id) {
+  constructor(dungeon, character) {
     this.dungeon = dungeon;
     this.character = character;
-    this.id = id;
   }
 
-  static async initSharedData(dungeon) {
-    return {};
+  canAccept() {
+    return this.dungeon.character.coordinates(this.character) === this.coordinates;
   }
 
-  async canAccept() {
-    const coordinates = await this.dungeon.character.coordinates(this.character);
-    return coordinates === this.coordinates;
-  }
-
-  async accept() {
+  accept() {
     if (this.status === 'accepted') {
       throw new Error('quest already accepted');
     }
-    if (await this.canAccept()) {
+    if (this.canAccept()) {
       this.changeStatus('accepted');
     } else {
       throw new Error('cannot accept quest');
@@ -47,15 +41,16 @@ class Quest {
     // no reward
   }
 
-  async spawnNPC(data = {}) {
+  spawnNPC(data = {}) {
     if (this.npc && this.coordinates) {
-      await this.dungeon.randomEvents.spawnClonedNPC(this.coordinates, this.npc, { character: this.character, quest: this.id, ...data });
+      this.dungeon.randomEvents.spawnClonedNPC(this.coordinates, this.npc, data);
     }
   }
 
-  async removeNPC() {
+  removeNPC() {
     if (this.npc && this.coordinates) {
-      await this.dungeon.randomEvents.removeClonedNPC(this.coordinates, this.npc);
+      this.dungeon.randomEvents.removeClonedNPC(this.coordinates, this.npc);
+      this.dungeon.quests.respawnNPC(this.coordinates);
     }
   }
 
@@ -73,11 +68,7 @@ class Quest {
   }
 
   decodeData(data) {
-    try {
-      return JSON.parse(data);
-    } catch (e) {
-      return data;
-    }
+    return JSON.parse(data);
   }
 
   encodeData(data) {
@@ -94,10 +85,6 @@ class Quest {
 
   get coordinates() {
     return null;
-  }
-
-  get shared() {
-    return this.dungeon.quests.shared[this.id];
   }
 
   toJSON() {

@@ -1,5 +1,5 @@
 <script>
-  import { isDesktop, gameOverlay, mapOverlay, menuOverlay } from 'stores/screen';
+  import { isDesktop, mapOverlay, menuOverlay } from 'stores/screen';
   import { dungeon } from 'stores/dungeon';
   import {
     characterCoordinates,
@@ -25,6 +25,8 @@
   export let monsterOverlay;
   export let toggleMonsterOverlay = null;
 
+  let isHelpDisabled;
+
   let roomCoords;
   $: {
     const [x, y, z = 0] = $characterCoordinates.split(',');
@@ -38,9 +40,13 @@
     $characterStatus !== 'dead';
 
   $: isAttacking = ['attacking monster', 'claiming rewards', 'just died'].includes($characterStatus);
+  $: requestedHelp =
+    isHelpDisabled || ($currentCombat && $currentCombat.needsHelp && $currentCombat.needsHelp.includes($characterId));
 
-  const addBounty = () => {
-    gameOverlay.open('addBounty');
+  const requestHelp = async () => {
+    isHelpDisabled = true;
+    const response = await $dungeon.cache.action('need-help');
+    isHelpDisabled = false;
   };
 </script>
 
@@ -94,7 +100,7 @@
     </div>
 
     {#if isAttacking}
-      <BoxButton type="secondary" isDisabled="{isDisabled}" onClick="{addBounty}">
+      <BoxButton type="secondary" isDisabled="{isDisabled || requestedHelp}" onClick="{requestHelp}">
         <img src="{IconHelp}" alt="help" />
       </BoxButton>
     {/if}

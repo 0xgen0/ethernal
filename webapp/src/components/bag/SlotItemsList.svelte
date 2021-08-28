@@ -17,8 +17,11 @@
       item.classes.map(g => (g === 'adventurer' ? 'explorer' : g)).includes($characterClassName.toLowerCase()),
   );
 
+  let disabled = false;
   const equip = async item => {
+    disabled = true;
     await $dungeon.equip(item);
+    disabled = false;
   };
 </script>
 
@@ -42,7 +45,7 @@
         {#each filteredItems as item (item.id)}
           <Gear
             gear="{item}"
-            disabled="{dead}"
+            disabled="{disabled || dead}"
             playerClassName="{$characterClassName}"
             playerLevel="{$characterLevel}"
             onEquip="{() => equip(item)}"

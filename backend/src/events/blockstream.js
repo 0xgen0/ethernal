@@ -10,10 +10,9 @@ class Blockstream extends Events {
     blockRetention: 1000,
     start: true,
   };
-  contracts = {};
 
-  constructor(provider, db, configuration = {}) {
-    super(provider, db);
+  constructor(provider, configuration = {}) {
+    super(provider);
     console.log('listening for events with blockstream');
     this.configuration = { ...this.defaultConfig, ...configuration };
     this.blockAndLogStreamer = new BlockAndLogStreamer(
@@ -22,6 +21,7 @@ class Blockstream extends Events {
       error => console.log('event processing error: ' + error, error),
       this.configuration,
     );
+    this.eventListeners = [];
     this.blockAndLogStreamer.addLogFilter({});
     this.blockAndLogStreamer.subscribeToOnLogsAdded((blockHash, logs) => this.emitLogs(blockHash, logs));
     this.blockAndLogStreamer.subscribeToOnLogsRemoved((blockHash, logs) => this.emitLogs(blockHash, logs, true));
@@ -30,25 +30,22 @@ class Blockstream extends Events {
     }
   }
 
-  async emitLogs(blockHash, logs, removed = false) {
-    for (let log of logs) {
-      const address = log.address.toLowerCase();
-      const contract = this.contracts[address];
-      if (contract) {
-        const event = this.parseLog(contract, log);
-        const listener = this.listeners.find(({ eventName, contract }) =>
-          event.name === eventName && contract.address.toLowerCase() === address);
-        if (listener) {
-          const { addedCallback, prefetch } = listener;
-          await this.useDeferrableCallback(addedCallback, prefetch)(...Array.from(event.args), event, removed);
-        }
-      }
+  emitLogs(blockHash, logs, removed = false) {
+    if (logs.length) {
+      this.eventListeners.map(({ contract, eventName, addedCallback, removedCallback }) => {
+        const callback = removed ? removedCallback : addedCallback;
+        logs
+          .filter(({ address }) => address === contract.address.toLowerCase())
+          .map(log => this.parseLog(contract, log))
+          .filter(({ name }) => name === eventName)
+          .map(event => this.useDeferrableCallback(callback)(...Array.from(event.args), event, removed));
+      });
     }
   }
 
-  on(contract, eventName, addedCallback, prefetch, confirmed = false) {
-    this.contracts[contract.address.toLowerCase()] = contract;
-    return super.on(contract, eventName, addedCallback, prefetch, confirmed);
+  on(contract, eventName, addedCallback, removedCallback = () => true) {
+    this.eventListeners.push({ contract, eventName, addedCallback, removedCallback });
+    return this;
   }
 
   onBlock(callback) {

@@ -12,7 +12,7 @@ import Dungeon from 'lib/dungeon';
 import ReadOnly from 'lib/readOnly';
 import roomGenerator from 'lib/roomGenerator';
 import Moves from './moves';
-import wallet from 'stores/wallet';
+import {chain, wallet} from 'stores/wallet';
 import { mapModal, notificationOverlay } from 'stores/screen';
 import { inflictionText, receivedText, classPortrait, gearImage } from 'utils/data';
 import { combatText, statusesText, classes, notifications } from 'data/text';
@@ -398,20 +398,6 @@ class Cache {
         }
       });
 
-      this.on('bounty-added', ({ character, coordinates, characterInfo, room }) => {
-        if (character !== this.characterId) {
-          notificationOverlay.open('generic', {
-            text: `<em>${characterInfo.characterName}</em> added a bounty on a monster.`,
-            coordinates
-          });
-        }
-        this.fetchPoiRooms('bounty');
-      });
-
-      this.on('bounty-claimed', ({ coordinates, characterInfo, room }) => {
-        this.fetchPoiRooms('bounty');
-      });
-
       this.on(
         'transfer',
         async ({ from, to, room }) => {
@@ -439,7 +425,6 @@ class Cache {
       this.on(
         'quest-update',
         async ({ id, character, quest }) => {
-          mapModal.close();
           await this.fetchQuests();
           questUpdate.set({ id, quest });
           if (character === this.characterId) {
@@ -613,7 +598,6 @@ class Cache {
       this.fetchPoiRooms('teleports'),
       this.fetchPoiRooms('monster'),
       this.fetchPoiRooms('foreclosed'),
-      this.fetchPoiRooms('bounty'),
       this.fetchKeeperAbilities(),
     ]);
 
@@ -629,6 +613,7 @@ class Cache {
         }),
       {
         onFailedAttempt: e => log.info(e.message),
+        forever: true,
       },
     );
     this.applyCharacterInfo(info);
@@ -650,11 +635,11 @@ class Cache {
       ),
     ]);
 
-    const { coordinates } = info;
+    const coordinates = info.location;
 
     log.info(`characters is at ${coordinates}`, info);
 
-    const initialCoordinates = aroundCoordinates(coordinates, 20);
+    const initialCoordinates = aroundCoordinates(coordinates, 10);
     console.log('fetching rooms', initialCoordinates);
     const rooms = await this.subscribeRooms(initialCoordinates);
     console.log('rooms fetched', rooms);
@@ -741,6 +726,8 @@ class Cache {
 
       if (myStatus.combat) {
         _currentCombat.set(myStatus.combat);
+      } else {
+        _currentCombat.set(null);
       }
 
       if (myStatus.rewards) {
@@ -827,7 +814,7 @@ class Cache {
     const previous = cache.reachableRooms;
     const recalculated =
       !this.characterCoordinates || get(needFood) || this.characterStatus !== 'exploring'
-        ? {[this.characterCoordinates]: this.currentRoom}
+        ? { [this.characterCoordinates]: this.currentRoom }
         : bfs(this.rooms, this.moves, this.characterCoordinates, get(_characterBalances).keys);
     if (!equal(previous, recalculated)) {
       _reachableRooms.set(recalculated);
@@ -1225,7 +1212,6 @@ const _poiRooms = {
   teleports: writable([]),
   monster: writable([]),
   foreclosed: writable([]),
-  bounty: writable([]),
 };
 const _keeper = writable([]); // sync of the keeper endpoint
 const _keeperRooms = writable([]); // mapped rooms managed by the character
@@ -1279,7 +1265,6 @@ export const chestRooms = new ReadOnly(_poiRooms.chest);
 export const teleportRooms = new ReadOnly(_poiRooms.teleports);
 export const monsterRooms = new ReadOnly(_poiRooms.monster);
 export const foreclosedRooms = new ReadOnly(_poiRooms.foreclosed);
-export const bountyRooms = new ReadOnly(_poiRooms.bounty);
 export const keeper = new ReadOnly(_keeper);
 export const keeperRooms = new ReadOnly(_keeperRooms);
 export const keeperIncome = new ReadOnly(_keeperIncome);
@@ -1314,9 +1299,9 @@ export const combatLog = derived([currentDuel], async ([$currentDuel], set) => {
   }
 });
 
-export const needFood = derived([playerEnergy, wallet], ([$playerEnergy, $wallet], set) => {
+export const needFood = derived([playerEnergy, chain], ([$playerEnergy, $chain], set) => {
   if ($playerEnergy) {
-    set(BigNumber.from($playerEnergy).lt(BigNumber.from(config($wallet.chainId).minBalance).mul(5)));
+    set(BigNumber.from($playerEnergy).lt(BigNumber.from(config($chain.chainId).minBalance).mul(5)));
     // set(true);
   }
 });
@@ -1452,7 +1437,6 @@ window.stores = {
   keeperAbilities,
   currentQuest,
   taxDueDate,
-  bountyRooms,
 };
 
 // @TODO: remove debug

@@ -26,7 +26,6 @@
   import MiniMap from 'components/map/MiniMap';
 
   import IconHere from 'assets/icons/marker_2x.png';
-  import {derived} from "svelte/store";
 
   export let back;
   export let coordinates;
@@ -47,7 +46,6 @@
   let room;
   let shortUrl;
   let unlocking;
-  let inRoom;
 
   /**
    * Fetch dungeon approved (unlock) status on mount
@@ -62,10 +60,6 @@
     if ((coordinates || $currentRoom.coordinates) !== currentCoordinates) {
       currentCoordinates = coordinates || $currentRoom.coordinates;
       shortUrl = `http://ethrn.al/a/r/${currentCoordinates}`;
-
-      if ($currentRoom.coordinates === coordinates) {
-        inRoom = true;
-      }
 
       const result = await $dungeon.cache.getRoom(currentCoordinates);
       room = roomGenerator(result);
@@ -85,8 +79,7 @@
   $: isOwner = $keeperRooms.map(r => r.coordinates).includes(currentCoordinates);
   $: isInRoom = $currentRoom.coordinates == currentCoordinates;
   $: isOnFloor = Number($currentFloor) === getCoordinatesFloor(currentCoordinates);
-  $: dungeonOwned = room && $dungeon.contract.address.toLowerCase() === room.keeper.player;
-  $: canBuyRoom = room && !isOwner && isInRoom && ($foreclosedRooms.includes(currentCoordinates) || dungeonOwned);
+  $: canBuyRoom = room && !isOwner && isInRoom && $foreclosedRooms.includes(currentCoordinates);
   $: hasEnoughBuyCost = $characterBalances.coins >= ROOM_COST;
   $: canToggleRoom =
     (room && !room.keeper.active) ||
@@ -384,12 +377,12 @@
               </p>
             {:else}
               <p>
-                <span>Keeper:</span>
+                <span>Discoverer:</span>
                 {(discoverer && discoverer.characterName) || '--'}
               </p>
               <p class="truncate selectable">
-                <span>Owner:</span>
-                {dungeonOwned ? '--' : room.keeper.player}
+                <span>Dungeon Keeper:</span>
+                {room.keeper.player}
               </p>
               <p>
                 <span>Rewards:</span>

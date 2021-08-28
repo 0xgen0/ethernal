@@ -10,9 +10,9 @@ class Chest extends Ability {
   };
   chest = true;
 
-  async applyRoomDataUpdate(coordinates, data) {
+  applyRoomDataUpdate(coordinates, data, previous) {
     if (data === this.data) {
-      await this.dungeon.randomEvents.spawnChest(coordinates);
+      this.dungeon.randomEvents.spawnChest(coordinates);
     }
   }
 }

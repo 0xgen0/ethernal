@@ -48,7 +48,7 @@ async function start() {
   const c = await contracts();
 
   // Setup dungeon
-  const dungeon = new Dungeon({ contracts: c, leaderboard, sockets });
+  const dungeon = new Dungeon(c, sockets, leaderboard);
 
   let preListener;
   if (process.env.PRE_SERVER) {

@@ -1,10 +1,16 @@
 const Promise = require('bluebird');
-const { events, db } = require('../db/provider');
-const { cleanRoom, createBalance, createBalanceFromAmounts, balanceToAmounts, isZeroBalance } = require('../data/utils');
-const { locationToCoordinates, isLocation, isBounty, bountyToLocation } = require('./utils');
+const retry = require('p-retry');
+const { events } = require('../db/provider');
+const { cleanRoom, createBalance, createBalanceFromAmounts } = require('../data/utils');
+const { locationToCoordinates, isLocation, isAddress } = require('./utils');
 const DungeonComponent = require('./dungeonComponent.js');
+const Progress = require('../utils/progress.js');
+
+const concurrency = process.env.CONCURRENCY || 20;
+const retryConfig = { retries: 5 };
 
 class Elements extends DungeonComponent {
+  balances = {};
 
   registerEventHandlers() {
     const { Elements } = this.dungeon.contracts;
@@ -14,53 +20,54 @@ class Elements extends DungeonComponent {
     events.on(Elements, 'SubTransferBatch', this.handleSubTransferBatch.bind(this));
   }
 
-  async storeSchema() {
-    return db.tx(t => {
-      t.query(`
-        CREATE TABLE IF NOT EXISTS ${db.tableName('elements')} (
-            benefactor varchar(100) PRIMARY KEY,
-            e1 numeric,
-            e2 numeric,
-            e3 numeric,
-            e4 numeric,
-            e5 numeric,
-            coins numeric,
-            keys numeric,
-            fragments numeric
-        )
-      `);
+  async fetchAll(fromBlock = 0, toBlock = 'latest', snapshot) {
+    console.log('getting elements');
+    const locations = Object.values(this.dungeon.rooms).map(room => room.location);
+    const characters = Object.keys(this.dungeon.characters);
+    const addresses = Object.values(this.dungeon.characters).map(character => character.player);
+    console.log('fetching balances of ' + (locations.length + characters.length + addresses.length) + ' owners');
+    const progress = new Progress('balances fetched', 100);
+    const balances = await Promise.map(
+      [...locations, ...characters, ...addresses, this.contracts.Dungeon.address.toLowerCase()],
+      async owner => {
+        const balance = (snapshot && snapshot.balances[owner]) || await this.fetchBalance(owner, toBlock);
+        progress.tick();
+        return [owner, balance];
+      },
+      { concurrency },
+    );
+    balances.forEach(([id, balance]) => {
+      this.balances[id] = balance;
+      if (isLocation(id)) {
+        const room = this.dungeon.rooms[locationToCoordinates(id)];
+        if (room) {
+          room.scavenge = { ...room.scavenge, balance: this.balanceOf(id) };
+        } else {
+          console.log('room not found ' + id);
+        }
+      }
     });
   }
 
-  async storeBalances(balances) {
-    const table = db.tableName('elements');
-    return db.tx(t => {
-      balances.forEach(([benefactor, balance]) => {
-        t.query(
-          `INSERT INTO ${table} VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-              ON CONFLICT (benefactor) DO UPDATE
-              SET e1 = excluded.e1,
-                  e2 = excluded.e2,
-                  e3 = excluded.e3,
-                  e4 = excluded.e4,
-                  e5 = excluded.e5,
-                  coins = excluded.coins,
-                  keys = excluded.keys,
-                  fragments = excluded.fragments`,
-          [String(benefactor), ...balanceToAmounts(balance)],
-        );
-      });
-    });
+  async fetchBalance(owner, blockTag = 'latest') {
+    const { Elements } = this.dungeon.contracts;
+    const balanceOf = isAddress(owner) ? Elements.balanceOfBatch : Elements.subBalanceOfBatch;
+    const ids = [1, 2, 3, 4, 5, 6, 7, 8];
+    const amounts = await retry(() => balanceOf([...ids].fill(owner), ids, { blockTag })).then(balances => balances.map(Number));
+    return createBalanceFromAmounts(amounts);
   }
 
-  async handleTransfer(fromAddress, toAddress, id, amount) {
+  async reloadBalance(owner, blockTag = 'latest') {
+    this.balances[owner] = await this.fetchBalance(owner, blockTag);
+    return this.balanceOf(owner);
+  }
+
+  handleTransfer(fromAddress, toAddress, id, amount) {
     const from = fromAddress.toLowerCase();
     const to = toAddress.toLowerCase();
     const event = createBalance({ from, to });
-    const [fromBalance, toBalance] = await Promise.all([
-      this.balanceOf(from),
-      this.balanceOf(to),
-    ]);
+    const fromBalance = this.balanceOf(from);
+    const toBalance = this.balanceOf(to);
     const type = id.toNumber();
     const number = amount.toNumber();
     if (type === 6) {
@@ -81,24 +88,20 @@ class Elements extends DungeonComponent {
       fromBalance.elements[type - 1] -= number;
       toBalance.elements[type - 1] += number;
     }
-    await this.storeBalances([
-      [from, fromBalance],
-      [to, toBalance],
-    ]);
+    this.balances[from] = fromBalance;
+    this.balances[to] = toBalance;
   }
 
   handleTransferBatch() {
     console.log('elements transfer batch handler not implemented');
   }
 
-  async handleSubTransfer(fromId, toId, id, amount) {
+  handleSubTransfer(fromId, toId, id, amount) {
     const from = fromId.toString();
     const to = toId.toString();
     const event = createBalance({ from, to });
-    const [fromBalance, toBalance] = await Promise.all([
-      this.balanceOf(from),
-      this.balanceOf(to),
-    ]);
+    const fromBalance = this.balanceOf(from);
+    const toBalance = this.balanceOf(to);
     const type = id.toNumber();
     const number = amount.toNumber();
     if (type === 6) {
@@ -119,38 +122,24 @@ class Elements extends DungeonComponent {
       fromBalance.elements[type - 1] -= number;
       toBalance.elements[type - 1] += number;
     }
-    await this.storeBalances([
-      [from, fromBalance],
-      [to, toBalance],
-    ]);
+    this.balances[from] = fromBalance;
+    this.balances[to] = toBalance;
     this.sockets.emit('transfer', event);
     const characterInfos = [];
     const roomUpdates = [];
     if (from !== '0') {
       if (isLocation(from)) {
-        const room = await this.dungeon.room(locationToCoordinates(from));
-        room.scavenge = { ...room.scavenge, balance: fromBalance };
-        await this.dungeon.map.storeRooms([room]);
+        const room = this.dungeon.rooms[locationToCoordinates(from)];
+        room.scavenge = { ...room.scavenge, balance: this.balanceOf(from) };
         roomUpdates.push(cleanRoom(room));
-      } else if (isBounty(from)) {
-        const room = await this.dungeon.room(locationToCoordinates(bountyToLocation(from)));
-        room.bounty = { ...room.bounty, ...fromBalance };
-        if (isZeroBalance(fromBalance)) {
-          room.bounty.sponsors = [];
-        }
-        await this.dungeon.map.storeRooms([room]);
-        roomUpdates.push(cleanRoom(room));
-        const characterInfo = await this.dungeon.character.info(to);
-        this.sockets.emit('bounty-claimed', { character: to, coordinates: room.coordinates, characterInfo, room: cleanRoom(room), ...event });
       } else {
-        const characterInfo = await this.dungeon.character.info(from);
+        const characterInfo = this.dungeon.character.info(from);
         characterInfos.push(characterInfo);
-        if (this.dungeon.character.isDead(characterInfo.status)) {
-          const room = await this.dungeon.character.room(from);
-          const { coordinates, scavenge } = room;
+        if (this.dungeon.map.deadCharacters.has(from)) {
+          const coordinates = this.dungeon.character.coordinates(from);
           const character = to;
-          room.scavenge = { ...scavenge, corpses: await this.dungeon.map.scavengeCorpses(room) };
-          await this.dungeon.map.storeRooms([room]);
+          const room = this.dungeon.rooms[coordinates];
+          room.scavenge = { ...room.scavenge, corpses: this.dungeon.map.scavengeCorpses(coordinates) };
           roomUpdates.push(cleanRoom(room));
           this.sockets.emit('scavenge', { ...event, character, from, coordinates });
         }
@@ -158,23 +147,14 @@ class Elements extends DungeonComponent {
     }
     if (to !== '0') {
       if (isLocation(to)) {
-        const room = await this.dungeon.room(locationToCoordinates(to));
-        const balance = toBalance;
-        room.scavenge = {...room.scavenge, balance};
-        await this.dungeon.map.storeRooms([room]);
+        const room = this.dungeon.rooms[locationToCoordinates(to)];
+        const balance = this.balanceOf(to);
+        room.scavenge = { ...room.scavenge, balance };
         roomUpdates.push(cleanRoom(room));
-        const characterInfo = await this.dungeon.character.info(from);
-        this.sockets.emit('dropped', { character: from, coordinates: room.coordinates, characterInfo, balance, ...event });
-      } else if (isBounty(to)) {
-        const room = await this.dungeon.room(locationToCoordinates(bountyToLocation(to)));
-        room.bounty = { ...room.bounty, ...toBalance };
-        room.bounty.sponsors = [...new Set([...(room.bounty.sponsors || []), from])];
-        await this.dungeon.map.storeRooms([room]);
-        roomUpdates.push(cleanRoom(room));
-        const characterInfo = await this.dungeon.character.info(from);
-        this.sockets.emit('bounty-added', { character: from, coordinates: room.coordinates, characterInfo, room: cleanRoom(room), ...event });
+        const characterInfo = this.dungeon.character.info(from);
+        this.sockets.emit('dropped', { character: from, coordinates: room.coordinates, characterInfo, balance })
       } else {
-        const characterInfo = await this.dungeon.character.info(to);
+        const characterInfo = this.dungeon.character.info(to);
         characterInfos.push(characterInfo);
       }
     }
@@ -185,19 +165,8 @@ class Elements extends DungeonComponent {
     console.log('elements sub transfer batch handler not implemented');
   }
 
-  async balanceOf(benefactor) {
-    const { rows } = await db.query(`SELECT * FROM ${db.tableName('elements')} WHERE benefactor = $1`, [String(benefactor)]);
-    if (rows.length) {
-      const [, ...amounts] = Object.values(rows[0]).map(Number);
-      return createBalanceFromAmounts(amounts);
-    } else {
-      return createBalance();
-    }
-  }
-
-  async balances(benefactors) {
-    const { rows } = await db.query(`SELECT * FROM ${db.tableName('elements')} WHERE benefactor in ($1)`, [benefactors.map(v => v.toString())]);
-    return rows.reduce((res, [benefactor, ...amounts]) => ({...res, [benefactor]: createBalanceFromAmounts(amounts)}), {});
+  balanceOf(owner) {
+    return this.balances[owner] || createBalance();
   }
 }
 

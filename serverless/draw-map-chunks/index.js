@@ -16,7 +16,7 @@ const CACHE_MAX_AGE = 120; // 2 minutes
 const CACHE_URLS = Object.freeze({
   local: process.env.CACHE_URL_LOCAL || 'http://localhost:3399',
   dev: process.env.CACHE_URL_DEV || 'https://ethernal-be-alpha.herokuapp.com', // alpha3
-  alpha: process.env.CACHE_URL_ALPHA || 'https://ethernal-cache-2.herokuapp.com', // alpha3
+  alpha: process.env.CACHE_URL_ALPHA || 'https://ethernal-cache-1.herokuapp.com', // alpha3
 });
 
 /**

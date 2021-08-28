@@ -2,8 +2,8 @@ const { coordinatesInDirection, order } = require('../utils');
 const MapComponent = require('./mapComponent.js');
 
 class Exits extends MapComponent {
-  async opositeExit(coordinates, direction) {
-    const room = await this.room(coordinatesInDirection(coordinates, direction));
+  opositeExit(coordinates, direction) {
+    const room = this.rooms[coordinatesInDirection(coordinates, direction)];
     if (room) {
       const reverseDirection = order[(direction + 2) % 4];
       const { exits, locks } = room;
@@ -13,9 +13,10 @@ class Exits extends MapComponent {
     }
   }
 
-  async validExit(room, direction) {
+  validExit(room, direction) {
     const currentRoom = room;
-    const nextRoom = await this.room(coordinatesInDirection(room.coordinates, direction));
+    const nextLocation = coordinatesInDirection(room.coordinates, direction);
+    const nextRoom = this.rooms[nextLocation];
     const cb = currentRoom.blockNumber;
     const nb = nextRoom && nextRoom.blockNumber ? nextRoom.blockNumber : 0;
     const fromCurrent =
@@ -23,7 +24,7 @@ class Exits extends MapComponent {
       (direction === 1 && [currentRoom.exits.east, currentRoom.locks.east]) ||
       (direction === 2 && [currentRoom.exits.south, currentRoom.locks.south]) ||
       (direction === 3 && [currentRoom.exits.west, currentRoom.locks.west]);
-    const fromDst = await this.opositeExit(room.coordinates, direction);
+    const fromDst = this.opositeExit(room.coordinates, direction);
     if (cb < nb || nb === 0) {
       return fromCurrent;
     } else if (cb > nb) {
@@ -33,15 +34,14 @@ class Exits extends MapComponent {
     }
   }
 
-  async forRoom(room) {
+  forRoom(room) {
     const allLocks = {};
     const allExits = {};
-    await Promise.all(
-      order.map(async (direction, num) => {
-        const [exit, lock] = await this.validExit(room, num);
-        allExits[direction] = exit;
-        allLocks[direction] = lock;
-    }));
+    order.forEach((direction, num) => {
+      const [exit, lock] = this.validExit(room, num);
+      allExits[direction] = exit;
+      allLocks[direction] = lock;
+    });
     return { allLocks, allExits };
   }
 }

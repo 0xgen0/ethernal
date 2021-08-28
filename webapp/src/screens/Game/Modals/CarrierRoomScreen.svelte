@@ -313,6 +313,7 @@
           balances="{$characterVault.balance}"
           {selectedItems}
           onChange="{(id, amount) => onAddItem({ id }, amount)}"
+          carrierCost="{cost}"
         />
 
         {#if !expandConsumables}

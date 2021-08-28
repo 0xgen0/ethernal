@@ -55,7 +55,11 @@
     {/if}
 
     <div>
+      {#if refill}
+        <h4>You’ll need to refill your food supply before you can proceed.</h4>
+      {/if}
       <BoxButton type="wide full" {disabled} onClick="{ok}">
+        {#if refill}Refill Food &{/if}
         {#if ressurectedId}Enter the dungeon{:else}Sign Back In{/if}
       </BoxButton>
     </div>

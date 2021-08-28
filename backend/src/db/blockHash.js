@@ -1,11 +1,9 @@
 const retry = require('p-retry');
-const memoize = require('memoizee');
-const taim = require('taim');
 const { provider, contracts } = require('./provider');
 
 const zeroHash = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
-const blockHash = memoize(taim('blockHash', async (blockNumber, options = {}) => {
+const blockHash = async (blockNumber, options = {}) => {
   blockNumber = Number(blockNumber);
   const { BlockHashRegister } = await contracts();
   return retry(async () => {
@@ -22,6 +20,6 @@ const blockHash = memoize(taim('blockHash', async (blockNumber, options = {}) =>
     }
     return hash;
   });
-}), { max: 10000, primitive: true, length: false });
+};
 
 module.exports = blockHash;

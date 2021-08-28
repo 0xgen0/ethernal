@@ -90,15 +90,6 @@ contract DungeonAdminFacet is DungeonFacetBase {
         }
     }
 
-    function claimBounty(uint256 location, uint256 characterId, uint16[8] calldata amounts) external onlyAdmin {
-        uint256 bounty = PureDungeon._locationToBounty(location);
-        for (uint8 i = 0; i < amounts.length; i++) {
-            if (amounts[i] > 0) {
-                _elementsContract.subTransferFrom(bounty, characterId, i + 1, amounts[i]);
-            }
-        }
-    }
-
     function updateRoomData(uint256 characterId, uint256 location, uint256 data, uint256[8] calldata amountsPayed) external onlyAdmin {
         require(_isRoomActive(location), 'room is not active');
         uint256 owner = _roomsContract.subOwnerOf(location);
@@ -129,11 +120,9 @@ contract DungeonAdminFacet is DungeonFacetBase {
         Room storage room = _rooms[location];
         if (room.monsterBlockNumber != 0) {
             room.monsterBlockNumber = 0;
-        }
-        if (room.randomEvent != 0) {
+        } else if (room.randomEvent == 1) {
             room.randomEvent = 0;
-        }
-        if (_roomsContract.getData(location) > 0) {
+        } else if (_roomsContract.getData(location) > 0) {
             _roomsContract.setData(location, 0);
         }
     }

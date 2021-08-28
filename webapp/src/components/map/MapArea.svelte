@@ -141,11 +141,7 @@
       _h -= 1;
     }
 
-    console.log('tilemap');
-    console.log(PIXI.tilemap);
     PIXI.tilemap.Constant.maxTextures = 4;
-    console.log('constant');
-    console.log(PIXI.tilemap.Constant);
 
     /* set up pixi app */
     try {

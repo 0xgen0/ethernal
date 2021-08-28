@@ -109,9 +109,6 @@ export const mapOverlay = writableScreen({}, { trackable: true });
 // Overlays as bottom drawer on map
 export const mapModal = writableScreen({}, { trackable: true });
 
-// Overlays over everything
-export const gameOverlay = writableScreen({}, { trackable: true });
-
 // Action notification overlays
 export const notificationOverlay = (() => {
   const store = writable(false);

@@ -1,15 +1,21 @@
-const Promise = require('bluebird');
-const { events, db } = require('../db/provider');
-const { cleanRoom, toAddress, createBalanceFromAmounts, balanceToAmounts, difference, createBalance } = require('../data/utils');
-const { locationToCoordinates } = require('./utils');
+const moment = require('moment');
+const { events, pastEvents } = require('../db/provider');
+const { cleanRoom, justValues, toAddress, mapValues, createBalanceFromAmounts, difference } = require('../data/utils');
+const { bn, locationToCoordinates, coordinatesToLocation } = require('./utils');
 const DungeonComponent = require('./dungeonComponent.js');
-const { specificMonsters } = require('./abilities/monster.js')
+const { Monster, MiniBoss, specificMonsters } = require('./abilities/monster.js')
 const Chest = require('./abilities/chest.js')
 const NameRoom = require('./abilities/nameRoom.js')
 
 class Keeper extends DungeonComponent {
+  data = {};
+  balances = {};
+  benefactor = {};
+  income = {
+    rooms: {},
+    benefactors: {}
+  };
   abilities = {};
-  updatedData = {};
 
   constructor(map) {
     super(map);
@@ -24,7 +30,7 @@ class Keeper extends DungeonComponent {
   }
 
   registerEventHandlers() {
-    const { Rooms, Dungeon } = this.contracts;
+    const { Rooms, Dungeon } = this.dungeon.contracts;
     events.on(Rooms, 'DataUpdate', this.handleDataUpdate.bind(this));
     events.on(Rooms, 'Transfer', this.handleTransfer.bind(this));
     events.on(Rooms, 'SubTransfer', this.handleSubTransfer.bind(this));
@@ -33,128 +39,151 @@ class Keeper extends DungeonComponent {
     events.onBlock(this.handleBlock.bind(this));
   }
 
-  async applyDataUpdates() {
-    console.log('applying keeper data updates');
-    await Promise.all(
-      Object.entries(this.updatedData)
-        .map(([coordinates, data]) => this.applyDataUpdate(coordinates, data)),
-    );
-    this.updatedData = {};
+  async fetchAll(fromBlock = 0, toBlock = 'latest', snapshot) {
+    if (snapshot) {
+      console.log('restoring keeper from snapshot');
+      const { data, balances, benefactor, income } = snapshot.keeper;
+      this.data = data;
+      this.balances = mapValues(balances, rooms => new Set(rooms));
+      this.benefactor = benefactor;
+      this.income = income;
+    }
+    console.log('getting keeper data');
+    justValues(await pastEvents('Rooms', 'DataUpdate', [], fromBlock, toBlock))
+      .forEach(({ id, data }) => this.handleDataUpdate(id, data, null, true));
+    console.log('getting room transactions');
+    justValues(await pastEvents('Rooms', 'Transfer', [], fromBlock, toBlock, 80000, true))
+      .forEach(({ from, to, id }) => this.handleTransfer(from, to, id));
+    console.log('getting room sub-transactions');
+    justValues(await pastEvents('Rooms', 'SubTransfer', [], fromBlock, toBlock, 80000, true))
+      .forEach(({ from, to, id }) => this.handleSubTransfer(from, to, id));
+    console.log('getting room income');
+    justValues(await pastEvents('Dungeon', 'RoomIncome', [], fromBlock, toBlock, 40000, true))
+      .forEach(values => this.handleRoomIncome(...values));
+    console.log('getting custom room names');
+    justValues(await pastEvents('Dungeon', 'RoomName', [], fromBlock, toBlock))
+      .forEach(values => this.handleRoomName(...values));
+    mapValues(this.data, (data, location) => this.applyDataUpdate(locationToCoordinates(location), data));
+    mapValues(this.dungeon.rooms, ({coordinates}) => {
+      this.dungeon.rooms[coordinates].keeper = this.ofRoom(coordinates);
+    });
+    this.initialized = true;
+    console.log('rooms from ' + Object.keys(this.balances).length + ' keepers loaded');
   }
 
-  async handleBlock({ number }) {
+  handleBlock({ number }) {
     if (number % 30 === 0) {
-      await this.checkForeclosures();
+      this.checkForeclosures();
     }
   }
 
-  async handleDataUpdate(id, data) {
+  handleDataUpdate(id, data, event, init = false) {
     id = id.toString();
-    const coordinates = locationToCoordinates(id);
-    const room = await this.room(coordinates);
-    const current = room.customData;
+    const current = this.data[id];
     const next = data.toString();
-    room.customData = next;
-    await this.store([this.toRow(room)]);
-    if (events.replaying) {
-      this.updatedData[coordinates] = next;
-    } else {
+    this.data[id] = next;
+    if (!init) {
+      const coordinates = locationToCoordinates(id);
       console.log(`room ${coordinates} changed ${current} -> ${next}`);
-      await this.applyDataUpdate(coordinates, next, current);
+      this.applyDataUpdate(coordinates, next, current);
     }
   }
 
-  async handleTransfer(fromAddress, toAddress, id) {
+  handleTransfer(fromAddress, toAddress, id) {
     id = id.toString();
-    const coordinates = locationToCoordinates(id);
+    const from = fromAddress.toLowerCase();
     const to = toAddress.toLowerCase();
-    const keeper = await this.room(coordinates);
-    keeper.holder = to;
-    await this.store([this.toRow(keeper)]);
-    const room = await this.updateRoomKeeper(coordinates, keeper);
+    if (this.balances[from]) {
+      this.balances[from].delete(id);
+    }
+    if (!this.balances[to]) {
+      this.balances[to] = new Set();
+    }
+    this.balances[to].add(id);
+    const coordinates = locationToCoordinates(id);
+    const room = this.dungeon.rooms[coordinates];
+    room.keeper = this.ofRoom(coordinates);
     const update = cleanRoom(room);
     if (update) {
       this.sockets.emit('update', {roomUpdates: [update]});
     }
   }
 
-  async handleSubTransfer(fromId, toId, id) {
+  handleSubTransfer(fromId, toId, id) {
     id = id.toString();
-    const from = toAddress(fromId.toString());
-    const to = toAddress(toId.toString());
+    const from = fromId.toString();
+    const to = toId.toString();
     const coordinates = locationToCoordinates(id);
-    const keeper = await this.room(coordinates);
-    if (await this.isActive(coordinates, keeper)) {
-      keeper.owner = to;
-      await this.store([this.toRow(keeper)]);
-      this.sockets.emit('transfer', { from, to, room: coordinates });
-      const room = await this.updateRoomKeeper(coordinates, keeper);
+    if (this.isActive(coordinates)) {
+      if (this.balances[from]) {
+        this.balances[from].delete(id);
+      }
+      if (!this.balances[to]) {
+        this.balances[to] = new Set();
+      }
+      this.balances[to].add(id);
+      this.benefactor[id] = to;
+      this.sockets.emit('transfer', {from: toAddress(from), to: toAddress(to), room: coordinates});
+      const room = this.dungeon.rooms[coordinates];
+      room.keeper = this.ofRoom(coordinates);
       const update = cleanRoom(room);
       if (update) {
         this.sockets.emit('update', {roomUpdates: [update]});
       }
     }
-    const dungeon = this.contracts.Dungeon.address.toLowerCase();
-    if (to === dungeon || from === dungeon) {
-      await this.checkForeclosures();
-    }
   }
 
-  async handleRoomIncome(location, benefactor, id, amount) {
+  handleRoomIncome(location, benefactor, id, amount) {
     location = location.toString();
     benefactor = benefactor.toLowerCase();
     amount = Number(amount);
     const type = Number(id) - 1;
-    const coordinates = locationToCoordinates(location);
-    const [roomIncome, benefactorIncome] = await Promise.all([
-      this.income(coordinates).then(balanceToAmounts),
-      this.income(benefactor).then(balanceToAmounts),
-    ]);
+    const { rooms, benefactors } = this.income;
     const amounts = [0,0,0,0,0,0,0,0];
     amounts[type] += amount;
-    roomIncome[type] += amount;
-    benefactorIncome[type] += amount;
-    const roomBalance = createBalanceFromAmounts(roomIncome);
-    const benefactorBalance = createBalanceFromAmounts(benefactorIncome);
-    await this.storeIncome([
-      [coordinates, roomBalance],
-      [benefactor, benefactorBalance],
-    ]);
-    const room = await this.updateRoomKeeper(coordinates);
+    if (!rooms[location]) {
+      rooms[location] = [...amounts];
+    } else {
+      rooms[location][type] += amount;
+    }
+    if (!benefactors[benefactor]) {
+      benefactors[benefactor] = [...amounts];
+    } else {
+      benefactors[benefactor][type] += amount;
+    }
+    const coordinates = locationToCoordinates(location);
+    const room = this.dungeon.rooms[coordinates];
+    room.keeper = this.ofRoom(coordinates);
+    const income = createBalanceFromAmounts(amounts);
     this.sockets.emit('income', {
       benefactor,
       coordinates,
-      income: createBalanceFromAmounts(amounts),
-      total: benefactorBalance,
-      roomUpdates: [cleanRoom(room)],
+      income,
+      total: createBalanceFromAmounts(this.income.benefactors[benefactor]),
     });
   }
 
-  async handleRoomName(location, name, characterId) {
+  handleRoomName(location, name, characterId) {
     const character = characterId.toString();
-    const characterInfo = await this.dungeon.character.info(characterId);
+    const characterInfo = this.dungeon.character.info(characterId);
     const coordinates = locationToCoordinates(location);
-    const room = await this.dungeon.room(coordinates);
+    const room = this.dungeon.rooms[coordinates];
     room.customName = name;
-    await this.dungeon.map.storeRooms([room]);
     this.sockets.emit('room-name', { coordinates: room.coordinates, character, characterInfo, room: cleanRoom(room) });
     this.sockets.emit('update', { roomUpdates: [cleanRoom(room)] });
   }
 
-  async applyDataUpdate(coordinates, data) {
+  applyDataUpdate(coordinates, data, previous) {
     Object.values(this.abilities)
-      .forEach(ability => ability.applyRoomDataUpdate(coordinates, data));
+      .forEach(ability => ability.applyRoomDataUpdate(coordinates, data, previous));
   }
 
   async useAbility(character, { coordinates, ability }) {
-    const [player, room] = await Promise.all([
-      this.dungeon.character.playerOf(character),
-      this.room(coordinates),
-    ]);
-    if (player !== room.owner) {
+    const { player } = this.dungeon.characters[character];
+    if (player !== this.ownerOf(coordinates)) {
       throw new Error('not room keeper');
     }
-    if (!(await this.isActive(coordinates, room))) {
+    if (!this.isActive(coordinates)) {
       throw new Error('room not active');
     }
     ability = this.abilities[ability];
@@ -163,174 +192,83 @@ class Keeper extends DungeonComponent {
     return true;
   }
 
-  async storeSchema() {
-    return db.tx(t => {
-      t.query(`
-        CREATE TABLE IF NOT EXISTS ${db.tableName('income')} (
-            benefactor varchar(100) PRIMARY KEY,
-            e1 numeric,
-            e2 numeric,
-            e3 numeric,
-            e4 numeric,
-            e5 numeric,
-            coins numeric,
-            keys numeric,
-            fragments numeric
-        )
-      `);
-      t.query(`
-        CREATE TABLE IF NOT EXISTS ${db.tableName('keeper')} (
-            coordinates varchar(100) PRIMARY KEY,
-            owner varchar(100),
-            holder varchar(100),
-            customData varchar)
-      `);
-    });
+  room(coordinates) {
+    return this.data[coordinatesToLocation(coordinates)];
   }
 
-  async storeIncome(rows) {
-    return db.tx(t => {
-      rows.forEach(([benefactor, balance]) => {
-        t.query(
-          `INSERT INTO ${db.tableName('income')} VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-              ON CONFLICT (benefactor) DO UPDATE
-              SET e1 = excluded.e1,
-                  e2 = excluded.e2,
-                  e3 = excluded.e3,
-                  e4 = excluded.e4,
-                  e5 = excluded.e5,
-                  coins = excluded.coins,
-                  keys = excluded.keys,
-                  fragments = excluded.fragments`,
-          [String(benefactor), ...balanceToAmounts(balance)],
-        );
-      });
-    });
+  characterIncome(character) {
+    const player = this.dungeon.character.playerOf(character);
+    return createBalanceFromAmounts(this.income.benefactors[player]);
   }
 
-  async store(rows) {
-    return db.tx(t => {
-      rows.forEach(row =>
-        t.query(
-          `INSERT INTO ${db.tableName('keeper')} (coordinates, owner, holder, customData) VALUES ($1,$2,$3,$4)
-              ON CONFLICT (coordinates) DO UPDATE
-              SET owner = excluded.owner,
-                  holder = excluded.holder,
-                  customData = excluded.customData`,
-          row,
-        ));
-    });
+  roomIncome(coordinates) {
+    const location = coordinatesToLocation(coordinates);
+    return createBalanceFromAmounts(this.income.rooms[location]);
   }
 
-  async updateRoomKeeper(coordinates, roomKeeper) {
-    const [room, keeper] = await Promise.all([
-      this.dungeon.room(coordinates),
-      this.ofRoom(coordinates, roomKeeper),
-    ]);
-    if (room) {
-      room.keeper = keeper;
-      await this.dungeon.map.storeRooms([room]);
-      return room;
-    }
+  isActive(coordinates) {
+    const dungeon = this.contracts.Dungeon.address.toLowerCase();
+    const location = coordinatesToLocation(coordinates);
+    return this.balances[dungeon].has(location);
   }
 
-  toRow(room) {
-    const { owner, holder, customData, coordinates } = room;
-    return [coordinates, owner, holder, customData];
-  }
-
-  async room(coordinates) {
-    const { rows } = await db.query(`SELECT * FROM ${db.tableName('keeper')} WHERE coordinates = $1`, [coordinates]);
-    if (rows.length) {
-      const { owner, holder, customdata, coordinates } = rows[0];
-      return { owner, holder, customData: customdata, coordinates};
-    }
-    return { owner: null, holder: null, customData: null , coordinates };
-  }
-
-  async data(coordinates) {
-    const { roomData } = await this.room(coordinates);
-    return roomData;
-  }
-
-  async income(benefactor) {
-    const { rows } = await db.query(`SELECT * FROM ${db.tableName('income')} WHERE benefactor = $1`, [String(benefactor)]);
-    if (rows.length) {
-      const [, ...amounts] = Object.values(rows[0]).map(Number);
-      return createBalanceFromAmounts(amounts);
-    } else {
-      return createBalance();
-    }
-  }
-
-  async characterIncome(character) {
-    return this.income(await this.dungeon.character.playerOf(character));
-  }
-
-  async roomIncome(coordinates) {
-    return this.income(coordinates);
-  }
-
-  async isActive(coordinates, preloadedKeeperRoom) {
-    const room = preloadedKeeperRoom || await this.room(coordinates);
-    if (room) {
-      const dungeon = this.contracts.Dungeon.address.toLowerCase();
-      return dungeon === room.holder;
-    } else {
-      return null;
-    }
-  }
-
-  async checkForeclosures() {
-    if (!events.replaying) {
-      const { rows } = await db.query(`
-        SELECT coordinates FROM ${db.tableName('keeper')}
-          WHERE (owner IN (SELECT player FROM ${db.tableName('character')}
-                            WHERE (info->>'taxDueDate')::INTEGER < extract(epoch from now())))
-          OR (owner = LOWER('${this.contracts.Dungeon.address}'))`);
-      const coordinates = new Set(rows.map(r => r.coordinates));
-      const diff = difference(this.lastForeclosedRooms, coordinates);
+  checkForeclosures() {
+    if (this.initialized) {
+      const abandoned = [
+        ...(this.balances[0] || []),
+        ...(this.balances[bn(this.contracts.Dungeon.address).toString()] || []),
+      ].map(locationToCoordinates);
+      const foreclosed = new Set(Object.values(this.dungeon.characters)
+        .filter(({ taxDueDate }) => moment.unix(taxDueDate).isBefore(moment()))
+        .map(({ characterId }) => this.balanceOf(characterId))
+        .flat());
+      const rooms = new Set([...abandoned, ...foreclosed]);
+      const diff = difference(this.lastForeclosedRooms, rooms);
       if (diff) {
-        this.lastForeclosedRooms = coordinates;
-        // TODO only one node should send this
+        this.lastForeclosedRooms = rooms;
         this.sockets.emit('foreclosure-update', diff);
       }
+      return diff;
     }
   }
 
-  async foreclosedRooms() {
+  get foreclosedRooms() {
     if (!this.lastForeclosedRooms) {
-      await this.checkForeclosures();
+      this.checkForeclosures();
     }
     return Array.from(this.lastForeclosedRooms);
   }
 
-  async balanceOf(character) {
-    const player = await this.dungeon.character.playerOf(character);
+  balanceOf(character) {
+    const player = this.dungeon.character.playerOf(character);
     if (!player) {
       return [];
     } else {
-      const { rows } = await db.query(`SELECT * FROM ${db.tableName('keeper')} WHERE owner = $1`, [player]);
-      return rows.map(r => r.coordinates);
+      return Array.from(this.balances[bn(player).toString()] || this.balances[player] || [])
+        .map(locationToCoordinates);
     }
   }
 
-  async ownerOf(coordinates) {
-    const room = await this.room(coordinates);
-    return room && room.owner;
+  ownerOf(coordinates) {
+    const location = coordinatesToLocation(coordinates);
+    return toAddress(this.benefactor[location] || Object.keys(this.balances).find(owner => this.balances[owner].has(location)) || 0);
   }
 
-  async ofRoom(coordinates, keeper) {
-    const room = keeper || await this.room(coordinates);
-    const player = room.owner;
-    const characters = await this.dungeon.character.byPlayer(player);
+  ofRoom(coordinates) {
+    const player = this.ownerOf(coordinates);
+    const characters = this.dungeon.character.byPlayer(player);
     const character = characters.length ? characters[0].characterId : undefined;
     return {
       player,
       character,
-      active: await this.isActive(coordinates, room),
-      income: await this.roomIncome(coordinates)
+      active: this.isActive(coordinates),
+      income: this.roomIncome(coordinates)
     }
+  }
+
+  toJSON() {
+    const { data, balances, benefactor, income } = this;
+    return { data, balances, benefactor, income };
   }
 }
 

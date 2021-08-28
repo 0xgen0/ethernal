@@ -28,6 +28,6 @@ describe('Random Event', function () {
     const {hash} = await ethers.provider.getBlock(Number(blockNumber));
     const {roomLocation, randomEvent} = await pure.generateRandomEvent(areaLocation, hash);
     assert.ok(isLocation(roomLocation));
-    assert.equal(Number(randomEvent), 2);
+    assert.equal(Number(randomEvent), 1);
   });
 });

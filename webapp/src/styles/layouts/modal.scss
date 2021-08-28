@@ -31,11 +31,6 @@
     }
   }
 
-  &.menu-height {
-    top: 10px;
-    bottom: 70px;
-  }
-
   @media screen and (min-width: $desktop-min-width) {
     left: $desktop-menu-width;
     right: 0;

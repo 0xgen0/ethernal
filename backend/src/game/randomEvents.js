@@ -1,9 +1,8 @@
 const seedrandom = require('seedrandom');
-const moment = require('moment');
 const blockHash = require('../db/blockHash');
-const { events } = require('../db/provider');
-const { cleanRoom, createReward, gearBytes, blockchainSimulator, toMap } = require('../data/utils');
-const { locationToCoordinates, coordinatesToLocation, generateKeys, generateCoins } = require('./utils');
+const { events, pastEvents } = require('../db/provider');
+const { cleanRoom, createReward, gearBytes, blockchainSimulator, justValues } = require('../data/utils');
+const { locationToCoordinates, coordinatesToLocation, generateKeys, generateCoins, bn } = require('./utils');
 const DungeonComponent = require('./dungeonComponent.js');
 
 class RandomEvents extends DungeonComponent {
@@ -18,35 +17,29 @@ class RandomEvents extends DungeonComponent {
   }
 
   registerEventHandlers() {
-    const { Dungeon } = this.contracts;
+    const { Dungeon } = this.dungeon.contracts;
     events.on(Dungeon, 'RandomEvent', this.handleRandomEvent.bind(this));
-    events.onBlock(this.handleBlock.bind(this));
   }
 
-  async handleRandomEvent(areaLocation, blockNumber) {
-    const { coordinates } = await this.generateRandomEvent(areaLocation, blockNumber);
-    await this.spawn(coordinates);
-  }
-
-  async handleBlock({ number }) {
-    if (number % 30 === 0) {
-      const [npcs, chests] = await Promise.all([
-        this.dungeon.map.roomsWith(`(roomdata->'npc'->>'timeout')::INTEGER < extract(epoch from now())`),
-        this.dungeon.map.roomsWith(`(roomdata->'chest'->>'timeout')::INTEGER < extract(epoch from now())`),
-      ]);
-      const result = await Promise.all([
-        npcs.map(({coordinates, npc}) => this.removeClonedNPC(coordinates, npc.type)),
-        chests.map(async room => {
-          room.overrides = null;
-          room.chest = null;
-          await this.dungeon.map.storeRooms([room]);
-          await this.dungeon.map.reorgRoom(room.coordinates);
-        }),
-      ].flat());
-      if (result.length) {
-        console.log('despawned events', result.length);
-      }
+  async fetchAll(fromBlock = 0, toBlock = 'latest', snapshot) {
+    if (snapshot) {
+      this.lastHash = new Map(Object.entries({...snapshot.randomEvents.lastHash}));
     }
+    console.log('fetching random events');
+    const events = justValues(await pastEvents('Dungeon', 'RandomEvent', [], fromBlock, toBlock)).reduce(
+      (lastEvents, event) => {
+        lastEvents[event.areaLocation] = event;
+        return lastEvents;
+      },
+      {},
+    );
+    await Promise.all(
+      Object.values(events).map(([areaLocation, blockNumber]) => this.generateRandomEvent(areaLocation, blockNumber)),
+    );
+    const eventRooms = Object.values(this.dungeon.rooms)
+      .filter(({ randomEvent }) => !bn(randomEvent).eq(0))
+      .map(room => this.spawn(room.coordinates));
+    console.log(`generated ${Object.keys(this.lastHash).length} random events in ${eventRooms.length} rooms`);
   }
 
   async generateRandomEvent(areaLocation, blockNumber) {
@@ -63,33 +56,32 @@ class RandomEvents extends DungeonComponent {
     return { coordinates, randomEvent, hash };
   }
 
-  async spawn(coordinates) {
-    console.log('random event at', coordinates);
-    const room = await this.dungeon.room(coordinates);
-    if (
-      room
-      && room.coordinates
-      && !room.hasMonster
-      && !room.chest
-      && !room.npc
-      && room.characters.length === 0
-      && (events.defer || events.replaying ? room.randomEvent === 2 : true)
-    ) {
+  async handleRandomEvent(areaLocation, blockNumber) {
+    const { coordinates, randomEvent } = await this.generateRandomEvent(areaLocation, blockNumber);
+    if (this.dungeon.rooms[coordinates]) {
+      console.log(`random event ${randomEvent} generated at ${coordinates}`);
+      this.spawn(coordinates);
+    }
+  }
+
+  spawn(coordinates) {
+    const room = this.dungeon.rooms[coordinates];
+    if (room && room.coordinates && !room.hasMonster && room.characters.length === 0) {
       const hash = this.lastHash.get(coordinates);
       const generator = hash ? seedrandom(hash) : Math.random;
-      const possibilities = {
+      const posibilities = {
         npc: () => this.spawnNPC(coordinates, 'recycler', true),
         chest: () => this.spawnChest(coordinates),
         monster: () => this.spawnMonster(coordinates)
       }
       if (room.npc) {
-        delete possibilities.npc;
+        delete posibilities.npc;
       }
       if (room.chest) {
-        delete possibilities.chest;
+        delete posibilities.chest;
       }
       if (Number(room.kind) !== 1) {
-        delete possibilities.monster;
+        delete posibilities.monster;
       }
       const roll = () => {
         const value = generator();
@@ -101,11 +93,9 @@ class RandomEvents extends DungeonComponent {
           return 'monster';
         }
       }
-      if (Object.keys(possibilities).length) {
+      if (Object.keys(posibilities).length) {
         for (let i = 0; i < 10; i++) {
-          const type = roll();
-          console.log('spawning', type);
-          const event = possibilities[type];
+          const event = posibilities[roll()];
           if (event) {
             return event();
           }
@@ -134,10 +124,10 @@ class RandomEvents extends DungeonComponent {
     return this.dungeon.map.reorgRoom(coordinates, characterInfos);
   }
 
-  async spawnChest(coordinates) {
+  spawnChest(coordinates) {
     const chest = { status: 'closed' };
-    const room = this.dungeon.map.addOverride(await this.dungeon.room(coordinates), { chest });
-    await this.dungeon.map.storeRooms([room]);
+    const room = this.dungeon.map.addOverride(this.dungeon.rooms[coordinates], { chest });
+    this.dungeon.rooms[coordinates] = room;
     const update = { roomUpdates: [cleanRoom(room)] };
     this.sockets.emit('update', update);
     this.sockets.emit('chest-spawned', { coordinates, chest });
@@ -145,173 +135,157 @@ class RandomEvents extends DungeonComponent {
   }
 
   async openChest(characterId) {
-    const room = await this.dungeon.character.room(characterId);
-    const { chest, monsterLevel, coordinates } = room;
-    return await this.runExclusive(coordinates, async () => {
-      if (chest && chest.status === 'closed') {
-        chest.status = 'opened';
-        let reward = chest.reward;
-        if (!reward) {
-          if (Math.random() < 0.65) {
-            const gear = this.dungeon.combat.pickRandomGear(
-              1,
-              monsterLevel,
-              { sameLevel: 10, levelPlusOne: 20 },
-              'chest',
-            );
-            const keys = generateKeys(monsterLevel) * 2 + 1;
-            const coins = generateCoins(monsterLevel);
-            reward = createReward({
-              characterId,
-              gear: gearBytes.toJSON(gear),
-              balanceChange: [0, 0, 0, 0, 0, coins, keys, 0],
-              bounty: [0, 0, 0, 0, 0, 0, 0, 0],
-            });
-          } else {
-            const {
-              stats: { health },
-            } = await this.dungeon.character.info(characterId);
-            reward = createReward({
-              characterId,
-              gear: null,
-              hpChange: -Math.floor(health / 5),
-              balanceChange: [0, 0, 0, 0, 0, 0, 0, 0],
-              bounty: [0, 0, 0, 0, 0, 0, 0, 0],
-            });
-          }
-        }
-        chest.reward = reward;
-        room.overrides = { ...(room.overrides || {}), chest };
-        await this.dungeon.map.storeRooms([room]);
-        if (!reward.gear && chest.reward.balanceChange.filter(Boolean).length === 0) {
-          await this.resolve(coordinates, [reward]);
+    const { chest, monsterLevel, coordinates } = this.dungeon.character.room(characterId);
+    if (chest && chest.status === 'closed') {
+      chest.status = 'opened';
+      let reward = chest.reward;
+      if (!reward) {
+        if (Math.random() < 0.65) {
+          const gear = this.dungeon.combat.pickRandomGear(
+            1,
+            monsterLevel,
+            { sameLevel: 10, levelPlusOne: 20 },
+            'chest',
+          );
+          const keys = generateKeys(monsterLevel) * 2 + 1;
+          const coins = generateCoins(monsterLevel);
+          reward = createReward({
+            characterId,
+            gear: gearBytes.toJSON(gear),
+            balanceChange: [0, 0, 0, 0, 0, coins, keys, 0],
+          });
         } else {
-          await blockchainSimulator();
-          this.sockets.emit('update', { roomUpdates: [cleanRoom(await this.dungeon.room(coordinates))] });
+          const {
+            stats: { health },
+          } = this.dungeon.character.info(characterId);
+          reward = createReward({ characterId, gear: null, hpChange: -Math.floor(health / 5) });
         }
-        this.sockets.emit('chest-opened', { coordinates, character: characterId, reward });
-        return reward;
-      } else {
-        return {};
       }
-    });
+      chest.reward = reward;
+      if (!reward.gear && chest.reward.balanceChange.filter(Boolean).length === 0) {
+        await this.resolve(coordinates, [reward]);
+      } else {
+        await blockchainSimulator();
+        this.sockets.emit('update', { roomUpdates: [cleanRoom(this.dungeon.rooms[coordinates])] });
+      }
+      this.sockets.emit('chest-opened', { coordinates, character: characterId, reward });
+      return reward;
+    } else {
+      return {};
+    }
   }
 
   async finishChest(character, { take = true, close = false }) {
-    const room = await this.dungeon.character.room(character);
-    const { chest, coordinates } = room;
-    return await this.runExclusive(coordinates, async () => {
-      if (chest && chest.status === 'opened') {
-        // Emit chest update
-        let chestUpdate = { coordinates };
-        if (take && chest.reward && (chest.reward.gear || chest.reward.balanceChange.filter(Boolean).length)) {
-          const reward = { ...chest.reward, characterId: character };
-          chest.reward.gear = null;
-          chest.reward.balanceChange = [0, 0, 0, 0, 0, 0, 0, 0];
-          room.overrides.chest = chest;
-          await this.dungeon.map.storeRooms([room]);
-          await this.resolve(coordinates, [reward]);
-          chestUpdate = { ...chestUpdate, character, reward };
-        } else if (!close) {
-          const reward = { ...chest.reward };
-          chest.reward.hpChange = 0;
-          room.overrides.chest = chest;
-          await this.dungeon.map.storeRooms([room]);
-          chestUpdate = { ...chestUpdate, character, reward };
-        }
-        this.sockets.emit('chest-updated', chestUpdate);
-
-        // Emit room update
-        if (close) {
-          chest.status = 'closed';
-          room.overrides.chest = chest;
-          console.log({chest})
-          await this.dungeon.map.storeRooms([room]);
-        } else {
-          // Keep open for timeout period
-          chest.timeout = moment().add(this.timeout, 'ms').unix();
-        }
-
-        this.sockets.emit('update', { roomUpdates: [await this.dungeon.room(coordinates)] });
-        return chest;
-      } else {
-        return null;
+    const { chest, coordinates } = this.dungeon.character.room(character);
+    if (chest && chest.status === 'opened') {
+      // Emit chest update
+      let chestUpdate = { coordinates };
+      if (take && chest.reward && (chest.reward.gear || chest.reward.balanceChange.filter(Boolean).length)) {
+        const reward = { ...chest.reward, characterId: character };
+        chest.reward.gear = null;
+        chest.reward.balanceChange = [0, 0, 0, 0, 0, 0, 0, 0];
+        await this.resolve(coordinates, [reward]);
+        chestUpdate = { ...chestUpdate, character, reward };
+      } else if (!close) {
+        const reward = { ...chest.reward };
+        chest.reward.hpChange = 0;
+        chestUpdate = { ...chestUpdate, character, reward };
       }
-    });
+      this.sockets.emit('chest-updated', chestUpdate);
+
+      // Emit room update
+      if (close) {
+        chest.status = 'closed';
+      } else {
+        // Keep open for timeout period
+        setTimeout(() => {
+          const room = this.dungeon.rooms[coordinates];
+          if (room && room.chest) {
+            room.overrides = null;
+            room.chest = null;
+            this.dungeon.map.reorgRoom(coordinates);
+          }
+        }, this.timeout);
+      }
+
+      this.sockets.emit('update', { roomUpdates: [cleanRoom(this.dungeon.rooms[coordinates])] });
+      return chest;
+    } else {
+      return null;
+    }
   }
 
-  async spawnMonster(coordinates, monsterId) {
+  spawnMonster(coordinates, monsterId) {
     const room = this.dungeon.combat.createCombat(
-      this.dungeon.map.addOverride(await this.dungeon.room(coordinates), { hasMonster: true }),
+      this.dungeon.map.addOverride(this.dungeon.rooms[coordinates], { hasMonster: true }),
       monsterId && Number(monsterId),
       false,
     );
-    const statusUpdates = await Promise.all(
-      room.characters.map(async character => ([
-        character,
-        await this.dungeon.character.changeStatus(character, { status: 'blocked by monster' }),
-      ]))
-    ).then(toMap);
-    await this.dungeon.map.storeRooms([room]);
+    const statusUpdates = room.characters.reduce((updates, character) => {
+      updates[character] = this.dungeon.character.changeStatus(character, { status: 'blocked by monster' });
+      return updates;
+    }, {});
+    this.dungeon.rooms[coordinates] = room;
     const update = { roomUpdates: [cleanRoom(room)], statusUpdates };
     this.sockets.emit('update', update);
     this.sockets.emit('monster-spawned', { coordinates, combat: room.combat });
     return update;
   }
 
-  async spawnClonedNPC(coordinates, type = 'recycler', data = {}) {
-    const room = await this.dungeon.room(coordinates);
+  spawnClonedNPC(coordinates, type = 'recycler', data = {}) {
+    const room = this.dungeon.rooms[coordinates];
     if (!room.npc || room.npc.type !== type) {
       console.log('spawning', type, coordinates);
-      await this.spawnNPC(room.coordinates, type, false, data);
+      this.spawnNPC(room.coordinates, type, false, data);
+    } else {
+      if (room.npc.clones) {
+        room.npc.clones++;
+      } else {
+        room.npc.clones = 1;
+      }
     }
   }
 
-  async removeClonedNPC(coordinates, type = 'recycler') {
-    const room = await this.dungeon.room(coordinates);
+  removeClonedNPC(coordinates, type = 'recycler') {
+    const room = this.dungeon.rooms[coordinates];
     if (room.npc && room.npc.type === type) {
       console.log('removing npc', coordinates);
       room.overrides = null;
       room.npc = null;
-      await this.dungeon.map.storeRooms([room]);
       this.sockets.emit('npc-killed', { coordinates });
       this.sockets.emit('update', { roomUpdates: [cleanRoom(room)] });
     }
   }
 
-  async spawnNPC(coordinates, type = 'recycler', timed = false, data = {}) {
-    if (timed && events.forwarding) {
-      return null;
-    }
+  spawnNPC(coordinates, type = 'recycler', timed = false, data = {}) {
     const npc = { type, ...data };
-    if (timed) {
-      npc.timeout = moment().add(this.timeout, 'ms').unix();
-    }
-    let room = await this.dungeon.room(coordinates);
-    room = this.dungeon.map.addOverride(room, { npc });
-    await this.dungeon.map.storeRooms([room]);
+    const room = this.dungeon.map.addOverride(this.dungeon.rooms[coordinates], { npc });
+    this.dungeon.rooms[coordinates] = room;
     const update = { roomUpdates: [cleanRoom(room)] };
     this.sockets.emit('update', update);
     this.sockets.emit('npc-spawned', { coordinates, npc });
+    if (timed) {
+      setTimeout(() => this.killNPC(coordinates), this.timeout);
+    }
     return update;
   }
 
   async killNPC(coordinates) {
-    const room = await this.dungeon.room(coordinates);
+    const room = this.dungeon.rooms[coordinates];
     room.overrides = null;
     room.npc = null;
-    await this.dungeon.map.storeRooms([room]);
     const update = await this.resolve(coordinates);
     this.sockets.emit('npc-killed', { coordinates });
+    this.dungeon.quests.respawnNPC(coordinates);
     return update;
   }
 
-  async npcRooms() {
-    return this.dungeon.map.roomsWith(`roomdata->>'npc' != 'null'`);
+  get npcRooms() {
+    return this.dungeon.map.roomsWith(({ npc }) => npc);
   }
 
-  async chestRooms() {
-    return this.dungeon.map.roomsWith(`roomdata->>'chest' != 'null'`);
+  get chestRooms() {
+    return this.dungeon.map.roomsWith(({ chest }) => chest);
   }
 }
 

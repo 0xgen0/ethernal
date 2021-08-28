@@ -10,7 +10,7 @@
   export let balances = {};
   export let disabled;
   export let expanded;
-  export let onChange = (key, value) => selectedItems[key] = value;
+  export let onChange;
   export let onDrop;
   export let onExpand;
   export let selectedItems = {};

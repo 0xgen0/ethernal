@@ -1,5 +1,5 @@
 const { coordinatesToLocation } = require('./utils');
-const { gearById } = require('../data/utils');
+const { cleanRoom, gearById } = require('../data/utils');
 const DungeonComponent = require('./dungeonComponent.js');
 
 const opts = { gasLimit: 700000 };
@@ -20,7 +20,6 @@ class Cheats extends DungeonComponent {
       .onPrivilegedCharacter('kill-npc', this.killNPC.bind(this))
       .onPrivilegedCharacter('reload-room', this.reloadRoom.bind(this))
       .onPrivilegedCharacter('reorg-room', this.reorgRoom.bind(this))
-      .onPrivilegedCharacter('reorg-character', this.reorgCharacter.bind(this))
       .onPrivilegedCharacter('update-quest', this.updateQuest.bind(this))
       .onPrivilegedCharacter('sell-gear', this.sellGear.bind(this));
   }
@@ -48,7 +47,20 @@ class Cheats extends DungeonComponent {
       opts,
     );
     await tx.wait();
-    const info = await this.character.info(character, await this.character.reloadCharacterStats(character));
+    await this.character.reloadCharacterStats(character);
+    const info = this.character.info(character);
+    const { stats, coordinates } = info;
+    if (stats.health <= 0) {
+      this.character.changeStatus(character, { status: 'just died' });
+      this.sockets.emit('character-defeated', {
+        character,
+        coordinates,
+        roomUpdates: [cleanRoom(this.dungeon.rooms[coordinates])],
+        statusUpdates: {
+          [character]: this.character.status(character),
+        },
+      });
+    }
     this.sockets.emit('update', { characterInfos: [info] });
     return update;
   }
@@ -77,14 +89,14 @@ class Cheats extends DungeonComponent {
     return true;
   }
 
-  async spawnMonster(_, { coordinates, monsterId }) {
+  spawnMonster(_, { coordinates, monsterId }) {
     console.log(`cheat: spawning monster ${monsterId} at ${coordinates}`);
-    return await this.dungeon.randomEvents.spawnMonster(coordinates, monsterId);
+    return this.dungeon.randomEvents.spawnMonster(coordinates, monsterId);
   }
 
-  async spawnNPC(_, { coordinates, type = 'recycler', timed }) {
+  spawnNPC(_, { coordinates, type = 'recycler', timed }) {
     console.log(`cheat: spawning NPC ${type} at ${coordinates}`);
-    return await this.dungeon.randomEvents.spawnNPC(coordinates, type, timed);
+    return this.dungeon.randomEvents.spawnNPC(coordinates, type, timed);
   }
 
   async killNPC(_, coordinates) {
@@ -105,18 +117,16 @@ class Cheats extends DungeonComponent {
 
   async reloadRoom(_, { coordinates }) {
     console.log('cheat: reloading room');
+    const room = this.dungeon.rooms[coordinates];
+    room.overrides = null;
+    room.npc = null;
     return this.map.reorgRoom(coordinates);
   }
 
   // TODO ability to change roomHash and monsterHash
-  async reorgRoom(_, { coordinates }) {
+  async reorgRoom(_, { coordinates, roomHash, monsterHash }) {
     console.log('cheat: forcing reorg of room ' + coordinates);
     return this.map.reorgRoom(coordinates);
-  }
-
-  async reorgCharacter(_, { character, status = false }) {
-    console.log('cheat: forcing reorg of character ' + character);
-    return this.character.reorgCharacter(character, status);
   }
 
   async updateQuest(_, { character, id, status, data }) {

@@ -11,7 +11,6 @@ contract DungeonAdmin {
         uint256 gear;
         int64 durabilityChange;
         int16[8] balanceChange;
-        uint16[8] bounty;
     }
 
 
@@ -73,7 +72,6 @@ contract DungeonAdmin {
                 rewards[i].durabilityChange,
                 rewards[i].balanceChange
             );
-            _dungeon.claimBounty(location, rewards[i].characterId, rewards[i].bounty);
         }
     }
 

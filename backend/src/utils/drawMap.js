@@ -11,6 +11,8 @@ const drawMap = (rooms, coordinates = '0,0', radius = 5) => {
         row[1] += room.allExits.west ? '╡' : '│';
         if (room.status === 'discovered') {
           row[1] += ' ? ';
+        } else if (room.deadCharacters && room.deadCharacters.length > 0) {
+          row[1] += ' + ';
         } else if (room.characters && room.characters.length > 0) {
           row[1] += ` ${room.characters.length} `;
         } else {

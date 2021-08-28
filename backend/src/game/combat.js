@@ -7,16 +7,12 @@ const {
   copy,
   blockchainSimulator,
   gearBytes,
-  toMap,
   mapValues,
   cleanRoom,
   pickGear,
   randomItem,
   pickMonsterType,
   monsterLevel,
-  createBalance,
-  distributeBalance,
-  balanceToAmounts,
   normalizeMonster,
 } = require('../data/utils');
 const { generateXp, generateCoins, generateKeys, share } = require('./utils');
@@ -31,12 +27,19 @@ class Combat extends DungeonComponent {
       .onCharacter('attack', this.attack.bind(this))
       .onCharacter('turn', this.turn.bind(this))
       .onCharacter('finish', this.finish.bind(this))
-      .onCharacter('escape', this.escape.bind(this));
+      .onCharacter('escape', this.escape.bind(this))
+      .onCharacter('need-help', this.requestHelp.bind(this));
   }
 
-  createDuel(characterInfo, previous, monster) {
+  getState(coordinates) {
+    return this.dungeon.rooms[coordinates].combat;
+  }
+
+  async createDuel(character, previous) {
     const totalInflicted = (previous && previous.attacker.stats.totalInflicted) || 0;
-    const { stats, attackGear, defenseGear, characterName } = characterInfo;
+    const coordinates = this.dungeon.character.coordinates(character);
+    const monster = this.getState(coordinates).monster;
+    const { stats, attackGear, defenseGear, characterName } = this.dungeon.characters[character];
     const player = copy(config.player);
     const attack = copy(attackGear.maxDurability !== 0 && attackGear.durability <= 0 ? bareHands.attack : attackGear);
     const defense = copy(
@@ -92,83 +95,87 @@ class Combat extends DungeonComponent {
     return room;
   }
 
-  async attack(character) {
-    return this.runExclusive(await this.dungeon.character.coordinates(character), async () => {
-      const characterInfo = await this.dungeon.character.info(character);
-      const { coordinates, status } = characterInfo;
-      const room = await this.dungeon.room(coordinates);
-      const { combat } = room;
-      let duel = Duel.revive(combat.duels[character], combat.monster);
-      if (status.status === 'blocked by monster') {
-        duel = this.createDuel(characterInfo, duel, combat.monster);
-        console.log('monster attacked by', character);
-        combat.duels[character] = duel;
-        const [status] = await Promise.all([
-          this.dungeon.character.changeStatus(character, {
-            status: 'attacking monster',
-            combat,
-          }),
-          this.dungeon.map.storeRooms([room]),
-        ]);
-        this.sockets.emit('monster-attacked', {
-          coordinates,
-          character,
-          roomUpdates: [cleanRoom(room)],
-          statusUpdates: {
-            [character]: status,
-          },
-        });
-      }
-      return duel;
+  requestHelp(character) {
+    const coordinates = this.dungeon.character.coordinates(character);
+    const room = this.dungeon.rooms[coordinates];
+    if (!this.dungeon.rooms[coordinates].combat) {
+      throw new Error('no combat exists');
+    }
+    if (!this.dungeon.rooms[coordinates].combat.needsHelp) {
+      this.dungeon.rooms[coordinates].combat.needsHelp = [];
+    }
+    if (this.dungeon.rooms[coordinates].combat.needsHelp.includes(character)) {
+      throw new Error('character already requested help');
+    }
+    this.dungeon.rooms[coordinates].combat.needsHelp.push(character);
+    this.sockets.emit('combat-help', {
+      coordinates,
+      character,
+      roomUpdates: [cleanRoom(this.dungeon.rooms[coordinates])],
     });
   }
 
-  async turn(character, selected) {
-    await blockchainSimulator();
-    return this.runExclusive(await this.dungeon.character.coordinates(character), async () => {
-      const room = await this.dungeon.character.room(character);
-      const {coordinates, combat} = room;
-      const {duels, monster} = combat;
-      const duel = Duel.revive(duels[character], monster);
-      if (!duel) {
-        throw new Error("duel doesn't exist, monster has to be attacked 1st");
-      }
-      const turn = duel
-        .select('attacker', selected)
-        .select('defender')
-        .attack();
-      monster.stats = turn.resolution.defender;
-      duel.attacker.stats = turn.resolution.attacker;
-      // @TODO: other types of infliction should be taken into account as well
-      duel.attacker.stats.totalInflicted =
-        (duel.attacker.stats.totalInflicted || 0) +
-        (turn.inflictions.attacker.missed ? 0 : turn.inflictions.attacker.inflicted.health || 0);
+  async attack(character) {
+    const coordinates = this.character.coordinates(character);
+    const characterStatus = this.character.status(character);
+    let { duels } = this.getState(coordinates);
+    let duel = duels[character];
+    if ('blocked by monster' === characterStatus.status) {
+      duel = await this.createDuel(character, duel);
+      console.log('monster attacked by', character);
       duels[character] = duel;
-      const [status] = await Promise.all([
-        this.dungeon.character.changeStatus(character, {
-          status: 'attacking monster',
-          combat,
-        }),
-        this.dungeon.map.storeRooms([room]),
-      ]);
+      const room = this.dungeon.rooms[coordinates];
       this.sockets.emit('monster-attacked', {
         coordinates,
         character,
         roomUpdates: [cleanRoom(room)],
         statusUpdates: {
-          [character]: status,
+          [character]: this.character.changeStatus(character, {
+            status: 'attacking monster',
+            combat: room.combat,
+          }),
         },
       });
-      const resolutions = [];
-      if (duel.attacker.stats.health <= 0) {
-        resolutions.push(this.characterDefeated(character));
-      }
-      if (monster.stats.health <= 0) {
-        resolutions.push(this._monsterDefeated(coordinates));
-      }
-      await Promise.all(resolutions);
-      return duel;
+    }
+    return duel;
+  }
+
+  async turn(character, selected) {
+    const coordinates = this.dungeon.character.coordinates(character);
+    let { duels, monster } = this.getState(coordinates);
+    let duel = duels[character];
+    if (!duel) {
+      throw new Error("duel doesn't exist, monster has to be attacked 1st");
+    }
+    await blockchainSimulator();
+    const turn = duel.select('attacker', selected).select('defender').attack();
+    monster.stats = turn.resolution.defender;
+    duel.attacker.stats = turn.resolution.attacker;
+    // @TODO: other types of infliction should be taken into account as well
+    duel.attacker.stats.totalInflicted =
+      (duel.attacker.stats.totalInflicted || 0) +
+      (turn.inflictions.attacker.missed ? 0 : turn.inflictions.attacker.inflicted.health || 0);
+    const room = this.dungeon.rooms[coordinates];
+    this.sockets.emit('monster-attacked', {
+      coordinates,
+      character,
+      roomUpdates: [cleanRoom(room)],
+      statusUpdates: {
+        [character]: this.character.changeStatus(character, {
+          status: 'attacking monster',
+          combat: room.combat,
+        }),
+      },
     });
+    const resolutions = [];
+    if (duel.attacker.stats.health <= 0) {
+      resolutions.push(this.characterDefeated(character));
+    }
+    if (monster.stats.health <= 0) {
+      resolutions.push(this.monsterDefeated(coordinates));
+    }
+    await Promise.all(resolutions);
+    return duel;
   }
 
   pickRandomGear(ratio, monsterLevel, gearDrop, monsterType) {
@@ -180,81 +187,83 @@ class Combat extends DungeonComponent {
   }
 
   async monsterDefeated(coordinates) {
-    return this.runExclusive(coordinates, () => this._monsterDefeated(coordinates));
-  }
-
-  async _monsterDefeated(coordinates) {
-    let room = await this.dungeon.room(coordinates);
-    const { location, combat, characters, bounty } = room;
-    if (!combat) return;
+    const room = this.dungeon.rooms[coordinates];
+    const { location, combat } = room;
+    if (!combat || combat.finishing) return;
     const monsterId = combat.monster.id;
+    combat.finishing = true;
     const { level } = combat.monster.stats;
     const { type } = combat.monster;
-    const ratios = mapValues(combat.duels, ({ attacker, defender }, characterId) => {
-      const escaped = !characters.includes(characterId);
-      return escaped ? 0 : Math.min(1, attacker.stats.totalInflicted / defender.full.health);
-    });
-    const bountyRatios = mapValues({...ratios}, (ratio, characterId) => bounty.sponsors && bounty.sponsors.includes(characterId) ? 0 : ratio);
-    const bountyPortion = distributeBalance(bountyRatios, bounty);
     let rewards =
       combat.rewards ||
       mapValues(combat.duels, ({ attacker, defender }, characterId) => {
         const { stats } = attacker;
-        const escaped = !characters.includes(characterId);
-        const ratio = ratios[characterId];
+        const escaped = coordinates !== this.character.coordinates(characterId);
+        const ratio = escaped ? 0 : Math.min(1, stats.totalInflicted / defender.full.health);
         return {
           characterId,
           hpChange: escaped ? 0 : stats.health - stats.previousHealth,
           xpGained: share(ratio, generateXp(level, type)),
           gear: this.pickRandomGear(ratio, defender.stats.level, defender.stats.gearDrop, type),
           durabilityChange: escaped ? 0 : -1,
-          balanceChange: balanceToAmounts(createBalance({
-            coins: share(ratio, generateCoins(level, type)),
-            keys: share(ratio, generateKeys(level)),
-          })),
-          bounty: balanceToAmounts(bountyPortion[characterId]),
+          balanceChange: [
+            ...[0, 0, 0, 0, 0],
+            share(ratio, generateCoins(level, type)),
+            share(ratio, generateKeys(level)),
+            0,
+          ],
         };
       });
     combat.rewards = rewards;
-    // TODO add some contingency in case that this tx fails
+    //TODO add some contingency in case that this tx fails
+
     let tx;
     try {
-      const { DungeonAdmin } = this.contracts;
-      tx = await DungeonAdmin.monsterDefeated(
+      tx = await this.contracts.DungeonAdmin.monsterDefeated(
         location,
         monsterId,
         Object.values(rewards).map(reward => ({ ...reward, gear: '0x00' })),
         opts,
       );
+
       console.log('monster defeated tx ' + tx.hash);
       await tx.wait();
-      room.combat = null; // TODO persistently store past combats in dynamo
+      room.combat = null; // TODO persistently store past combats somewhere
       rewards = mapValues(rewards, reward => ({
         ...reward,
         character: reward.characterId,
         gear: gearBytes.toJSON(reward.gear),
       }));
-      room = this.dungeon.map.clearOverride(room, { hasMonster: null });
-      await this.dungeon.map.storeRooms([room]);
-      const roomUpdates = [await this.dungeon.map.reloadRoomEnsured(coordinates, room).then(cleanRoom)];
-      await Promise.all(Object.values(rewards).map(({ character }) => this.dungeon.quests.advanceHandler(character, { coordinates, combat })));
-      const statusUpdates = await Promise.all(characters.map(async character => {
-        const current = await this.dungeon.character.status(character);
-        if (current.status !== 'exploring') {
-          let status = {
-            status: 'exploring',
-            combat,
-          }
-          if (current.status === 'attacking monster') {
-            status = {
+      this.dungeon.rooms[coordinates] = this.dungeon.map.clearOverride(room, { hasMonster: null });
+      const roomUpdates = [await this.dungeon.map.reloadRoomEnsured(coordinates).then(cleanRoom)];
+      // TODO move to contract event handler when ready
+      Object.values(rewards).forEach(({ character, hpChange, xpGained }) => {
+        this.character.data[character].stats.health += hpChange;
+        this.character.data[character].stats.xp += xpGained;
+        this.dungeon.quests.advanceHandler(character, { coordinates, combat });
+      });
+      const statusUpdates = Object.keys(this.character.data)
+        .filter(
+          character =>
+            this.character.status(character) &&
+            this.character.status(character).status !== 'exploring' &&
+            coordinates === this.character.coordinates(character),
+        )
+        .reduce((updates, character) => {
+          if (this.character.status(character).status === 'attacking monster') {
+            updates[character] = this.character.changeStatus(character, {
               status: 'claiming rewards',
               combat,
               rewards,
-            };
+            });
+          } else {
+            updates[character] = this.character.changeStatus(character, {
+              status: 'exploring',
+              combat,
+            });
           }
-          return [character, await this.dungeon.character.changeStatus(character, status)];
-        }
-      })).then(toMap);
+          return updates;
+        }, {});
       this.sockets.emit('monster-defeated', {
         coordinates,
         combat,
@@ -276,138 +285,141 @@ class Combat extends DungeonComponent {
         scope.setExtras({ coordinates, room, tx });
         Sentry.captureException(err);
       });
+      combat.finishing = false;
     }
   }
 
   async characterDefeated(character) {
-    const room = await this.dungeon.character.room(character);
-    const { combat } = room;
+    const room = this.dungeon.character.room(character);
+    const { combat, coordinates } = room;
     if (!combat) return;
     const monsterId = combat.monster.id;
-    const { DungeonAdmin } = this.contracts;
-    const gasEstimate = await DungeonAdmin.estimateGas.characterDefeated(character, monsterId);
-    const tx = await DungeonAdmin.characterDefeated(character, monsterId, {
+    const gasEstimate = await this.contracts.DungeonAdmin.estimateGas.characterDefeated(character, monsterId);
+    const tx = await this.contracts.DungeonAdmin.characterDefeated(character, monsterId, {
       gasLimit: gasEstimate.add(10000),
     });
     console.log('character defeated tx ' + tx.hash);
     await tx.wait();
+    await this.character.reloadCharacterStats(character);
+    room.deadCharacters = Array.from(new Set([...(room.deadCharacters || []), character]));
+    room.scavenge = { ...room.scavenge, corpses: this.dungeon.map.scavengeCorpses(coordinates) };
+    console.log('character defeated at ', coordinates);
+    this.sockets.emit('character-defeated', {
+      character,
+      coordinates,
+      roomUpdates: [cleanRoom(this.dungeon.rooms[coordinates])],
+      statusUpdates: {
+        [character]: this.character.changeStatus(character, {
+          status: 'just died',
+          combat: copy(combat),
+        }),
+      },
+    });
+    delete combat.duels[character];
   }
 
   async finish(character, { gear }) {
-    return this.runExclusive(character, async () => {
-      console.log('character ' + character + ' finishes ' + gear);
-      const characterStatus = await this.dungeon.character.status(character);
-      if (characterStatus.status === 'just died') {
-        this.sockets.emit('acknowledged-death', {
-          character,
-          statusUpdates: {
-            [character]: await this.dungeon.character.changeStatus(character, {status: 'dead'}),
-          },
-        });
-      }
-      if (characterStatus.status === 'claiming rewards') {
-        const awardedGear = characterStatus.rewards[character] && characterStatus.rewards[character].gear;
-        if (awardedGear) {
-          let tx;
-          if (gear) {
-            try {
-              const {DungeonAdmin} = this.contracts;
-              tx = await DungeonAdmin.updateCharacter(
-                character,
-                characterStatus.combat.monster.id,
-                0,
-                0,
-                awardedGear.bytes,
-                0,
-                [0, 0, 0, 0, 0, 0, 0, 0],
-                opts,
-              );
-              console.log('character claim gear tx ' + tx.hash);
-              await tx.wait();
-            } catch (err) {
-              gear = false;
-              console.log('character claim gear tx failed', err);
-              Sentry.withScope(scope => {
-                scope.setExtras({character, gear, awardedGear});
-                Sentry.captureException(err);
-              });
-            }
-          }
-          if (this.dungeon.gear.unique.isUnique(awardedGear)) {
-            if (gear) {
-              console.log('unique gear minted!');
-              this.sockets.emit('unique-gear-minted', {
-                character,
-                tx: tx.hash,
-                gear: awardedGear,
-              });
-            } else {
-              console.log('unique gear rejected by character', character, awardedGear);
-              this.dungeon.gear.unique.reject(awardedGear);
-            }
+    console.log('character ' + character + ' finishes ' + gear);
+    const characterStatus = this.character.status(character);
+    if ('just died' === characterStatus.status) {
+      this.sockets.emit('acknowledged-death', {
+        character,
+        statusUpdates: {
+          [character]: this.character.changeStatus(character, { status: 'dead' }),
+        },
+      });
+    }
+    if ('claiming rewards' === characterStatus.status) {
+      if (characterStatus.claiming) return;
+      characterStatus.claiming = true;
+      const awardedGear = characterStatus.rewards[character] && characterStatus.rewards[character].gear;
+      if (awardedGear) {
+        let tx;
+        if (gear) {
+          try {
+            tx = await this.contracts.DungeonAdmin.updateCharacter(
+              character,
+              characterStatus.combat.monster.id,
+              0,
+              0,
+              awardedGear.bytes,
+              0,
+              [0, 0, 0, 0, 0, 0, 0, 0],
+              opts,
+            );
+            console.log('character claim gear tx ' + tx.hash);
+            await tx.wait();
+          } catch (err) {
+            gear = false;
+            characterStatus.claiming = false;
+            console.log('character claim gear tx failed', err);
+            Sentry.withScope(scope => {
+              scope.setExtras({ character, gear, awardedGear });
+              Sentry.captureException(err);
+            });
           }
         }
-        const {hasMonster} = await this.dungeon.character.room(character);
-        const status = hasMonster ? 'blocked by monster' : 'exploring';
-        this.sockets.emit('rewards-claimed', {
-          character,
-          gear,
-          awardedGear,
-          statusUpdates: {
-            [character]: await this.dungeon.character.changeStatus(character, {status}),
-          },
-        });
+        if (this.dungeon.gear.unique.isUnique(awardedGear)) {
+          if (gear) {
+            console.log('unique gear minted!');
+            this.sockets.emit('unique-gear-minted', {
+              character,
+              tx: tx.hash,
+              gear: awardedGear,
+            });
+          } else {
+            console.log('unique gear rejected by character', character, awardedGear);
+            this.dungeon.gear.unique.reject(awardedGear);
+          }
+        }
       }
-    });
+      this.sockets.emit('rewards-claimed', {
+        character,
+        gear,
+        awardedGear,
+        statusUpdates: {
+          [character]: this.character.room(character).hasMonster
+            ? this.character.changeStatus(character, { status: 'blocked by monster' })
+            : this.character.changeStatus(character, { status: 'exploring' }),
+        },
+      });
+    }
   }
 
   async escape(character) {
-    return this.runExclusive(await this.dungeon.character.coordinates(character), async () => {
-      const characterInfo = await this.dungeon.character.info(character);
-      const {coordinates} = characterInfo;
-      const room = await this.dungeon.room(coordinates);
-      if (!room.combat) {
-        this.sockets.emit('update', {
-          statusUpdates: {
-            [character]: await this.dungeon.character.changeStatus(character, {status: 'exploring'})
-          },
-        });
-        return {success: true};
-      } else {
-        const {duels, monster} = room.combat;
-        let duel = Duel.revive(duels[character], monster);
-        if (!duel) {
-          duel = this.createDuel(characterInfo, null, monster);
-        }
-        const turn = duel.select('attacker').select('defender').attack();
-        const {health, previousHealth} = turn.resolution.attacker;
-        if (health <= 0) {
-          await this.characterDefeated(character);
-          console.log('character died when escaping', character);
-          return {success: false, turn};
-        } else {
-          const {DungeonAdmin} = this.contracts;
-          const hpChange = health - previousHealth;
-          const tx = await DungeonAdmin.characterEscaped(character, monster.id, hpChange, 0, opts);
-          console.log('character escape tx ' + tx.hash);
-          await tx.wait();
-          console.log('character escaped', character);
-          this.sockets.emit('character-escaped', {
-            coordinates,
-            character,
-            duel,
-            statusUpdates: {
-              [character]: await this.dungeon.character.changeStatus(character, {status: 'exploring', escaped: true}),
-            },
-          });
-          return {success: true, turn};
-        }
-      }
-    });
+    const coordinates = this.character.coordinates(character);
+    let { duels, monster } = this.getState(coordinates);
+    let duel = duels[character];
+    if (!duel) {
+      duel = await this.createDuel(character);
+    }
+    const turn = duel.select('attacker').select('defender').attack();
+    const { health, previousHealth } = turn.resolution.attacker;
+    if (health <= 0) {
+      await this.characterDefeated(character);
+      console.log('character died when escaping', character);
+      return { success: false, turn };
+    } else {
+      const hpChange = health - previousHealth;
+      const tx = await this.contracts.DungeonAdmin.characterEscaped(character, monster.id, hpChange, 0, opts);
+      console.log('character escape tx ' + tx.hash);
+      await tx.wait();
+      this.character.data[character].stats.health += hpChange;
+      console.log('character escaped', character);
+      this.sockets.emit('character-escaped', {
+        coordinates,
+        character,
+        duel,
+        statusUpdates: {
+          [character]: this.character.changeStatus(character, { status: 'exploring', escaped: true }),
+        },
+      });
+      return { success: true, turn };
+    }
   }
 
   async updateCombat(coordinates, { monster, duels }) {
-    const room = await this.dungeon.room(coordinates);
+    const room = this.dungeon.rooms[coordinates];
     if (!room || !room.hasMonster) {
       throw new Error('cannot update combat in room without monster');
     }
@@ -415,28 +427,24 @@ class Combat extends DungeonComponent {
       monster,
       duels: mapValues(duels, ({ attacker }) => new Duel(attacker, monster)),
     };
-    await this.dungeon.map.storeRooms([room]);
-    await Promise.all(
-      Object.keys(duels).map(async character => {
-        this.sockets.emit('monster-attacked', {
-          coordinates,
-          character,
-          roomUpdates: [cleanRoom(room)],
-          statusUpdates: {
-            [character]: await this.dungeon.character.changeStatus(character, {
-              status: 'attacking monster',
-              combat: room.combat,
-            }),
-          },
-        });
-      }),
-    );
+    Object.keys(duels).map(character => {
+      this.sockets.emit('monster-attacked', {
+        coordinates,
+        character,
+        roomUpdates: [cleanRoom(room)],
+        statusUpdates: {
+          [character]: this.character.changeStatus(character, {
+            status: 'attacking monster',
+            combat: room.combat,
+          }),
+        },
+      });
+    });
     return { success: true, combat: room.combat };
   }
 
-  toRow(room) {
-    const { coordinates, combat } = room;
-    return [coordinates, combat];
+  get character() {
+    return this.dungeon.character;
   }
 }
 

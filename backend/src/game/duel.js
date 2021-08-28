@@ -12,17 +12,6 @@ class Duel {
     };
   }
 
-  static revive(data, defenderOverride) {
-    if (data) {
-      const {attacker, defender} = data;
-      const duel = new Duel(attacker, defenderOverride || defender);
-      delete data.defender;
-      return Object.assign(duel, data);
-    } else {
-      return null;
-    }
-  }
-
   select(party, actions = this.randomChoice(party)) {
     const { attack, defense } = actions;
     const decks = this.decks[party];

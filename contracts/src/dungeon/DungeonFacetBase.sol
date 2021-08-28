@@ -127,11 +127,7 @@ abstract contract DungeonFacetBase is DungeonDataLayout, DungeonEvents, DiamondS
             (uint256 roomLocation, uint64 randomEvent) = PureDungeon._generateRandomEvent(areaLoc, blockHash);
             uint256 monsterIndex = _checkMonsterBlockNumber(roomLocation);
             Room storage room = _rooms[roomLocation];
-            if (room.randomEvent != 2
-                && room.numActiveCharacters == 0
-                && monsterIndex == 0
-                && room.kind != 0
-            ) {
+            if (room.randomEvent == 0 && room.numActiveCharacters == 0 && monsterIndex == 0 && room.kind != 0) {
                 room.randomEvent = randomEvent;
             }
             area.eventBlockNumber = 0;
@@ -342,13 +338,7 @@ abstract contract DungeonFacetBase is DungeonDataLayout, DungeonEvents, DiamondS
             _discoverRoom(location, characterId, direction);
         } else {
             // TODO should we actualiseRoom first, before monster ?
-            // TODO can we remove num active characters check?
-            if (
-                nextRoom.monsterBlockNumber == 0
-                    && nextRoom.numActiveCharacters == 0
-                    && nextRoom.randomEvent != 2
-                    && _roomsContract.getData(location) == 0
-            ) {
+            if (nextRoom.monsterBlockNumber == 0 && nextRoom.numActiveCharacters == 0) {
                 blockNumber = uint64(block.number);
                 _blockHashRegister.request();
                 if (nextRoom.monsterBlockNumber == 0) {

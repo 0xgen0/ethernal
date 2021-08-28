@@ -27,7 +27,7 @@ class Leaderboard {
 
       this.connected = true;
     } catch (err) {
-      console.log('weekly leaderboard not connected:', err.message);
+      console.log('weekly leaderboard not connected', err);
       Sentry.captureException(err);
 
       this.connected = false;

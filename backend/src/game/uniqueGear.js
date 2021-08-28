@@ -65,8 +65,6 @@ class AlphaOne extends Series {
   }
 
   roll() {
-    // TODO query
-    return null;
     const numRooms = Object.keys(this.dungeon.rooms).length;
     const result = Math.random() * 100 < 5 && numRooms > 555 * (this.given.size + 1);
     if (result) {

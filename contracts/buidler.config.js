@@ -5,7 +5,7 @@ const fs = require('fs');
 const ethers = require('ethers');
 const {Wallet} = ethers;
 
-const localMnemonic = fs.readFileSync('mnemonic.local').toString();
+const localMnemonic = fs.readFileSync('mnemonic.local').toString().trim();
 const buidlerevmAccounts = [];
 for (let i = 0; i < 10; i++) {
   buidlerevmAccounts.push({

@@ -17,7 +17,6 @@
   import Header from 'components/bag/Header';
   import Resources from 'components/bag/Resources';
   import Line from 'components/Line';
-  import Bounty from 'components/bag/Bounty';
 
   let takeGear = true;
 
@@ -40,12 +39,6 @@
   $: fullBag = reward && reward.gear && takeGear && $characterBag.length === 10;
   // @TODO - Later account for multiple gear
   $: rewardGearCount = reward && reward.gear && takeGear ? 1 : 0;
-
-  const createBalanceFromAmounts = (amounts = [0, 0, 0, 0, 0, 0, 0, 0]) => {
-    const elements = amounts.slice(0, 5);
-    const [coins, keys, fragments] = amounts.slice(5);
-    return { coins, keys, fragments, elements };
-  };
 
   const finish = async (gear = takeGear) => {
     if ($characterStatus === 'claiming rewards') {
@@ -88,11 +81,6 @@
       <div>
         <Header class="as-inline" title="Loot" button="{false}" subtitle="{rewardGearCount}" />
 
-        {#if (reward.bounty || []).reduce((a,b) => a + b) > 0}
-          <Resources {...createBalanceFromAmounts(reward.bounty)} hideEmpty>
-            Claimed bounty
-          </Resources>
-        {/if}
         {#if Object.values(resources).reduce((a,b) => a + b) > 0}
           <Resources {...resources} hideEmpty>
             Collected

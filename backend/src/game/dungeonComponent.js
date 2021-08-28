@@ -14,13 +14,6 @@ class DungeonComponent {
   get contracts() {
     return this.dungeon.contracts;
   }
-
-  async storeSchema() {
-  }
-
-  async runExclusive(id, callback) {
-    return this.dungeon.mutex.run(id, callback);
-  }
 }
 
 module.exports = DungeonComponent;

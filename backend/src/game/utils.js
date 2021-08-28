@@ -3,7 +3,6 @@ const { BigNumber } = require('ethers');
 const bn = number => BigNumber.from(number);
 
 const p255 = bn(2).pow(bn(255));
-const p254 = bn(2).pow(bn(254));
 const p128 = bn(2).pow(bn(128));
 const p64 = bn(2).pow(bn(64));
 const p32 = bn(2).pow(bn(32));
@@ -69,25 +68,8 @@ function range(amount) {
 }
 
 function share(ratio, amount) {
+  // TODO round instead?
   return Math.ceil(ratio * amount) || 0;
-}
-
-function distribute(ratios, amount) {
-  ratios = Object.entries(ratios).map(([id, ratio]) => ({id, ratio}));
-  let remaining = amount;
-  const result = [...ratios].sort((a, b) => b.ratio - a.ratio);
-  for (let item of ratios) {
-    let s = Math.floor(item.ratio * amount);
-    if (s > remaining) {
-      s = remaining;
-    }
-    remaining -= s;
-    item.value = s;
-  }
-  if (result.length) {
-    result[0].value += remaining;
-  }
-  return result.reduce((o, {id, value}) => ({ ...o, [id]: value }), {});
 }
 
 const encodeDirections = path => path.map(direction => order.indexOf(direction));
@@ -145,11 +127,6 @@ const isLocation = holder => {
   return one.eq(a);
 };
 
-const isBounty = holder => {
-  const flag = bn(holder).div(p254);
-  return one.eq(flag);
-};
-
 const isAddress = token => token.startsWith('0x');
 
 const convertLocation = n => Number((n.gte(p32) ? n.sub(p64) : n.mod(p64)).toString());
@@ -169,14 +146,6 @@ const coordinatesToLocation = coordinates => {
   const ay = convertCoordinate(bn(y).mod(p64)).mul(p64);
   const az = convertCoordinate(bn(z).mod(p64)).mul(p128);
   return p255.add(ax).add(ay).add(az).toString();
-};
-
-const locationToBounty = location => {
-  return bn(location).sub(p255).add(p254).toString();
-};
-
-const bountyToLocation = bounty => {
-  return bn(bounty).sub(p254).add(p255).toString();
 };
 
 const decodeExits = exitBits => {
@@ -261,10 +230,6 @@ module.exports = {
   parseCoordinates,
   coordinatesAt,
   locationToAbsoluteCoordinates,
-  locationToBounty,
-  bountyToLocation,
-  distribute,
-  isBounty,
   convertLocation,
   convertCoordinate,
   locationToCoordinates,

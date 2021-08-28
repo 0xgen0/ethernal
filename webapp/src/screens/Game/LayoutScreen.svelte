@@ -4,7 +4,7 @@
   import { fade } from 'svelte/transition';
 
   import { characterStatus, mapLog, needFood } from 'lib/cache';
-  import { gameOverlay, mapModal, mapOverlay, menuOverlay, notificationOverlay, isDesktop, isMobile } from 'stores/screen';
+  import { mapModal, mapOverlay, menuOverlay, notificationOverlay, isDesktop, isMobile } from 'stores/screen';
 
   import MapArea from 'components/map/MapArea';
   import MapButtons from 'components/map/MapButtons';
@@ -39,7 +39,6 @@
 
   // Map modals
   import CarrierRoomScreen from 'screens/Game/Modals/CarrierRoomScreen';
-  import AddBountyScreen from 'screens/Game/Modals/AddBountyScreen';
   import CharacterEnteredScreen from 'screens/Game/Modals/CharacterEnteredScreen';
   import DiscoverRoomScreen from 'screens/Game/Modals/DiscoverRoomScreen';
   import HealScreen from 'screens/Game/Modals/HealScreen';
@@ -76,9 +75,6 @@
   /**
    * VISUAL UI HANDLERS
    */
-  $: gameOverlayScreens = {
-    addBounty: { this: AddBountyScreen },
-  }
   $: menuOverlayScreens = {
     bag: { this: BagScreen },
     character: { this: CharacterStatsScreen },
@@ -126,7 +122,6 @@
   };
 
   // Listen for map area change
-  $: gameOverlayScreen = $gameOverlay && gameOverlay.find(gameOverlayScreens);
   $: menuOverlayScreen =
     ($menuOverlay && menuOverlay.find(menuOverlayScreens)) || ($mapOverlay && mapOverlay.find(menuOverlayScreens));
   $: menuPlayersScreen = ($mapOverlay && mapOverlay.find(menuPlayersScreens)) || {
@@ -185,12 +180,6 @@
     </div>
 
     <div class="layout--area">
-      {#if gameOverlayScreen}
-        <div class="layout--area--map--overlay as-game-overlay">
-          <svelte:component this="{gameOverlayScreen.this}" {...gameOverlayScreen} />
-        </div>
-      {/if}
-
       <div class="layout--area--menu">
         <!-- Display menu page overlay, e.g. Bag. On mobile, this is fullscreen. -->
         {#if menuOverlayScreen}

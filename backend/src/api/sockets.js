@@ -14,7 +14,7 @@ class Sockets {
 
     const privileged = process.env.PRIVILEGED_ADDRESSES;
     this.privilegedAddresses = new Set(privileged ? privileged.split(',').map(s => s.trim().toLowerCase()) : []);
-    console.log('privileged addresses', Array.from(this.privilegedAddresses));
+    console.log('privileged adresses', Array.from(this.privilegedAddresses));
     this.io = socketio(server);
     this.io.on('connection', socket => {
       socket.emit('hello');
@@ -46,7 +46,7 @@ class Sockets {
           }
           this.acceptCharacter(characterId, socket, playerAddress);
         } catch (err) {
-          console.log('delegate authorization failed', socket.id, err);
+          console.log('delegate authorization failed', socket.id);
           Sentry.withScope(scope => {
             scope.setExtras({ characterId, signature, msg });
             Sentry.captureException(err);
@@ -80,7 +80,7 @@ class Sockets {
         try {
           return (await callback(...args)) || true;
         } catch (e) {
-          console.log('action failed', event, args, e.message, e);
+          console.log('action failed', event, args, e.message);
           Sentry.withScope(scope => {
             scope.setExtras({ event, args });
             Sentry.captureException(e);

@@ -108,7 +108,7 @@
 
   let quest = {
     character: $dungeon.cache.characterId,
-    id: '',
+    quest: '',
     status: 'discovered',
     data: '',
     async action() {

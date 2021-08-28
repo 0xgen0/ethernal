@@ -20,7 +20,7 @@
   let loading = true;
 
   $: (async () => {
-    if (id && (!character || character.id !== id) && loading) {
+    if (id && (!character || character.id !== id)) {
       if ($onlineCharacters[id]) {
         character = $onlineCharacters[id];
       } else {

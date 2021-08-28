@@ -7,10 +7,8 @@
     uniqueGearAvailable,
     bossRooms,
     npcRooms,
-    bountyRooms,
     chatMessages,
     currentTrade,
-    onlineCharacters,
     currentFloor,
   } from 'lib/cache';
   import { quickActions } from 'lib/chat';
@@ -39,15 +37,6 @@
   $: if ($currentTrade && $currentTrade.trade && tab !== 'messages') {
     tab = 'messages';
   }
-
-  const bountySponsors = bounty => {
-    const sponsors = bounty.sponsors
-      .map(sponsor => $onlineCharacters[sponsor] && $onlineCharacters[sponsor].characterName)
-      .filter(v => v)
-      .map(sponsor => `<em class="highlight">${sponsor}</em>`)
-      .join(', ');
-    return sponsors.length ? sponsors : 'Someone';
-  };
 
   const toggle = type => {
     tab = tab === type ? false : type;
@@ -316,32 +305,6 @@
               type="secondary map-footer-icon"
               isDisabled="{getCoordinatesFloor(room.coordinates) !== Number($currentFloor)}"
               onClick="{() => global.map.refocus(room.coordinates)}"
-            >
-              <img src="{IconHere}" alt="here" />
-            </BoxButton>
-          </div>
-        </div>
-      {/each}
-
-      <!-- BOUNTY -->
-      {#each $bountyRooms as room (room.coordinates)}
-        <div class="announcement flex" in:fade="{{ duration: 200 }}">
-          <div class="fix">
-            <img class="icon" alt="{room.combat.monster.name}" src="{monsterImage(room.combat.monster.image)}" />
-          </div>
-          <p class="subtle">
-            {@html bountySponsors(room.bounty)} added a bounty to
-            <em>{room.combat.monster.name}</em>
-            on floor
-            <em style="white-space: nowrap;">{getCoordinatesFloor(room.coordinates)}</em>
-            at
-            <em style="white-space: nowrap;">{formatCoordinates(room.coordinates, 2)}.</em>
-          </p>
-          <div class="fix">
-            <BoxButton
-                    type="secondary map-footer-icon"
-                    isDisabled="{getCoordinatesFloor(room.coordinates) !== Number($currentFloor)}"
-                    onClick="{() => global.map.refocus(room.coordinates)}"
             >
               <img src="{IconHere}" alt="here" />
             </BoxButton>

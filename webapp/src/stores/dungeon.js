@@ -3,7 +3,7 @@ import { writable, derived } from 'svelte/store';
 import Dungeon from 'lib/dungeon';
 import getDelegateKey from 'lib/delegateKey';
 import preDungeonCheck from 'stores/preDungeonCheck';
-import wallet from 'stores/wallet';
+import {wallet} from 'stores/wallet';
 
 let lastWalletAddress;
 let d;
@@ -14,12 +14,12 @@ export const loadDungeon = async $wallet => {
   const player = $wallet.address.toLowerCase();
 
   const dungeon = new Dungeon({
-    ethersProvider: window.provider, // @TODO: fix
+    ethersProvider: wallet.provider,
     wallet,
-    contract: wallet.getContract('Dungeon'),
-    playerContract: wallet.getContract('Player'),
-    transferer: wallet.getContract('DungeonTokenTransferer'),
-    ubf: wallet.getContract('UBF'),
+    contract: wallet.contracts.Dungeon,
+    playerContract: wallet.contracts.Player,
+    transferer: wallet.contracts.DungeonTokenTransferer,
+    ubf: wallet.contracts.UBF
   });
   await dungeon.init(player, key, wallet);
   return dungeon;
@@ -27,7 +27,7 @@ export const loadDungeon = async $wallet => {
 
 export const dungeon = derived([wallet, preDungeonCheck], async ([$wallet, $preDungeonCheck], set) => {
   if (
-    $wallet.status === 'Ready' &&
+    $wallet.state === 'Ready' &&
     $preDungeonCheck.status === 'Done' &&
     $preDungeonCheck.isCharacterInDungeon &&
     $preDungeonCheck.isDelegateReady

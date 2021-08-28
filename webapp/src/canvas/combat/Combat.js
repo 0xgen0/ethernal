@@ -27,11 +27,7 @@ class Combat {
     this.others = [];
 
     Object.keys(global.dungeon.cache.currentCombat.duels).forEach(key => {
-      if (this.characterId !== key
-        && global.dungeon.cache.currentRoom.onlineCharacters.includes(key)
-        && global.dungeon.cache.onlineCharacters[key]
-        && global.dungeon.cache.onlineCharacters[key].status.status === 'attacking monster'
-      ) {
+      if (this.characterId !== key) {
         this.others[key] = new CombatCharacter(key);
       }
     });
@@ -115,7 +111,7 @@ class Combat {
 
     // @TODO: queue until last action displayed
     await this.renderer.otherCharacterDefeated(characterId);
-
+    
     delete this.others[characterId];
   }
 

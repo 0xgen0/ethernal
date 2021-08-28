@@ -4,7 +4,7 @@
 
   import { playerEnergy, characterBalances, characterStatus, needFood } from 'lib/cache';
   import config from 'data/config';
-  import wallet from 'stores/wallet';
+  import {chain} from 'stores/wallet';
 
   import AlertTick from 'components/AlertTick';
   import BoxButton from 'components/BoxButton';
@@ -16,7 +16,7 @@
   import IconKey from 'assets/icons/key_2x.png';
   import IconCoin from 'assets/icons/coin_2x.png';
 
-  $: price = config($wallet.chainId).price;
+  $: price = config($chain.chainId).price;
   $: energy = $playerEnergy && BigNumber.from($playerEnergy).mul(100).div(BigNumber.from(price)).toNumber();
   $: energyLevel = Math.min(100, energy);
   $: coins = $characterBalances.coins;

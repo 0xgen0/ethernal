@@ -1,7 +1,7 @@
 const Sentry = require('@sentry/node');
-const taim = require('taim');
+const fetch = require('node-fetch');
+const jsonDiff = require('json-diff');
 const { events, pastEvents, provider } = require('../db/provider');
-const Mutex = require('../db/mutex');
 const Character = require('./character.js');
 const Combat = require('./combat.js');
 const DungeonMap = require('./map.js');
@@ -12,17 +12,15 @@ const Trading = require('./trading.js');
 const Quests = require('./quests.js');
 const Keeper = require('./keeper.js');
 const Cheats = require('./cheats.js');
-const { uint256 } = require('../data/utils');
+const { uint256, mapValues } = require('../data/utils');
 const drawMap = require('../utils/drawMap.js');
 const { coordinatesToLocation } = require('./utils');
 
 class Dungeon {
-  constructor({ contracts, sockets, leaderboard }) {
+  constructor(contracts, sockets, leaderboard) {
     this.contracts = contracts;
     this.sockets = sockets;
     this.leaderboard = leaderboard;
-
-    this.mutex = new Mutex();
 
     this.map = new DungeonMap(this);
     this.combat = new Combat(this);
@@ -55,33 +53,35 @@ class Dungeon {
       : Number((await provider.send('eth_getBlockByNumber', ['latest', false])).number);
     console.log('initializing data from block', this.initBlock);
     const block = await events.deferEvents();
-    console.log('deferring events from block', block);
+    console.log('defering events from block', block);
 
-    const lastProcessed = await events.lastProcessedBlock();
-    let fromBlock = lastProcessed || this.firstBlock;
-    console.log('fast forwarding dungeon from block', fromBlock)
+    this.map.registerEventHandlers();
+    this.gear.registerEventHandlers();
+    this.elements.registerEventHandlers();
+    this.character.registerEventHandlers();
+    this.randomEvents.registerEventHandlers();
+    this.trading.registerEventHandlers();
+    this.quests.registerEventHandlers();
+    this.keeper.registerEventHandlers();
 
-    const components = [
-      this.map,
-      this.gear,
-      this.elements,
-      this.character,
-      this.randomEvents,
-      this.trading,
-      this.quests,
-      this.keeper,
-    ];
+    let fromBlock = this.firstBlock;
+    let snapshot = null;
+    if (this.initBlock !== 'latest') {
+      snapshot = await this.loadSnapshot();
+      if (snapshot) {
+        fromBlock = snapshot.blockNumber + 1;
+      }
+    }
 
-    components.forEach(component => component.registerEventHandlers());
-    await Promise.all(
-      components.map(component => component.storeSchema()),
-    );
-
-    await taim('replay', events.replay(fromBlock, this.initBlock));
-
-    await this.keeper.applyDataUpdates();
-    await this.quests.initSharedData();
-    await this.keeper.checkForeclosures();
+    await this.gear.fetchAll(fromBlock, this.initBlock, snapshot);
+    await this.map.fetchAllRooms(fromBlock, this.initBlock, snapshot);
+    await this.character.fetchAll(fromBlock, this.initBlock, snapshot);
+    await this.elements.fetchAll(fromBlock, this.initBlock, snapshot);
+    await this.map.fetchCharacterMovements(fromBlock, this.initBlock, snapshot);
+    await this.map.fetchDeadCharacters(fromBlock, this.initBlock, snapshot);
+    await this.randomEvents.fetchAll(fromBlock, this.initBlock, snapshot);
+    await this.quests.fetchAll(fromBlock, this.initBlock, snapshot);
+    await this.keeper.fetchAll(fromBlock, this.initBlock, snapshot);
 
     console.log('processing events missed during initialization');
     if (this.initBlock === 'latest') {
@@ -91,16 +91,16 @@ class Dungeon {
     const deferred = await events.processDeferred();
     console.log('deferred events processed', deferred);
 
-    const leaderboard = await this.character.hallOfFame();
-    const weekly = await this.character.weeklyLeaderboard();
+    const leaderboard = this.hallOfFame();
+    const weekly = this.weeklyLeaderboard();
     console.log('initialized leaderboard, top character is', leaderboard.length > 0 && leaderboard[0].characterName);
     console.log('weekly top is', weekly.length > 0 && weekly[0].characterName);
 
-    console.log(drawMap(await this.map.roomsAround()));
+    console.log(drawMap(this.rooms));
 
     // TODO sync of the joined rooms between sockets should be handled in sockets.js
-    this.sockets.on('connected', async character => {
-      const coordinates = await this.character.coordinates(character) || {};
+    this.sockets.on('connected', character => {
+      const { coordinates } = this.character.info(character) || {};
       if (coordinates) {
         this.sockets.move(character, null, coordinates);
       }
@@ -114,25 +114,23 @@ class Dungeon {
     this.initialized = true;
   }
 
-  async handleCharacterJoined({ character }) {
-    await this.map.updateOnlineCharacters(character);
-    const characterInfo = await this.character.info(character);
+  handleCharacterJoined({ character }) {
+    this.map.updateOnlineCharacters(character);
+    const characterInfo = this.character.info(character);
     if (characterInfo) {
       this.sockets.emit('character-joined', { character, characterInfo });
     }
   }
 
-  async handleCharacterLeft({ character }) {
-    await this.map.updateOnlineCharacters(character);
+  handleCharacterLeft({ character }) {
+    this.map.updateOnlineCharacters(character);
     this.sockets.emit('character-left', { character });
   }
 
   async handleMetaTxError(character, error) {
     console.log(`character ${character} metatransaction error:`, error.reason);
-    const info = await this.character.info(
-      character,
-      await this.reloadPlayerInfo(character, await this.reloadCharacterStats(character)),
-    );
+    await this.character.reloadCharacterStats(character);
+    const info = this.character.info(character);
     await this.map.reorgRoom(info.coordinates, [info]);
     this.debug.metatxFails.push({ character, error, date: new Date().toISOString() });
     Sentry.withScope(scope => {
@@ -141,15 +139,99 @@ class Dungeon {
     });
   }
 
-  async handleChatMessage(character, message) {
-    const coordinates = await this.character.coordinates(character);
+  handleChatMessage(character, message) {
+    const { coordinates } = this.character.info(character) || {};
     if (coordinates) {
       this.sockets.emitRoom(coordinates, 'chat-message', { coordinates, character, message });
     }
   }
 
-  async room(coordinates) {
-    return this.map.roomAt(coordinates);
+  hallOfFame() {
+    const parents = new Set(Object.values(this.character.lineage).flat());
+    return Object.values(this.characters)
+      .filter(({ character }) => !parents.has(Number(character)))
+      .sort((a, b) => b.stats.xp - a.stats.xp)
+      .map(({ character }, i) => {
+        const cached = this.characters[character];
+        cached.hallOfFame = i + 1;
+        return cached;
+      });
+  }
+
+  weeklyLeaderboard() {
+    const parents = new Set(Object.values(this.character.lineage).flat());
+    return Object.values(this.characters)
+      .map(({ character }) => {
+        const cached = this.characters[character];
+        cached.weeklyXp = this.leaderboard.weeklyXp(cached);
+        return cached;
+      })
+      .filter(({ character }) => !parents.has(Number(character)))
+      .sort((a, b) => b.weeklyXp - a.weeklyXp)
+      .map(({ character }, i) => {
+        const cached = this.characters[character];
+        cached.weeklyRank = i + 1;
+        return cached;
+      });
+  }
+
+  async snapshot() {
+    const blockNumber = await events.deferEvents();
+    const { balances, data } = this.gear;
+    const result = JSON.stringify(
+      {
+        blockNumber,
+        version: process.env.COMMIT,
+        contracts: mapValues(this.contracts, ({ address }) => address),
+        rooms: this.rooms,
+        moves: this.map.moves,
+        character: {
+          data: this.character.data,
+          lineage: this.character.lineage,
+        },
+        balances: this.elements.balances,
+        gear: { balances, data },
+        keeper: this.keeper,
+        randomEvents: {
+          lastHash: this.randomEvents.lastHash,
+        },
+      },
+      (key, value) => (value instanceof Set ? [...value] : value),
+    );
+    events.processDeferred();
+    return result;
+  }
+
+  async loadSnapshot() {
+    let snapshot = null;
+    const url = process.env.SNAPSHOT;
+    if (url) {
+      try {
+        snapshot = await fetch(url).then(res => res.json());
+        const contractAddresses = mapValues(this.contracts, ({ address }) => address);
+        const contractsDifference = jsonDiff.diff(snapshot.contracts, contractAddresses);
+        if (contractsDifference) {
+          console.log('snapshot is from different contracts', contractsDifference);
+        }
+        console.log(`using snapshot from block ${snapshot.blockNumber}`);
+      } catch (e) {
+        console.log('snapshot loading failed', e);
+      }
+    }
+    return snapshot;
+  }
+
+  get characters() {
+    return this.character.data;
+  }
+
+  get rooms() {
+    return this.map.rooms;
+  }
+
+  get debugData() {
+    const balances = mapValues({ ...this.gear.balances }, b => Array.from(b));
+    return { ...this.debug, gear: { balances }, balances: this.elements.balances };
   }
 }
 

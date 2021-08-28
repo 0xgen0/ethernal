@@ -27,10 +27,10 @@ class Dungeon {
   constructor({ ethersProvider, wallet, contract, playerContract, transferer, ubf }) {
     this.provider = ethersProvider;
     this.wallet = wallet; // to perform tx on behalf of current user
-    this.contract = new ethers.Contract(contract.address, contract.abi, this.provider);
-    this.playerContract = new ethers.Contract(playerContract.address, playerContract.abi, this.provider);
-    this.transferer = new ethers.Contract(transferer.address, transferer.abi, this.provider);
-    this.ubf = new ethers.Contract(ubf.address, ubf.abi, this.provider);
+    this.contract = contract;
+    this.playerContract = playerContract;
+    this.transferer = transferer;
+    this.ubf = ubf;
   }
 
   static moveToDirection({ from, to }) {
@@ -88,7 +88,7 @@ class Dungeon {
       gasPrice,
     };
 
-    const characterId = await wallet.call('Player', 'getLastCharacterId', player);
+    const characterId = await wallet.contracts.Player.getLastCharacterId(player);
     this.character = characterId.toString();
     this.cache = new Cache(await cacheUrl, this.character, this);
 
@@ -149,7 +149,7 @@ class Dungeon {
   async refill(value) {
     // @TODO: gas price
     return nprogress.observe(
-      this.wallet.tx({ ...this.defaultOpts, value }, 'Player', 'refill').then(tx => tx.wait()),
+      this.wallet.contracts.Player.refill({ ...this.defaultOpts, value }).then(tx => tx.wait()),
       this.cache.onceRefill(),
     );
   }
@@ -325,11 +325,9 @@ class Dungeon {
 
   async addDelegate() {
     const gasEstimate = 4000000;
-    return this.wallet.tx(
-      { ...this.defaultOpts, gas: gasEstimate + 15000 },
-      'Dungeon',
-      'addDelegate',
+    return this.wallet.contracts.Dungeon.addDelegate(
       this.delegateWallet.address,
+      { ...this.defaultOpts, gasLimit: gasEstimate + 15000 }
     );
   }
 
@@ -337,16 +335,13 @@ class Dungeon {
     // eslint-disable-next-line no-console
     console.log('creating new character');
     return nprogress.observe(
-      this.wallet
-        .tx(
-          { ...this.defaultOpts },
-          'Player',
-          'createAndEnter',
+      this.wallet.contracts.Player.createAndEnter(
           '0x0000000000000000000000000000000000000000',
           '0',
           characterName,
           characterClass,
           await this.cache.entry(),
+          { ...this.defaultOpts }
         )
         .then(tx => tx.wait()),
     );
@@ -406,9 +401,9 @@ class Dungeon {
    * convert items from object to array of items in required order:
    *  > [fire, air, electricity, earth, water, coins, keys, fragments]
    *
+   * @param amounts of different tokens to be transferred in order
    *        { fire, air, electricity, earth, water, coins, keys, fragments }
-   * @returns {number[]} resolutions means tx success, rejection fail
-   * @param items
+   * @returns {Promise<void>} resolutions means tx success, rejection fail
    */
   convertConsumablesToArray(items = {}) {
     const { fire = 0, air = 0, electricity = 0, earth = 0, water = 0, coins = 0, keys = 0, fragments = 0 } = items;
@@ -444,23 +439,21 @@ class Dungeon {
   }
 
   async recyclingReward(gears) {
-    const cost = await this.wallet.call(
-      'ReadOnlyDungeon',
-      'recyclingReward',
-      gears.map(gear => gear.bytes),
+    const cost = await this.wallet.contracts.ReadOnlyDungeon.recyclingReward(
+      gears.map(gear => gear.bytes)
     );
     return Number(cost);
   }
 
   async carrierCost() {
-    const cost = await this.wallet.call('ReadOnlyDungeon', 'carrierCost', this.cache.currentRoom.location);
+    const cost = await this.wallet.contracts.ReadOnlyDungeon.carrierCost(this.cache.currentRoom.location);
     return Number(cost);
   }
 
   async sendGearsToVault(gearIds) {
     return nprogress.observe(
       this.transferWallet
-        .tx('batchTransferGearOut', this.character, this.wallet.getAddress(), gearIds)
+        .tx('batchTransferGearOut', this.character, this.wallet.address, gearIds)
         .then(tx => tx.wait()),
     );
   }
@@ -478,7 +471,7 @@ class Dungeon {
     }
     return nprogress.observe(
       this.transferWallet
-        .tx('batchTransferElementsOut', this.character, this.wallet.getAddress(), elements)
+        .tx('batchTransferElementsOut', this.character, this.wallet.address, elements)
         .then(tx => tx.wait()),
     );
   }
@@ -490,7 +483,7 @@ class Dungeon {
    * @returns {Promise<Boolean>} is approved?
    */
   async isCarrierApproved(nft = 'Gears') {
-    return this.wallet.call(nft, 'isApprovedForAll', this.wallet.getAddress(), this.transferer.address);
+    return this.wallet.contracts[nft].isApprovedForAll(this.wallet.address, this.transferer.address);
   }
 
   /**
@@ -500,12 +493,12 @@ class Dungeon {
    * @returns {Promise<*>} resolution
    */
   async approveCarrier(nft = 'Gears') {
-    return this.wallet.tx(nft, 'setApprovalForAll', this.transferer.address, true).then(tx => tx.wait());
+    return this.wallet.contracts[nft].setApprovalForAll(this.transferer.address, true).then(tx => tx.wait());
   }
 
   async retrieveGearsFromVault(gearIds) {
     return nprogress.observe(
-      this.wallet.tx('DungeonTokenTransferer', 'batchTransferGearIn', this.character, gearIds).then(tx => tx.wait()),
+      this.wallet.contracts.DungeonTokenTransferer.batchTransferGearIn(this.character, gearIds).then(tx => tx.wait()),
     );
   }
 
@@ -539,7 +532,7 @@ class Dungeon {
    * @returns {Promise<number>} fragments
    */
   async discoveryCost(coordinates) {
-    const fragments = await this.wallet.call('ReadOnlyDungeon', 'discoveryCost', coordinatesToLocation(coordinates));
+    const fragments = await this.wallet.contracts.ReadOnlyDungeon.discoveryCost(coordinatesToLocation(coordinates));
     return Number(fragments);
   }
 
@@ -550,11 +543,11 @@ class Dungeon {
    * @returns {Promise<*>}
    */
   async approveDungeon(nft = 'Elements') {
-    return this.wallet.tx(nft, 'setApprovalForAll', this.contract.address, true).then(tx => tx.wait());
+    return this.wallet.contracts[nft].setApprovalForAll(this.contract.address, true).then(tx => tx.wait());
   }
 
   async isDungeonApproved(nft = 'Elements') {
-    return this.wallet.call(nft, 'isApprovedForAll', this.wallet.getAddress(), this.contract.address);
+    return this.wallet.contracts[nft].isApprovedForAll(this.wallet.address, this.contract.address);
   }
 
   /**
@@ -611,7 +604,7 @@ class Dungeon {
    * @returns {Promise<*>} number of coins
    */
   async roomsTax(periods = 1) {
-    return Number(await this.wallet.call('ReadOnlyDungeon', 'roomsTax', this.cache.keeperRooms.length, periods));
+    return Number(await this.wallet.contracts.ReadOnlyDungeon.roomsTax(this.cache.keeperRooms.length, periods));
   }
 
   /**
@@ -645,7 +638,7 @@ class Dungeon {
    * @return {Promise<*>} { amount, ubfBalance, slot, claimed, untilNextSlot }
    */
   async ubfInfo() {
-    return this.wallet.call('UBF', 'getInfo', this.wallet.getAddress());
+    return this.wallet.contracts.UBF.getInfo(this.wallet.address);
   }
 
   /**
@@ -656,21 +649,6 @@ class Dungeon {
   async claimUbf() {
     return nprogress.observe(
       this.ubfWallet.tx('claimUBFAsCharacter', this.character).then(tx => tx.wait()),
-    );
-  }
-
-  /**
-   * add bounty to the room
-   *
-   * @returns {Promise<void>}
-   */
-  async addBounty(coordinates, amounts) {
-    const elements = this.convertConsumablesToArray(amounts);
-    if (elements.filter(Boolean).length === 0) {
-      return;
-    }
-    return nprogress.observe(
-      this.playerWallet.tx('addBounty', this.character, coordinatesToLocation(coordinates), elements).then(tx => tx.wait()),
     );
   }
 }

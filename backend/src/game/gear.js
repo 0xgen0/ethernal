@@ -1,101 +1,137 @@
-const Promise = require('bluebird');
-const { events, db } = require('../db/provider');
-const { gearBytes, cleanRoom } = require('../data/utils');
+const { events, pastEvents } = require('../db/provider');
+const { gearBytes, cleanRoom, justValues, identity, mapValues } = require('../data/utils');
 const { locationToCoordinates, isLocation } = require('./utils');
 const DungeonComponent = require('./dungeonComponent.js');
 const UniqueGear = require('../game/uniqueGear.js');
 
 class Gear extends DungeonComponent {
+  data = {};
+  balances = {};
+
   constructor(map) {
     super(map);
     this.unique = new UniqueGear(map);
   }
 
   registerEventHandlers() {
-    const { Gears, Dungeon } = this.contracts;
+    const { Gears, Dungeon } = this.dungeon.contracts;
     events.on(Gears, 'DataUpdate', this.handleDataUpdate.bind(this));
     events.on(Gears, 'Transfer', this.handleTransfer.bind(this));
     events.on(Gears, 'SubTransfer', this.handleSubTransfer.bind(this));
     events.on(Dungeon, 'Recycle', this.handleRecycle.bind(this));
   }
 
-  async handleDataUpdate(id, data) {
+  async fetchAll(fromBlock = 0, toBlock = 'latest', snapshot) {
+    console.log('getting all gear');
+    const updates = justValues(await pastEvents('Gears', 'DataUpdate', [], fromBlock, toBlock));
+    const data = updates.reduce((d, { id, data }) => {
+      d[id] = data;
+      return d;
+    }, snapshot ? snapshot.gear.data : {});
+    console.log('fetched data of ' + Object.keys(data).length + ' gear');
+    const gears = Array.from(new Set(Object.values(data))).map(gearBytes.toJSON);
+    const unique = gears.map(gear => this.unique.give(gear)).filter(identity);
+    console.log(`fetched ${unique.length} unique gears given, ${this.unique.available.length} remaining`);
+    const transfers = justValues(await pastEvents('Gears', 'SubTransfer', [], fromBlock, toBlock));
+    const balances = transfers.reduce((b, { from, to, id }) => {
+      id = Number(id);
+      if (Number(from) !== 0) b[from].delete(id);
+      if (!b[to]) b[to] = new Set();
+      b[to].add(id);
+      return b;
+    }, snapshot ? mapValues(snapshot.gear.balances, gears => new Set(gears)) : {});
+    this.balances = balances;
+    this.data = data;
+    justValues(await pastEvents('Gears', 'Transfer', [], fromBlock, toBlock)).forEach(({ from, to, id }) =>
+      this.handleTransfer(from, to, id),
+    );
+    console.log('fetched gear from ' + Object.keys(balances).length + ' owners');
+  }
+
+  handleDataUpdate(id, data) {
     id = Number(id);
-    const owner = await this.ownerOf(id);
-    await this.store([[id, owner, data]]);
+    this.data[id] = data;
     const gear = gearBytes.toJSON(data);
     if (gear.durability <= 0) {
       console.log('gear broken', id);
-      const character = owner;
-      const coordinates = await this.dungeon.character.coordinates(character);
+      const character = this.ownerOf(id);
+      const coordinates = this.dungeon.character.coordinates(character);
       this.sockets.emit('gear-broken', { character, gear, coordinates });
     }
   }
 
-  async handleTransfer(fromAddress, toAddress, id) {
+  handleTransfer(fromAddress, toAddress, id) {
     id = Number(id);
+    const from = fromAddress.toLowerCase();
     const to = toAddress.toLowerCase();
     const dungeon = this.contracts.Dungeon.address.toLowerCase();
+    if (from !== dungeon && this.balances[from]) {
+      this.balances[from].delete(id);
+    }
     if (to !== dungeon) {
-      const { data } = await this.info(id);
-      await this.store([[id, to, data]]);
+      if (!this.balances[to]) {
+        this.balances[to] = new Set();
+      }
+      this.balances[to].add(id);
     }
   }
 
-  async handleSubTransfer(fromId, toId, id) {
+  handleSubTransfer(fromId, toId, id) {
     id = Number(id);
-    const gear = await this.info(id);
+    const gear = this.info(id);
     const from = fromId.toString();
     const to = toId.toString();
-    await this.store([[id, to, gear.data]]);
+    if (from !== '0' && this.balances[from]) {
+      const removed = this.balances[from].delete(id);
+      if (!removed) {
+        console.log('failed to substract ' + id + ' from ' + from);
+      }
+    }
+    if (!this.balances[to]) {
+      this.balances[to] = new Set();
+    }
+    this.balances[to].add(id);
     this.sockets.emit('transfer', { from, to, gearId: id, gear });
     const characterInfos = [];
     const roomUpdates = [];
     if (from !== '0') {
       if (isLocation(from)) {
         const coordinates = locationToCoordinates(from);
-        const room = await this.dungeon.room(coordinates);
+        const room = this.dungeon.rooms[coordinates];
         if (room) {
-          room.scavenge = { ...room.scavenge, gear: await this.balanceOf(from) };
+          room.scavenge = { ...room.scavenge, gear: this.balanceOf(from) };
           roomUpdates.push(cleanRoom(room));
-          await this.dungeon.map.storeRooms([room]);
           this.sockets.emit('scavenge', { character: to, from, coordinates, gear });
         }
       } else {
-        const [characterInfo, coordinates] = await Promise.all([
-          this.dungeon.character.info(from),
-          this.dungeon.character.coordinates(to),
-        ]);
+        const characterInfo = this.dungeon.character.info(from);
+        const coordinates = this.dungeon.character.coordinates(to);
         characterInfos.push(characterInfo);
-        if (this.dungeon.character.isDead(characterInfo.status)) {
-          const { coordinates } = characterInfo;
+        if (this.dungeon.map.deadCharacters.has(from)) {
+          const coordinates = this.dungeon.character.coordinates(from);
           const character = to;
-          const room = await this.dungeon.room(coordinates);
+          const room = this.dungeon.rooms[coordinates];
           if (room) {
-            room.scavenge = { ...room.scavenge, corpses: await this.dungeon.map.scavengeCorpses(room) };
-            await this.dungeon.map.storeRooms([room]);
+            room.scavenge = { ...room.scavenge, corpses: this.dungeon.map.scavengeCorpses(coordinates) };
             roomUpdates.push(cleanRoom(room));
           }
-          this.sockets.emit('scavenge', { character, from, coordinates, gear });
+          this.sockets.emit('scavenge', { character, from, coordinates, gear, });
         }
         this.sockets.emit('gear-removed', { character: from, gearId: id, coordinates, characterInfo, gear });
       }
     }
     if (to !== '0') {
-      if (isLocation(to)) {
-        const [characterInfo, room] = await Promise.all([
-          this.dungeon.character.info(from),
-          this.dungeon.room(locationToCoordinates(to)),
-        ]);
+      if (isLocation(to) && this.dungeon.rooms[locationToCoordinates(to)]) {
+        const characterInfo = this.dungeon.character.info(from);
+        const room = this.dungeon.rooms[locationToCoordinates(to)];
         if (room) {
-          room.scavenge = { ...room.scavenge, gear: await this.balanceOf(to) };
+          room.scavenge = { ...room.scavenge, gear: this.balanceOf(to) };
           roomUpdates.push(cleanRoom(room));
-          await this.dungeon.map.storeRooms([room]);
-          this.sockets.emit('dropped', { character: from, coordinates: room.coordinates, characterInfo, gear });
+          this.sockets.emit('dropped', { character: from, coordinates: room.coordinates, characterInfo, gear })
         }
       } else {
-        const characterInfo = await this.dungeon.character.info(to);
-        const { coordinates } = characterInfo;
+        const characterInfo = this.dungeon.character.info(to);
+        const coordinates = this.dungeon.character.coordinates(to);
         characterInfos.push(characterInfo);
         this.sockets.emit('gear-received', { character: to, gearId: id, coordinates, characterInfo, gear });
       }
@@ -105,65 +141,28 @@ class Gear extends DungeonComponent {
     }
   }
 
-  async handleRecycle(characterId, gearId) {
+  handleRecycle(characterId, gearId) {
     const id = Number(gearId);
     const character = characterId.toString();
-    const gear = await this.info(id);
-    const coordinates = await this.dungeon.character.coordinates(character);
-    this.sockets.emit('recycle', { character, coordinates, gear });
+    this.sockets.emit('recycle', { character, coordinates: this.dungeon.character.coordinates(character), gear: this.info(id) });
   }
 
-  async storeSchema() {
-    return db.tx(t => {
-      t.query(`
-        CREATE TABLE IF NOT EXISTS ${db.tableName('gear')} (
-            id numeric PRIMARY KEY,
-            owner varchar(100),
-            data numeric
-        )
-      `);
-    });
-  }
-
-  async store(gears) {
-    return db.tx(t => {
-      gears.forEach(gear => {
-        t.query(
-          `INSERT INTO ${db.tableName('gear')}(id, owner, data) VALUES ($1,$2,$3)
-              ON CONFLICT (id) DO UPDATE
-              SET owner = excluded.owner,
-                  data = excluded.data`,
-          gear.map(g => g.toString()),
-        );
-      });
-    });
-  }
-
-  fromRow(row) {
-    const { data, owner, id } = row;
+  info(id) {
+    const data = this.data[id];
     return {
-      ...gearBytes.toJSON(data),
-      data,
-      owner,
-      id: String(id),
+      ...(data ? gearBytes.toJSON(data) : { bytes: null }),
+      id: id.toString(),
     };
   }
 
-  async info(id) {
-    const { rows } = await db.query(`SELECT * FROM ${db.tableName('gear')} WHERE id = $1`, [String(id)]);
-    const gears = rows.map(r => this.fromRow(r));
-    return gears.length && gears[0];
-  }
-
-  async balanceOf(holder) {
-    const { rows } = await db.query(`SELECT * FROM ${db.tableName('gear')} WHERE owner = $1`, [String(holder)]);
-    return rows.map(r => this.fromRow(r))
+  balanceOf(holder) {
+    return Array.from(this.balances[holder] || [])
+      .map(this.info.bind(this))
       .sort((a, b) => b.level - a.level);
   }
 
-  async ownerOf(id) {
-    const info = await this.info(id);
-    return info && info.owner;
+  ownerOf(id) {
+    return Object.keys(this.balances).find(owner => this.balances[owner].has(id));
   }
 }
 

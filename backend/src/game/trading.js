@@ -110,14 +110,16 @@ class Trading extends DungeonComponent {
     events.on(DungeonTokenTransferer, 'Exchange', this.handleExchange.bind(this));
   }
 
-  async handleExchange(sellerId, buyerId, sale, price) {
-    const parseOffer = async ({characterId, amounts, gears}) => ({
-      character: await this.dungeon.character.info(characterId.toString()),
+  handleExchange(seller, buyer, sale, price) {
+    const parseOffer = ({characterId, amounts, gears}) => ({
+      character: this.dungeon.characters[characterId.toString()],
       balance: createBalanceFromAmounts(amounts.map(Number)),
-      gears: await Promise.all(gears.map(id => this.dungeon.gear.info(id))),
+      gears: gears.map(id => this.dungeon.gear.info(id)),
     });
-    const [seller, buyer] = await Promise.all([sale, price].map(parseOffer));
-    this.sockets.emit('exchange', { seller, buyer });
+    this.sockets.emit('exchange', {
+      seller: parseOffer(sale),
+      buyer: parseOffer(price),
+    });
   }
 
   getTrade(buyer, seller) {
@@ -240,11 +242,7 @@ class Trading extends DungeonComponent {
       seller,
       deal: { deal },
     } = trade;
-    const [buyerCoordinates, sellerCoordinates] = await Promise.all([
-      this.dungeon.character.coordinates(buyer),
-      this.dungeon.character.coordinates(seller),
-    ]);
-    if (buyerCoordinates !== sellerCoordinates) {
+    if (this.dungeon.character.coordinates(buyer) !== this.dungeon.character.coordinates(seller)) {
       return this.clearTrades({ character: seller });
     }
 

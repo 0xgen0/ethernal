@@ -80,13 +80,4 @@ contract DungeonActionsFacet is DungeonFacetBase {
         require(_taxDueDate[owner] < block.timestamp + TAX_PERIOD * 2, "cannot prepay more");
         emit RoomTaxPay(owner, tax, _taxDueDate[owner]);
     }
-
-    function addBounty(uint256 characterId, uint256 location, uint256[8] calldata amounts) external onlyPlayer {
-        _actualiseRoom(location);
-        for (uint256 i = 0; i < amounts.length; i++) {
-            if (amounts[i] > 0) {
-                _elementsContract.subTransferFrom(characterId, PureDungeon._locationToBounty(location), i+1, amounts[i]);
-            }
-        }
-    }
 }

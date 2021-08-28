@@ -1,4 +1,4 @@
-const { bn, coordinatesToLocation } = require('../utils');
+const { bn } = require('../utils');
 const { balanceToAmounts } = require('../../data/utils');
 
 class Ability {
@@ -13,12 +13,12 @@ class Ability {
     this.dungeon = dungeon;
   }
 
-  async checkRequirements(character, coordinates) {
-    const room = await this.dungeon.room(coordinates);
+  checkRequirements(character, coordinates) {
+    const room = this.dungeon.rooms[coordinates];
     if (this.requirements.kind && !this.requirements.kind.includes(room.kind.toString())) {
       throw new Error('cannot use ability on this kind of room');
     }
-    const { fragments } = await this.dungeon.keeper.characterIncome(character);
+    const { fragments } = this.dungeon.keeper.characterIncome(character);
     if (this.requirements.income > fragments) {
       throw new Error('income not high enough');
     }
@@ -28,13 +28,14 @@ class Ability {
   }
 
   async use(character, coordinates) {
-    await this.checkRequirements(character, coordinates);
+    this.checkRequirements(character, coordinates);
+    const { location } = this.dungeon.rooms[coordinates];
     const data = this.data;
-    if (data !== await this.dungeon.keeper.data(coordinates)) {
+    if (data !== this.data[location]) {
       const { DungeonAdmin } = this.dungeon.contracts;
       const tx = await DungeonAdmin.updateRoomData(
         character,
-        bn(coordinatesToLocation(coordinates)),
+        bn(location),
         bn(this.data),
         balanceToAmounts(this.price),
         { gasLimit: 700000 }
@@ -46,7 +47,7 @@ class Ability {
     return data;
   }
 
-  applyRoomDataUpdate(coordinates, data) {
+  applyRoomDataUpdate(coordinates, data, previous) {
     // not implemented
   }
 

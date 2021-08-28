@@ -3,7 +3,7 @@
   import claim from 'stores/claim';
   import preDungeon from 'stores/preDungeon';
   import preDungeonCheck from 'stores/preDungeonCheck';
-  import wallet from 'stores/wallet';
+  import {wallet} from 'stores/wallet';
   import DefaultScreen from 'screens/DefaultScreen';
   import CharacterScreen from 'screens/Intro/CharacterScreen';
   import EnterScreen from 'screens/Intro/EnterScreen';
@@ -16,7 +16,7 @@
 </script>
 
 {#if $preDungeon.roomId === 'final'}
-  {#if $wallet.status === 'Ready'}
+  {#if $wallet.state === 'Ready'}
     {#if $claim.status === 'WaitingWallet'}
       <UseKeyScreen next="{() => claim.claim()}" />
     {:else if $claim.status === 'Claimed' || $claim.status === 'None'}
@@ -42,9 +42,9 @@
       <DefaultScreen header="profile " text="You try the key on the gate..." />
     {/if}
   {:else}
-    <WalletSetupScreen setupWallet="{() => wallet.useFirstChoice()}" />
+    <WalletSetupScreen setupWallet="{() => wallet.connect()}" />
   {/if}
-{:else if $preDungeon.roomId === 'intro' && $wallet.status !== 'Ready'}
+{:else if $preDungeon.roomId === 'intro' && $wallet.state !== 'Ready'}
   <EnterScreen next="{() => preDungeon.setRoom('character')}" />
 {:else if $preDungeon.roomId === 'character' || ($preDungeon.roomId === 'intro' && $wallet.status === 'Ready')}
   <CharacterScreen next="{() => preDungeon.setRoom('second')}" />

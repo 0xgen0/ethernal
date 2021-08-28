@@ -1,7 +1,7 @@
 import { derived } from 'svelte/store';
 import { Wallet, BigNumber, utils } from 'ethers';
 
-import wallet from 'stores/wallet';
+import {wallet, chain, fallbackProvider} from 'stores/wallet';
 import log from 'utils/log';
 import { rebuildLocationHash } from 'utils/web';
 
@@ -24,8 +24,8 @@ window.$claim = $claim;
 
 let claimWallet;
 const store = derived(
-  wallet,
-  async ($wallet, set) => {
+  [wallet, chain],
+  async ([$wallet, $chain], set) => {
     const _set = obj => {
       $claim = { ...$claim, ...obj };
       log.info('CLAIM', JSON.stringify($claim, null, '  '));
@@ -42,31 +42,31 @@ const store = derived(
     if (claimKey && typeof $claim.rawBalance === 'undefined') {
       try {
         claimWallet = new Wallet(claimKey);
-        const provider = wallet.getFallbackProvider();
+        const provider = fallbackProvider;
         if (provider) {
-          (async () => {
-            let claimBalance = await wallet.getFallbackProvider().getBalance(claimWallet.address);
-            if (claimBalance.lt(minimum)) {
-              claimBalance = BigNumber.from(0);
-            }
-            if (claimBalance.gt(maximum)) {
-              claimBalance = maximum;
-            }
-            // eslint-disable-next-line no-console
-            console.log({
-              address: claimWallet.address,
-              status: 'WaitingWallet',
-              rawBalance: claimBalance,
-              balance: utils.formatUnits(claimBalance, 18),
-            });
-            _set({
-              status: 'WaitingWallet',
-              rawBalance: claimBalance,
-              balance: utils.formatUnits(claimBalance, 18),
-            });
-          })();
+          console.log("checking claim balance...");
+          let claimBalance = await fallbackProvider.getBalance(claimWallet.address);
+          if (claimBalance.lt(minimum)) {
+            claimBalance = BigNumber.from(0);
+          }
+          if (claimBalance.gt(maximum)) {
+            claimBalance = maximum;
+          }
+          // eslint-disable-next-line no-console
+          console.log({
+            address: claimWallet.address,
+            status: 'WaitingWallet',
+            rawBalance: claimBalance,
+            balance: utils.formatUnits(claimBalance, 18),
+          });
+          _set({
+            status: 'WaitingWallet',
+            rawBalance: claimBalance,
+            balance: utils.formatUnits(claimBalance, 18),
+          });
         }
       } catch (e) {
+        console.log('error while checking claim key', e);
         const claimBalance = BigNumber.from(0);
         _set({
           status: 'WaitingWallet',
@@ -78,10 +78,10 @@ const store = derived(
 
     async function claim() {
       _set({ status: 'Loading' });
-      const provider = wallet.getProvider();
+      const provider = wallet.provider;
 
       let claimingTxHash;
-      const localStorageKeyForClaimTxHash = `${$wallet.address}_${$wallet.chainId}_claimTxHash`;
+      const localStorageKeyForClaimTxHash = `${$wallet.address}_${$chain.chainId}_claimTxHash`;
       try {
         claimingTxHash = localStorage.getItem(localStorageKeyForClaimTxHash);
       } catch (err) {

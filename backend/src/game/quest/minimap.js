@@ -18,32 +18,25 @@ class Minimap extends Quest {
   rules = {
     roomTypes: ['4'],
   };
+  internal = {
+    coordinates: null,
+  };
   npc = 'map maker';
 
-  static async initSharedData(dungeon) {
-    const rooms = await dungeon.map.roomsByDistance();
-    const loreRoom = rooms.find(({kind}) => Number(kind) === 4);
-    if (loreRoom) {
-      const { coordinates } = loreRoom;
-      await dungeon.randomEvents.spawnClonedNPC(coordinates, 'map maker');
-      return { coordinates };
-    }
-  }
-
   get coordinates() {
-    return this.shared && this.shared.coordinates;
+    if (!this.internal.coordinates) {
+      const loreRoom = this.dungeon.map.roomsByDistance().find(({kind}) => Number(kind) === 4)
+      if (loreRoom) {
+        this.internal.coordinates = loreRoom.coordinates;
+      }
+    }
+    return this.internal.coordinates;
   }
 
-  async accept() {
-    await super.accept();
-    this.data = [];
-  }
-
-  async advance() {
-    const room = await this.dungeon.character.room(this.character);
-    const { coordinates, kind } = room;
+  advance() {
+    const coordinates = this.dungeon.character.coordinates(this.character);
     const rooms = Array.from(this.data);
-    const currentRoomKind = Number(kind).toString();
+    const currentRoomKind = Number(this.dungeon.map.rooms[coordinates].kind).toString();
     if (!rooms.includes(coordinates)
       && this.rules.roomTypes.includes(currentRoomKind)
       && coordinates !== this.coordinates

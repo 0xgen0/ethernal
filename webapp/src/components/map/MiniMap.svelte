@@ -11,7 +11,6 @@
     chestRooms,
     teleportRooms,
     monsterRooms,
-    bountyRooms,
     foreclosedRooms,
     currentRoom,
     onlineCharacters,
@@ -59,7 +58,6 @@
     players: {},
     bosses: {},
     monsters: {},
-    bounties: {},
     chests: {},
     teleports: {},
     highlightRooms: {},
@@ -87,10 +85,6 @@
     boss: L.icon({
       iconUrl: '/images/minimap-icons/monster-boss.png',
       iconSize: [9.72, 12],
-    }),
-    bounty: L.icon({
-      iconUrl: '/images/minimap-icons/monster-bounty.png',
-      iconSize: [14, 12],
     }),
     chest: L.icon({
       iconUrl: '/images/minimap-icons/chest.png',
@@ -182,11 +176,6 @@
     currentFloor !== null &&
     $bossRooms &&
     displayItems($bossRooms, 'bosses', 'bossesGroup', icons.boss, 7);
-  $: minimap &&
-    !hideItems &&
-    currentFloor !== null &&
-    $bountyRooms &&
-    displayItems($bountyRooms, 'bounties', 'bountyGroup', icons.bounty, 11);
   $: minimap &&
     !hideItems &&
     currentFloor !== null &&
@@ -366,7 +355,6 @@
     markers.chestsGroup = { expanded: true, layers: L.layerGroup([]) };
     markers.bossesGroup = { expanded: true, layers: L.layerGroup([]) };
     markers.monsterGroup = { expanded: true, layers: L.layerGroup([]) };
-    markers.bountyGroup = { expanded: true, layers: L.layerGroup([]) };
     markers.playersGroup = { expanded: true, layers: L.layerGroup([]) };
     markers.foreclosedRoomsGroup = { expanded: true, layers: L.layerGroup([]) };
     markers.teleportsGroup = { expanded: teleportsOverlay, layers: L.layerGroup([]) };
@@ -375,7 +363,6 @@
     toggleLayerGroup('npcsGroup');
     toggleLayerGroup('chestsGroup');
     toggleLayerGroup('bossesGroup');
-    toggleLayerGroup('bountyGroup');
     toggleLayerGroup('playersGroup');
     toggleLayerGroup('teleportsGroup');
     toggleLayerGroup('foreclosedRoomsGroup');
@@ -440,13 +427,7 @@
 
     // Refocus map on click
     if (allowRefocus) {
-      minimap.on('click', event => {
-        const { latlng: { lat, lng }, originalEvent: { target } } = event;
-        console.log(target.id);
-        if (target.id !== 'dungeon-map') {
-          console.log('control clicked');
-          return;
-        }
+      minimap.on('click', ({ latlng: { lat, lng } }) => {
         const coords = latLngToCoords(lat, lng);
         const [x, y] = coords.split(',');
 

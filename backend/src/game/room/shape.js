@@ -4,14 +4,9 @@ const { coordinatesInDirection, directions, order } = require('../utils');
 const MapComponent = require('./mapComponent.js');
 
 class RoomShape extends MapComponent {
-  async neighbors(room, onlyRooms = true, onlyOlder = true) {
-    const rooms = await Promise.all(
-      Object.keys(directions).map(async direction => [
-        direction,
-        await this.room(coordinatesInDirection(room.coordinates, direction)),
-      ]),
-    );
-    return rooms.reduce((r, [direction, n]) => {
+  neighbors(room, onlyRooms = true, onlyOlder = true) {
+    return Object.keys(directions).reduce((r, direction) => {
+      let n = this.rooms[coordinatesInDirection(room.coordinates, direction)];
       if (onlyRooms && n && n.corridor) {
         n = null;
       }
@@ -22,9 +17,9 @@ class RoomShape extends MapComponent {
     }, {});
   }
 
-  emptySpaceAroundRoom(room, expansions, neighbors) {
+  emptySpaceAroundRoom(room, expansions) {
     const exp = { north: 0, south: 0, east: 0, west: 0, ...expansions };
-    const { north, south, west, east, ne, nw, se, sw } = neighbors;
+    const { north, south, west, east, ne, nw, se, sw } = this.neighbors(room, false);
     const empty = {};
     try {
       empty.north = Math.max(
@@ -58,7 +53,7 @@ class RoomShape extends MapComponent {
     return empty;
   }
 
-  async generate(room) {
+  generate(room) {
     if (room.coordinates === '0,0') {
       if (process.env.EXPANSION) {
         return {
@@ -83,17 +78,14 @@ class RoomShape extends MapComponent {
       }
     }
     const random = seedrandom(room.hash);
-    const [neighboringRooms, neighbors] = await Promise.all([
-      this.neighbors(room),
-      this.neighbors(room, false),
-    ]);
+    const neighboringRooms = this.neighbors(room);
     const regularRoom = Number(room.kind) === 1;
     const exits = Object.entries(room.allExits)
       .filter(([, exit]) => exit)
       .map(([dir]) => dir);
     const isRoom = !regularRoom || exits.length !== 2 || neighboringRooms.length > 2;
     const expansions = order.reduce((expansions, dir) => {
-      const empty = this.emptySpaceAroundRoom(room, expansions, neighbors)[dir];
+      const empty = this.emptySpaceAroundRoom(room, expansions)[dir];
       const rand = getRandomInt(0, 2, random);
       let expansion;
       if (!isRoom && !exits.includes(dir)) {

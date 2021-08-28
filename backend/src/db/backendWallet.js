@@ -30,7 +30,6 @@ class BackendWallet extends Wallet {
     const tx = await retry(async () => {
       let tx;
       try {
-        this.provider.clearCache();
         tx = await super.sendTransaction(transaction);
       } catch (err) {
         if (err.message.includes('nonce')) {
@@ -50,6 +49,8 @@ class BackendWallet extends Wallet {
   static fromMnemonic(mnemonic, path = "m/44'/60'/0'/0/0", wordlist) {
     return new BackendWallet(fromMnemonic(mnemonic, wordlist).derivePath(path));
   }
+
+  // @TODO static fromEncryptedJson
 }
 
 module.exports = BackendWallet;

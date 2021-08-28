@@ -2,7 +2,6 @@ pragma solidity 0.6.5;
 
 library PureDungeon {
     uint256 internal constant LOCATION_ZERO = 2**255;
-    uint256 internal constant BOUNTY = 2**254;
 
     uint8 internal constant ROOM_TYPE_NORMAL = 1;
     uint8 internal constant ROOM_TYPE_TELEPORT = 2;
@@ -86,14 +85,6 @@ library PureDungeon {
         int64 z
     ) internal pure returns (uint256 location) {
         return 2**255 + uint256(uint64(z)) * 2**128 + uint256(uint64(y)) * 2**64 + uint64(x);
-    }
-
-    function _locationToBounty(uint256 location) internal pure returns (uint256 bounty){
-        return location - LOCATION_ZERO + BOUNTY;
-    }
-
-    function _bountyToLocation(uint256 bounty) internal pure returns (uint256 location){
-        return location - BOUNTY + LOCATION_ZERO;
     }
 
     function generateMonsterIndex(
@@ -195,7 +186,7 @@ library PureDungeon {
             uint8(uint256(keccak256(abi.encodePacked(areaLoc, blockHash, uint8(102)))) % 9),
             uint8(uint256(keccak256(abi.encodePacked(areaLoc, blockHash, uint8(103)))) % 9)
         );
-        randomEvent = 2; // for now always monster TODO :uint64(uint256(keccak256(abi.encodePacked(areaLoc, blockHash, uint8(104)))));
+        randomEvent = 1; // for now always monster TODO :uint64(uint256(keccak256(abi.encodePacked(areaLoc, blockHash, uint8(104)))));
     }
 
     function generateRoom(

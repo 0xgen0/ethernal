@@ -6,7 +6,7 @@ import config from 'data/config';
 import getDelegateKey from 'lib/delegateKey';
 import characterChoice from 'stores/characterChoice';
 import preDungeon from 'stores/preDungeon';
-import wallet from 'stores/wallet';
+import {wallet, chain} from 'stores/wallet';
 import { fetchCache } from 'lib/cache';
 import { coordinatesToLocation } from 'utils/utils';
 
@@ -21,33 +21,34 @@ let $data = { status: 'None' };
 window.$preDungeonCheck = $data;
 
 const store = derived(
-  wallet,
-  async ($wallet, set) => {
+  [
+    wallet,
+    chain
+  ],
+  async ([$wallet, $chain], set) => {
     const _set = obj => {
       $data = { ...$data, ...obj };
       console.log('pre dungeon check', $data);
       set($data);
     };
 
-    if ($wallet.status === 'Ready') {
+    if ($wallet.state === 'Ready' && $chain.state === 'Ready') {
       if (lastWalletAddress !== $wallet.address) {
         lastWalletAddress = $wallet.address;
         _set({ status: 'Loading' });
         const delegateAccount = getDelegateKey($wallet.address);
 
         const checkCharacter = async () => {
-          const characterId = await wallet.call('Player', 'getLastCharacterId', $wallet.address);
-          const isDelegateReady = await wallet.call(
-            'Player',
-            'isDelegateFor',
+          const characterId = await wallet.contracts.Player.getLastCharacterId($wallet.address);
+          const isDelegateReady = await wallet.contracts.Player.isDelegateFor(
             delegateAccount.address,
             $wallet.address,
           );
-          const result = await wallet.call('Characters', 'fullOwnerOf', characterId);
+          const result = await wallet.contracts.Characters.fullOwnerOf(characterId);
           const isCharacterInDungeon =
-            result.owner === wallet.getContract('Dungeon').address &&
+            result.owner === wallet.contracts.Dungeon.address &&
             result.subOwner.eq(BigNumber.from($wallet.address));
-          const balance = await wallet.getProvider().getBalance($wallet.address);
+          const balance = await wallet.provider.getBalance($wallet.address);
           // TODO should be free
           const insufficientBalance = balance.lt('1100000000000000000');
           return { characterId, isDelegateReady, isCharacterInDungeon, insufficientBalance };
@@ -56,10 +57,15 @@ const store = derived(
         const { characterId, isDelegateReady, isCharacterInDungeon, insufficientBalance } = await checkCharacter();
 
         let characterInfo;
-        const { minBalance } = config($wallet.chainId);
-        let refill = minBalance;
+        let refill;
         try {
           characterInfo = await fetchCache(`characters/${characterId}`);
+          const { minBalance, price } = config($chain.chainId);
+          if (Number(characterInfo.energy) < Number(minBalance)) {
+            refill = BigNumber.from(price).sub(BigNumber.from(characterInfo.energy));
+          } else {
+            refill = null;
+          }
         } catch (e) {
           console.log('failed to fetch character info from cache');
         }
@@ -98,11 +104,9 @@ const store = derived(
           _set({ status: 'SigningBackIn', delegateAccount });
           let tx;
           try {
-            tx = await wallet.tx(
-              { gas: gasEstimate + 15000, gasPrice, value },
-              'Player',
-              'addDelegate',
+            tx = await wallet.contracts.Player.addDelegate(
               delegateAccount.address,
+              { gasLimit: gasEstimate + 15000, gasPrice, value }
             );
             await tx.wait();
           } catch (e) {
@@ -119,18 +123,15 @@ const store = derived(
 
         store.enter = async ({ ressurectedId, characterInfo }) => {
           const { location } = await fetchCache('entry');
-          await wallet
-            .tx(
-              { gas: BigNumber.from(2000000).toHexString(), gasPrice },
-              'Player',
-              'enter',
-              '0x0000000000000000000000000000000000000000',
-              ressurectedId,
-              '0',
-              characterInfo.characterName,
-              '0',
-              location || coordinatesToLocation('0,0'),
-            )
+          await wallet.contracts.Player.enter(
+            '0x0000000000000000000000000000000000000000',
+            ressurectedId,
+            '0',
+            characterInfo.characterName,
+            '0',
+            location || coordinatesToLocation('0,0'),
+            { gasLimit: BigNumber.from(2000000).toHexString(), gasPrice }
+          )
             .then(tx => tx.wait());
           const { isDelegateReady, isCharacterInDungeon, insufficientBalance } = await checkCharacter();
           _set({
@@ -144,20 +145,18 @@ const store = derived(
         store.join = async ({ name, characterClass }) => {
           _set({ status: 'Joining' });
           const gasEstimate = BigNumber.from(2000000).toHexString();
-          const { price } = config($wallet.chainId);
+          const { price } = config($chain.chainId);
           const value = BigNumber.from(price).toHexString();
 
           const { location } = await fetchCache('entry');
 
-          const tx = await wallet.tx(
-            { gas: gasEstimate, gasPrice, value },
-            'Player',
-            'createAndEnter',
+          const tx = await wallet.contracts.Player.createAndEnter(
             delegateAccount.address,
             0,
             name,
             characterClass,
             location || coordinatesToLocation('0,0'),
+            { gasLimit: gasEstimate, gasPrice, value }
           );
           const receipt = await tx.wait();
           console.log({ receipt });

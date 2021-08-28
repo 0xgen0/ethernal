@@ -7,7 +7,7 @@
   import config from 'data/config';
   import { dungeon } from 'stores/dungeon';
   import { time } from 'stores/time';
-  import wallet from 'stores/wallet';
+  import {wallet, chain} from 'stores/wallet';
   import BagLayout from 'components/layouts/BagLayout';
   import Bar from 'components/Bar';
   import BoxButton from 'components/BoxButton';
@@ -18,7 +18,7 @@
 
   const minBalance = '10000000000000000';
 
-  $: price = BigNumber.from(config($wallet.chainId).price);
+  $: price = BigNumber.from(config($chain.chainId).price);
   $: food = utils.formatEther($playerEnergy);
   $: level = BigNumber.from($playerEnergy).mul(100).div(BigNumber.from(price)).toNumber();
   $: dead = $characterStatus === 'dead';
@@ -29,7 +29,7 @@
 
   const balance = derived([wallet, playerEnergy], async ([{ address }], set) => {
     wallet
-      .getProvider()
+      .provider
       .getBalance(address)
       .then(b => set(b));
   });

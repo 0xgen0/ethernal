@@ -24,16 +24,16 @@ class Alchemist extends Quest {
     return true;
   }
 
-  async spawnNPC() {
+  spawnNPC() {
     if (this.status === 'claiming') {
-      await super.spawnNPC({ personal: true });
+      super.spawnNPC({ personal: true });
     }
   }
 
-  async handleUpdate() {
-    await this.spawnNPC();
+  handleUpdate() {
+    this.spawnNPC();
     if (this.status === 'completed') {
-      await super.removeNPC();
+      super.removeNPC();
     }
   }
 

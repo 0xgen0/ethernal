@@ -123,5 +123,15 @@ module.exports = [
     },
   ],
   [
+    {
+      id: 2504,
+      unique: true,
+      image: 'https://pixel.cryptomotors.io/images/2504_large.png',
+      level: 0,
+      name: 'Rare Art - skeleth boi',
+      slotType: 'accessory',
+      rarity: 'unique',
+      actions: [],
+    },
   ]
 ];

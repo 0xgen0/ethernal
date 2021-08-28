@@ -79,6 +79,7 @@ class HashBot {
       }
     }
 
+    // @TODO: based on block event ?
     return setTimeout(this.check.bind(this), 20 * 5 * 1000);
   }
 }

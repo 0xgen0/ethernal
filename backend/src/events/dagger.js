@@ -2,8 +2,8 @@ const Dagger = require('@maticnetwork/eth-dagger');
 const Events = require('./events');
 
 class DaggerEvents extends Events {
-  constructor(provider, db, server) {
-    super(provider, db);
+  constructor(provider, server) {
+    super(provider);
     console.log('listening for events with dagger ' + server);
     this.dagger = new Dagger(server);
   }
@@ -12,20 +12,19 @@ class DaggerEvents extends Events {
     this.dagger.on((confirmed ? 'stable' : 'latest') + ':block', callback);
   }
 
-  on(contract, eventName, callback, prefetch, confirmed = false) {
-    super.on(contract, eventName, callback, prefetch, confirmed);
+  on(contract, eventName, addedCallback, _, confirmed = false) {
     const topic = contract.interface.getEventTopic(eventName);
     const filter =
       (confirmed ? 'confirmed' : 'latest') + ':log/' + contract.address.toLowerCase() + '/filter/' + topic + '/#';
-    this.dagger.on(filter, async log => {
+    this.dagger.on(filter, log => {
       const event = this.parseLog(contract, log);
-      await this.useDeferrableCallback(callback, prefetch)(...Array.from(event.args), event, false);
+      this.useDeferrableCallback(addedCallback)(...Array.from(event.args), event);
     });
     return this;
   }
 
   onConfirmed(contract, eventName, callback) {
-    return this.on(contract, eventName, callback, null, true);
+    return this.on(contract, eventName, callback, () => true, true);
   }
 }
 

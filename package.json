@@ -16,5 +16,8 @@
     "dev": "rm webapp/contracts/development.json & run-p -l contracts backend webapp",
     "install": "run-p -l install:contracts install:backend install:webapp",
     "start": "run-s install dev"
+  },
+  "volta": {
+    "node": "12.22.5"
   }
 }

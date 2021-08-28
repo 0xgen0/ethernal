@@ -2,7 +2,7 @@
   import claim from 'stores/claim';
   import { dungeon, reading } from 'stores/dungeon';
   import preDungeonCheck from 'stores/preDungeonCheck';
-  import wallet from 'stores/wallet';
+  import {wallet} from 'stores/wallet';
 
   import DefaultScreen from 'screens/DefaultScreen';
   import DungeonScreen from 'screens/Intro/DungeonScreen';
@@ -16,7 +16,7 @@
   {:else if $preDungeonCheck.status === 'SigningBackIn'}
     <DefaultScreen text="Signing back in..." />
   {:else if $preDungeonCheck.status === 'Joining'}
-    {#if $wallet.requestingTx}
+    {#if $wallet.pendingUserConfirmation}
       <DefaultScreen text="Please accept payment" />
     {:else}
       <DefaultScreen>

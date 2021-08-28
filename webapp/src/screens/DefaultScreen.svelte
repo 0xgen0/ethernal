@@ -1,5 +1,5 @@
 <script>
-  import wallet from 'stores/wallet';
+  import {wallet} from 'stores/wallet';
   import BorderedContainer from 'components/BorderedContainer';
   import BoxButton from 'components/BoxButton';
   import WelcomeProfile from 'components/WelcomeProfile';
@@ -69,7 +69,7 @@
         {#if signIn}
           <p class="sign-in">
             Already started?
-            <BoxButton type="plain link" onClick="{() => wallet.useFirstChoice()}">Sign in to Portis</BoxButton>
+            <BoxButton type="plain link" onClick="{() => wallet.connect()}">Sign in to Portis</BoxButton>
           </p>
         {/if}
 

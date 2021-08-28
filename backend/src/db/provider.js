@@ -3,16 +3,12 @@ const Sentry = require('@sentry/node');
 const ethers = require('ethers');
 const retry = require('p-retry');
 const Promise = require('bluebird');
-const memoize = require('memoizee');
-const taim = require('taim');
 const VM = require('ethereumjs-vm').default;
 const { Transaction } = require('ethereumjs-tx');
 const { privateToAddress } = require('ethereumjs-util');
 const { simpleEncode, simpleDecode } = require('ethereumjs-abi');
 const contractsInfo = process.env.DEV ? require('../dev_contractsInfo.json') : require('../contractsInfo.json');
-const Postgres = require('./postgres');
 const Progress = require('../utils/progress.js');
-const retryable = require('../utils/retryable.js');
 const BackendWallet = require('./backendWallet.js');
 const Blockstream = require('../events/blockstream.js');
 const DaggerEvents = require('../events/dagger.js');
@@ -23,7 +19,6 @@ const concurrency = process.env.CONCURRENCY || 20;
 const url = process.env.ETH_URL || 'http://localhost:8545';
 const mnemonic = process.env.MNEMONIC;
 const oldMnemonic = process.env.OLD_MNEMONIC;
-const cacheConfig = { length: false, primitive: true, max: 10000 };
 
 console.log('connecting to provider ' + url);
 const provider = new ethers.providers.JsonRpcProvider(url);
@@ -35,8 +30,6 @@ if (mnemonic) {
   console.log('using address', wallet.address);
 }
 let _contracts = null;
-
-const db = new Postgres();
 
 const setupAuthorization = async ({ DungeonAdmin }) => {
   const [dungeonAddress, backendAddress] = await DungeonAdmin.getDungeonAndBackendAddress();
@@ -98,7 +91,7 @@ const loadContracts = async () => {
   console.log(`loading contracts on network ${chainId}`);
   let chainInfo = contractsInfo[chainId];
   if (!chainInfo) {
-    chainInfo = contractsInfo['1337'];
+    chainInfo = contractsInfo['1337']; // TODO fix teh net_version vs chainId thing, for now fallback on ganache 1337 (0x539)
   }
   if (!chainInfo) {
     const providedChain = contractsInfo.chainId;
@@ -114,7 +107,7 @@ const loadContracts = async () => {
     await Sentry.close();
     process.exit(1);
   }
-  const chainContracts = chainInfo.contracts || chainInfo[0].contracts;
+  const chainContracts = chainInfo.contracts || chainInfo[0].contracts; // TODO support same chainId but different deployments
   const contracts = Object.keys(chainContracts).reduce(
     (result, key) => {
       const info = chainContracts[key];
@@ -129,38 +122,16 @@ const loadContracts = async () => {
       return result;
     },
     {
-      pureCall: memoize(
-        await setupPureContract(chainContracts.Dungeon.linkedData.readOnlyDungeon),
-        cacheConfig,
-      ),
+      pureCall: await setupPureContract(chainContracts.Dungeon.linkedData.readOnlyDungeon),
     },
   );
   await setupAuthorization(contracts);
-  Object.values(contracts).forEach(contract => {
-    if (contract.functions) {
-      contract.cached = Object.entries(contract.functions).reduce((o, [name, fn]) => ({
-        ...o, [name]: memoize(taim(name, retryable(fn, retryConfig)), cacheConfig)
-      }), {});
-    }
-  });
-  provider.clearCache = () => {
-    console.log('clearing cache');
-    if (_contracts) {
-      Object.values(_contracts).forEach(contract => {
-        if (contract.functions) {
-          Object.values(contract.cached).forEach(memoized => memoized.clear());
-        }
-      });
-    }
-  };
   return contracts;
 };
 
 const contracts = async () => {
   if (!_contracts) {
     _contracts = await loadContracts();
-    await db.init(_contracts);
-    await events.storeSchema();
   }
   return _contracts;
 };
@@ -215,7 +186,7 @@ const pastEvents = async (
 
 const events =
   url.includes('rpc-mumbai.matic.today') && process.env.DAGGER !== 'disabled'
-    ? new DaggerEvents(provider, db, process.env.DAGGER || 'wss://mumbai-dagger.matic.today')
-    : new Blockstream(provider, db);
+    ? new DaggerEvents(provider, process.env.DAGGER || 'wss://mumbai-dagger.matic.today')
+    : new Blockstream(provider);
 
-module.exports = { provider, db, contracts, wallet, events, pastEvents };
+module.exports = { provider, contracts, wallet, events, pastEvents };

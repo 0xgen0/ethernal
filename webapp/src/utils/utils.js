@@ -152,7 +152,7 @@ const bfs = (rooms, moves, start = '0,0', keys = null, limit = 5, showPath = tru
   q.push(start);
   while (q.length > 0) {
     const origin = visited[q.shift()];
-    const usedExits = (moves.visitedRooms[origin.coordinates] && moves.visitedRooms[origin.coordinates].usedExits) || {};
+    const usedExits = moves.visitedRooms[origin.coordinates] ? moves.visitedRooms[origin.coordinates].usedExits : {};
     if (origin.allExits && origin.parent.distance < limit && (ignoreMonsters || !origin.hasMonster)) {
       let availableDirections = Object.keys(origin.allExits).filter(dir => origin.allExits[dir]);
       if (keys !== null && origin.parent.usedKeys >= keys) {

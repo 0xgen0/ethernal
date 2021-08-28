@@ -1,6 +1,6 @@
 const Sentry = require('@sentry/node');
-const { events, db } = require('../db/provider');
-const { mapValues, toMap } = require('../data/utils');
+const { events, pastEvents } = require('../db/provider');
+const { mapValues, justValues } = require('../data/utils');
 const DungeonComponent = require('./dungeonComponent');
 const TRANSITIONS = require('./quest/transitions');
 const Minimap = require('./quest/minimap');
@@ -10,7 +10,7 @@ const { UnlockLevel1, UnlockLevel2, UnlockLevel3, UnlockLevel4, UnlockLevel5, Un
 
 class Quests extends DungeonComponent {
   available = {};
-  shared = {};
+  characters = {};
 
   constructor(map) {
     super(map);
@@ -37,23 +37,36 @@ class Quests extends DungeonComponent {
   }
 
   registerEventHandlers() {
-    const { Dungeon } = this.contracts;
+    const { Dungeon } = this.dungeon.contracts;
     events.on(Dungeon, 'QuestUpdate', this.handleQuestUpdate.bind(this));
   }
 
-  async initSharedData()  {
-    await Promise.all(Object.entries(this.available).map(async ([id, Quest]) => {
-      if (!this.shared[id]) {
-        this.shared[id] = await Quest.initSharedData(this.dungeon);
-      }
-    }));
+  async fetchAll(fromBlock = 0, toBlock = 'latest', snapshot) {
+    console.log('fetching quests events');
+    justValues(await pastEvents('Dungeon', 'QuestUpdate', [], this.dungeon.firstBlock, toBlock)).forEach(values => {
+        this.handleQuestUpdate(...values, null, true);
+    });
+    this.respawnNPC();
+  }
+
+  respawnNPC(coords) {
+    console.log('respawning npc', coords);
+    Object.values(this.dungeon.characters).forEach(({ characterId }) =>
+      Object.values(this.getAll(characterId))
+        .filter(({ coordinates }) => coords ? coordinates === coords : true)
+        .forEach(quest => quest.spawnNPC()));
   }
 
   async advanceHandler(character, data) {
-    const quests = mapValues(await this.getAll(character), async (quest, id) => {
+    const { move } = data;
+    if (move) {
+      const { to, discovered } = move;
+      this.respawnNPC(discovered ? null : to);
+    }
+    const quests = mapValues(this.characters[character], (quest, id) => {
       if (['discovered', 'accepted'].includes(quest.status)) {
         try {
-          const result = await quest.advanceHandler(data);
+          const result = quest.advanceHandler(data);
           if (result) {
             return this.updateQuest(character, id, quest);
           } else {
@@ -73,73 +86,75 @@ class Quests extends DungeonComponent {
     return quests;
   }
 
-  async getQuest(character, id) {
+  getQuest(character, id) {
+    if (!this.dungeon.characters[character]) {
+      return null;
+    }
     if (!this.available[id]) {
       throw new Error('quest doesnt exists');
     }
-    let quest = await this._quest(character, id);
-    if (!quest) {
-      const parent = await this.dungeon.character.parent(character);
+    if (!this.characters[character]) {
+      this.characters[character] = {};
+    }
+    if (!this.characters[character][id]) {
+      const parent = this.dungeon.character.parent(character);
       let inherited;
       if (parent) {
-        const q = await this.getQuest(parent, id);
-        if (q.status && q.status === 'completed') {
-          inherited = q;
+        const quest = this.getQuest(parent, id);
+        if (quest.status && quest.status === 'completed') {
+          inherited = quest;
         }
       }
-      quest = inherited || new this.available[id](this.dungeon, character, id);
+      this.characters[character][id] = inherited || new this.available[id](this.dungeon, character);
     }
-    return quest;
+    return this.characters[character][id];
   }
 
-  async getAll(character) {
-    const quests = await Promise.all(Object.keys(this.available).map(async id => ([id, await this.getQuest(character, id)])));
-    return toMap(quests);
+  getAll(character) {
+    return mapValues(this.available, (_, id) => this.getQuest(character, id));
   }
 
-  async handleQuestUpdate(character, id, statusCode, data, event, init = false) {
+  handleQuestUpdate(character, id, status, data, event, init = false) {
     character = character.toString();
     id = id.toString();
-    const status = Object.keys(TRANSITIONS)[Number(statusCode)];
-    const quest = await this.getQuest(character, id);
+    status = Object.keys(TRANSITIONS)[Number(status)];
+    const quest = this.getQuest(character, id);
     data = quest.decodeData(data);
     quest.status = status;
     quest.data = data;
     if (!init) {
       console.log('quest update', id, status, data);
-      await quest.handleUpdate();
-      await this.store([[character, id, statusCode, quest.encodeData(data)]]);
+      quest.handleUpdate();
     }
-    this.sockets.emit('quest-update', { character, id, quest });
+    this.sockets.emit('quest-update', { character, id, quest: {status, data} });
   }
 
   async canAccept(character, { id }) {
-    const quest = await this.getQuest(character, id);
+    const quest = this.getQuest(character, id);
     return quest.canAccept();
   }
 
   async accept(character, { id }) {
-    const quest = await this.getQuest(character, id);
-    await quest.accept();
+    const quest = this.getQuest(character, id);
+    quest.accept();
     return await this.updateQuest(character, id, quest);
   }
 
   async advance(character, { id, data }) {
-    const quest = await this.getQuest(character, id);
-    await quest.advance(data);
+    const quest = this.getQuest(character, id);
+    quest.advance(data);
     return await this.updateQuest(character, id, quest);
   }
 
   async reject(character, { id }) {
-    const quest = await this.getQuest(character, id);
+    const quest = this.getQuest(character, id);
     quest.changeStatus('rejected');
     return await this.updateQuest(character, id, quest);
   }
 
   async claim(character, { id }) {
-    const quest = await this.getQuest(character, id);
-    const coordinates = await this.dungeon.character.coordinates(character);
-    if (quest.coordinates && coordinates !== quest.coordinates) {
+    const quest = this.getQuest(character, id);
+    if (quest.coordinates && this.dungeon.character.coordinates(character) !== quest.coordinates) {
       throw new Error('cannot claim reward here');
     }
     quest.changeStatus('completed');
@@ -157,7 +172,7 @@ class Quests extends DungeonComponent {
   }
 
   async updateQuest(character, id, quest) {
-    const { DungeonAdmin } = this.contracts;
+    const { DungeonAdmin } = this.dungeon.contracts;
     const { status, data } = quest;
     const tx = await DungeonAdmin.updateQuest(
       character,
@@ -176,45 +191,6 @@ class Quests extends DungeonComponent {
       throw e;
     }
     return quest;
-  }
-
-  async storeSchema() {
-    return db.tx(t => {
-      t.query(`
-        CREATE TABLE IF NOT EXISTS ${db.tableName('quest')} (
-            characterId numeric(256),
-            questId numeric(256),
-            questStatus numeric(16),
-            questData varchar,
-            PRIMARY KEY (characterId, questId))
-      `);
-    });
-  }
-
-  async store(questRows) {
-    return db.tx(t => {
-      questRows.forEach(row =>
-        t.query(
-          `INSERT INTO ${db.tableName('quest')} (characterId, questId, questStatus, questData) VALUES ($1,$2,$3,$4)
-              ON CONFLICT (characterId, questId) DO UPDATE
-              SET questStatus = excluded.questStatus,
-                  questData = excluded.questData`,
-          row,
-        ));
-    });
-  }
-
-  async _quest(character, id) {
-    const { rows } = await db.query(`SELECT * FROM ${db.tableName('quest')} WHERE characterId = $1 AND questId = $2`, [character, id]);
-    if (rows.length) {
-      const { queststatus, questdata } = rows[0];
-      const quest = new this.available[id](this.dungeon, character, id);
-      quest.data = quest.decodeData(questdata);
-      quest.status = Object.keys(TRANSITIONS)[Number(queststatus)];
-      return quest;
-    } else {
-      return null;
-    }
   }
 }
 

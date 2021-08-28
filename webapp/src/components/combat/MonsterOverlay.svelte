@@ -8,18 +8,14 @@
     characterSlots,
     characterStatus,
     currentCombat,
-    currentRoom,
     onlineCharacters,
   } from 'lib/cache';
   import { groupActions, monsterImage } from 'utils/data';
   import { capitalize } from 'utils/text';
-  import { gameOverlay } from 'stores/screen';
 
   import BoxButton from 'components/BoxButton';
   import Duel from 'components/combat/Duel';
-  import Bounty from 'components/bag/Bounty';
   import GearAction from 'components/bag/GearAction';
-  import Resources from 'components/bag/Resources';
 
   import IconHelp from 'assets/icons/help_4x.png';
 
@@ -33,8 +29,7 @@
     duels &&
     Object.keys(duels)
       .filter(id => id !== $characterId)
-      .filter(id => $currentRoom.onlineCharacters.includes(id))
-      .filter(id => $onlineCharacters[id] && $onlineCharacters[id].status.status === 'attacking monster');
+      .filter(id => Object.keys($onlineCharacters).includes(id));
   $: monsterType = monster && (monster.type === 'trash' ? 'Mob' : capitalize(monster.type));
 
   $: requestedHelp = combat && combat.needsHelp && combat.needsHelp.includes($characterId);
@@ -69,8 +64,10 @@
     global.map.startMap();
   };
 
-  const addBounty = () => {
-    gameOverlay.open('addBounty');
+  const requestHelp = async () => {
+    isDisabled = true;
+    const response = await $dungeon.cache.action('need-help');
+    isDisabled = false;
   };
 </script>
 
@@ -162,7 +159,7 @@
   <div class="{hidden ? 'canvas-hidden' : ''}">
     <Duel {toggleMonsterOverlayForEscape} />
   </div>
-{:else if ['blocked by monster'].includes($characterStatus)}
+{:else if combat}
   <div class="{hidden ? 'canvas-hidden' : ''}">
     <div class="box">
       <div class="inner">
@@ -206,8 +203,6 @@
             </div>
           </div>
 
-          <Bounty bounty="{$currentRoom.bounty}" />
-
           <div class="buttons">
             <BoxButton type="full" loadingText="Attacking..." onClick="{attack}" {isDisabled} needsFood>
               {#if brokenGear}Attack with bare hands{:else}Attack{/if}
@@ -217,9 +212,9 @@
                 Escape
               </BoxButton>
               <div style="width: 10px;"></div>
-              <BoxButton type="full" onClick="{addBounty}" {isDisabled} needsFood>
+              <BoxButton type="full" isDisabled="{isDisabled || requestedHelp}" needsFood onClick="{requestHelp}">
                 <img class="icon" src="{IconHelp}" alt="alt" />
-                Add bounty
+                {#if requestedHelp}Requested help{:else}Call for help{/if}
               </BoxButton>
             </div>
           </div>

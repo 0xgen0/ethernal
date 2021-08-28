@@ -5,40 +5,38 @@ const { coordinatesToLocation, overrideFloor, parseCoordinates } = require('../u
 class NextLevel extends Quest {
   floor = 0;
   npc = 'gatekeeper';
-  data = null;
   rules = {
     npc: true,
-  };
+  }
 
   get coordinates() {
     return this.data;
   }
 
-  async canAccept() {
-    const { z } = parseCoordinates(await this.dungeon.character.coordinates(this.character));
+  canAccept() {
+    const { z } = parseCoordinates(this.dungeon.character.coordinates(this.character));
     return this.floor === z;
   }
 
-  async accept() {
-    await super.accept();
-    this.data = await this.dungeon.character.coordinates(this.character);
+  accept() {
+    super.accept();
+    this.data = this.dungeon.character.coordinates(this.character);
   }
 
-  async spawnNPC() {
-    const room = await this.dungeon.room(this.data);
-    if (room && this.status !== 'completed') {
-      await super.spawnNPC();
+  spawnNPC() {
+    if (this.dungeon.rooms[this.data] && this.status !== 'completed') {
+      super.spawnNPC();
     }
   }
 
-  async handleUpdate() {
-    await this.spawnNPC();
+  handleUpdate() {
+    this.spawnNPC();
     if (this.status === 'completed') {
-      await super.removeNPC();
+      super.removeNPC();
     }
   }
 
-  async advanceHandler({ coordinates, combat }) {
+  advanceHandler({ coordinates, combat }) {
     if (combat) {
       const { z } = parseCoordinates(coordinates);
       if (this.floor === z && combat.monster.type === 'big boss') {
@@ -46,9 +44,10 @@ class NextLevel extends Quest {
           this.changeStatus('accepted');
         }
         this.changeStatus('claiming');
-        if (!this.data) {
-          const rooms = await this.dungeon.map.roomsByDistance(coordinates);
-          const nearbyTeleport = rooms.find(({kind, npc}) => Number(kind) === 2 && (!npc || npc.type === this.npc));
+        if (!this.dungeon.rooms[this.data]) {
+          const nearbyTeleport = this.dungeon.map
+            .roomsByDistance(coordinates)
+            .find(({kind, npc}) => Number(kind) === 2 && (!npc || npc.type === this.npc));
           this.data = nearbyTeleport ? nearbyTeleport.coordinates : overrideFloor('0,0', this.floor);
         }
         return true;

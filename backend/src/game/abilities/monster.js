@@ -11,20 +11,20 @@ class Monster extends Ability {
   };
   monster = { type: 'trash' };
 
-  async checkRequirements(character, coordinates) {
-    const { hasMonster } = await this.dungeon.room(coordinates);
+  checkRequirements(character, coordinates) {
+    const { hasMonster } = this.dungeon.rooms[coordinates];
     if (hasMonster) {
       throw new Error('room has monster already');
     }
-    await super.checkRequirements(character, coordinates);
+    super.checkRequirements(character, coordinates);
   }
 
-  async applyRoomDataUpdate(coordinates, data) {
+  applyRoomDataUpdate(coordinates, data, previous) {
     if (data === this.data) {
       const ofLevel = monsters.flat().filter(({ stats }) => stats.level === monsterLevel(coordinates));
       const ofType = ofLevel.filter(({ type }) => type === this.monster.type);
       const { id } = copy(ofType.length === 0 ? ofLevel[0] : ofType[0]);
-      await this.dungeon.randomEvents.spawnMonster(coordinates, id);
+      this.dungeon.randomEvents.spawnMonster(coordinates, id);
     }
   }
 }
@@ -52,16 +52,16 @@ class SpecificMonster extends Monster {
     this.price = { fragments }
   }
 
-  async checkRequirements(character, coordinates) {
+  checkRequirements(character, coordinates) {
     if (this.monster.stats.level > monsterLevel(coordinates)) {
       throw new Error('level of the area too low for this monster');
     }
-    await super.checkRequirements(character, coordinates);
+    super.checkRequirements(character, coordinates);
   }
 
-  async applyRoomDataUpdate(coordinates, data) {
+  applyRoomDataUpdate(coordinates, data, previous) {
     if (data === this.data) {
-      await this.dungeon.randomEvents.spawnMonster(coordinates, this.data);
+      this.dungeon.randomEvents.spawnMonster(coordinates, this.data);
     }
   }
 }

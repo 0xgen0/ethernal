@@ -12,12 +12,6 @@ nvm use
 npm install
 ```
 
-Start local database server in Docker
-
-```
-npm run db
-```
-
 Start `local` backend connected to the local contracts
 
 ```
@@ -41,18 +35,15 @@ Start `production` backend connected to the production contracts
 npm run dev:prod
 ```
 
-Backend startup can take long time depending on the environment chosen and on how synced is local database.
-
-Backend is synced and ready when
-https://localhost:3399 returns `ethernalCache: 'ok'`
-
-## Tests
-
-Backend unit test can be run by
-
+Backend startup can take few minutes depending on the environment chosen 
+and is ready to accept requests when this message appears:
 ```
-npm test
+ethernal-cache ready and running on port 3399
 ```
+
+https://localhost:3399 should then return `ethernalCache: 'ok'`
+
+Live map preview is at http://localhost:3399/map.html
 
 ## Deploy
 
@@ -65,41 +56,21 @@ Deploy `staging` environment (https://ethernal-be-alpha.herokuapp.com)
 npm run deploy:staging
 ```
 
-Deploy `production` environment (https://ethernal-cache-1.herokuapp.com)
+Deploy `staging-tmcloud` alternative environment (https://ethernal.dev.tmcloud.io)
 ```
-npm run deploy:prod1
-```
-
-Deploy alternative `production` environment (https://ethernal-cache-2.herokuapp.com)
-```
-npm run deploy:prod2
+npm run deploy:staging-tmcloud
+npm run deploy:staging
 ```
 
-## Reindex Database
-
-Both production backend are connected to the same database, to which scheme they write is specified by `SCHEMA_PREFIX`
-environment variable.
-
-This way we can have one backend using one scheme and other one indexing another from scratch. Reindexing database takes long time
-so it is important to reindex always in advance and only if really necessary.
-
-When second scheme is synced, default scheme can be replaced like so:
-
+Deploy `production` environment (https://ethernal-be-alpha-live.herokuapp.com)
 ```
-ALTER SCHEMA primary RENAME TO backup
-ALTER SCHEMA secondary RENAME TO primary;
+npm run deploy:prod
 ```
 
-This change can be done live with primary and secondary backend running, but if for some reason would be necessary to switch back to
-backup, the primary backend has to be stopped before switch. Also primary backend has to be switched if the secondary backend is not running during the switch.
-If the redeploy of the primary backend is necessary switch should be executed during the downtime.
-
-### Reset local database
-
-To force local reindex of database, the scheme can be just deleted or the whole database cleared by running:
- 
+Deploy `prod-tmcloud` alternative environment (https://ethernal.prod.tmcloud.io)
 ```
-npm run db:reset
+docker login -u lumir
+npm run deploy:prod
 ```
 
 ## Change admin wallet

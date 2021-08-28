@@ -1,10 +1,10 @@
 const Sentry = require('@sentry/node');
 const { arrayify, zeroPad, hexlify } = require('ethers').utils;
 const { BigNumber } = require('ethers');
-const gears = require('./gears');
+const gears = require('./gears'); // TODO remove when encoding is done
 const config = require('./config');
-const uniqueGears = require('./uniqueGears');
-const { parseCoordinates, distribute } = require('../game/utils.js');
+const uniqueGears = require('./uniqueGears'); // TODO remove when encoding is done
+const { parseCoordinates, kills } = require('../game/utils.js');
 
 const uint256 = number => hexlify(zeroPad(arrayify(hexlify(BigNumber.from(number))), 32));
 const toAddress = number => hexlify(zeroPad(arrayify(hexlify(BigNumber.from(number))), 20)).toLowerCase();
@@ -36,16 +36,6 @@ const createBalanceFromAmounts = (amounts = [0, 0, 0, 0, 0, 0, 0, 0]) => {
 const balanceToAmounts = balance => {
   const { coins, keys, fragments, elements } = createBalance(balance);
   return [...elements, coins, keys, fragments];
-};
-
-const distributeBalance = (ratios, balance) => {
-  const bounty = createBalance(balance);
-  const distributedBounty = balanceToAmounts(bounty).map(value => distribute(ratios, value));
-  return mapValues(ratios, (_, id) => createBalanceFromAmounts(distributedBounty.map(d => d[id])));
-}
-
-const isZeroBalance = balance => {
-  return balanceToAmounts(balance).reduce((a,b) => a + b) === 0;
 };
 
 const createOffer = offer => ({
@@ -138,7 +128,6 @@ function cleanRoom(room) {
       location,
       npc,
       customName,
-      bounty,
       chest,
       hash,
       blockNumber,
@@ -166,7 +155,6 @@ function cleanRoom(room) {
       areaType,
       customName,
       coordinates,
-      bounty,
       scavenge,
       onlineCharacters,
       keeper,
@@ -180,7 +168,7 @@ function cleanRoom(room) {
       corridor,
       expansions,
       blockNumber,
-      characters: (characters && characters.length) || 0,
+      characters: characters.length,
       locks: allLocks,
     };
   } catch (e) {
@@ -191,7 +179,7 @@ function cleanRoom(room) {
     });
     return {
       ...room,
-      characters: (room.characters && room.characters.length) || 0,
+      characters: room.characters && room.characters.length,
       locks: room.allLocks,
     };
   }
@@ -202,12 +190,7 @@ function justValues(events) {
 }
 
 function copy(o) {
-  try {
-    return JSON.parse(JSON.stringify(o));
-  } catch (e) {
-    console.log('copy failed:', o);
-    return null;
-  }
+  return JSON.parse(JSON.stringify(o));
 }
 
 async function delay(ms) {
@@ -219,8 +202,6 @@ async function blockchainSimulator(blocktime = process.env.BLOCKTIME || 2) {
 }
 
 const mapValues = (o, fn) => Object.fromEntries(Object.entries(o).map(([k, v], i) => [k, fn(v, k, i)]));
-
-const toMap = entries => entries.reduce((o, [k, v]) => ({ ...o, [k]: v }), {});
 
 const difference = (a = new Set(), b = new Set()) => {
   const removed = [...a].filter(x => !b.has(x));
@@ -314,7 +295,6 @@ module.exports = {
   blockchainSimulator,
   gearBytes,
   mapValues,
-  toMap,
   identity,
   cleanRoom,
   gearById,
@@ -324,10 +304,8 @@ module.exports = {
   pickMonsterType,
   uint256,
   toAddress,
-  isZeroBalance,
   createBalance,
   createBalanceFromAmounts,
-  distributeBalance,
   balanceToAmounts,
   createReward,
   createOffer,

@@ -3,7 +3,7 @@
   import * as Sentry from '@sentry/browser';
 
   import { currentRoom, characterId, characterStatus, currentCombat } from 'lib/cache';
-  import wallet from 'stores/wallet';
+  import {wallet} from 'stores/wallet';
   import claim from 'stores/claim';
   import preDungeonCheck from 'stores/preDungeonCheck';
 
@@ -129,25 +129,23 @@
 <Template>
   {#if pageScreen}
     <svelte:component this="{pageScreen}" />
-  {:else if $wallet.status === 'Loading' || $claim.status === 'Loading'}
+  {:else if $wallet.connecting || $claim.status === 'Loading'}
     <LoadingScreen />
   {:else if $preDungeonCheck.status === 'Loading'}
     <LoadingScreen />
-  {:else if $wallet.status === 'NoWallet'}
-    <DefaultScreen text="You need a wallet" />
-  {:else if $wallet.status === 'Locked' || $wallet.status === 'Unlocking'}
+  {:else if $wallet.state === 'Locked'}
     <DefaultScreen>
-      <button disabled="{$wallet.status === 'Unlocking'}" on:click="{() => wallet.unlock()}">
+      <button disabled="{$wallet.unlocking}" on:click="{() => wallet.unlock()}">
         Connect Your Wallet
       </button>
     </DefaultScreen>
-  {:else if $wallet.status === 'SettingUpWallet'}
-    {#if $wallet.walletTakingTimeToReply}
+  {:else if $wallet.connecting}
+    {#if !$wallet.loadingModule}
       <DefaultScreen text="Please be patient, your wallet is getting set up..." />
     {:else}
       <DefaultScreen text="Please wait while your wallet gets set up..." />
     {/if}
-  {:else if $claim.status === 'None' && $wallet.status === 'WalletToChoose'}
+  {:else if $claim.status === 'None' && $wallet.state === 'Idle'}
     <DefaultScreen text="Oh no. You don’t have a key" askKey="true" signIn="true" />
   {:else if $claim.rawBalance && $claim.rawBalance.eq(0)}
     <DefaultScreen text="The claim key ran out of $MATIC" askKey="true" signIn="true" />

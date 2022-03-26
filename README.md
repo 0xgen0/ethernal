@@ -14,7 +14,7 @@ The game is composed of three primary modules:
 
 The whole app can be started locally by deploying local `contracts` first and then running `backend` and `webapp`.
     
-Alternatively the `webapp` can be started to connect to the already deployed staging or production contracts on Matic Mumbai network.
+Alternatively the `webapp` can be started to connect to the already deployed staging or production contracts on Polygon Testnet (formerly Matic Mumbai) network.
 
 ## License
 
